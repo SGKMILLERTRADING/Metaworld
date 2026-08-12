@@ -134,6 +134,9 @@ Metaworld characters should have several distinct resources rather than one gene
 10. Economy, ownership, law, reputation, AI, combat, survival, social systems, and world simulation should communicate through clean events/interfaces rather than direct hard dependencies.
 11. Player progression should not require rigid classes. Skill trees unlock specialization while preserving hybrid builds and experimentation.
 12. Dynamic events should be able to affect social, residential, commercial, wilderness, and mission spaces where appropriate.
+13. Time of day and weather must be gameplay state, not presentation-only effects.
+14. Ordinary NPC intelligence must function without paid external AI services; model-powered NPC intelligence is an optional enhancement layer.
+15. AI models may choose goals, conversation, and plans, but only Metaworld's validated gameplay systems may execute world actions.
 
 ---
 
@@ -224,22 +227,7 @@ Recommended modules/components:
 
 Metaworld should not treat combat as a narrow list of predefined weapon classes. A weapon is often simply an object being used as a weapon.
 
-Examples include:
-
-- Fists and kicks
-- Stones
-- Bottles
-- Pipes
-- Bats
-- Chairs and furniture
-- Tools
-- Debris
-- Knives and melee weapons
-- Firearms
-- Throwables
-- Crafted/improvised equipment
-
-The player does not begin in a Stone Age progression tier; improvised combat is a persistent world capability available alongside conventional equipment.
+Examples include fists, stones, bottles, pipes, bats, chairs, tools, debris, knives, firearms, throwables, and crafted/improvised equipment.
 
 Goals:
 
@@ -257,31 +245,6 @@ Goals:
 - Breakable objects and state transitions.
 - Contextual interactions such as swing, throw, block, cut, stab, break, repair, build, harvest, and place.
 - AI ability to recognize and use suitable nearby objects when appropriate.
-
-### Universal Object Capability Principle
-
-Objects should expose capabilities and physical/data properties instead of being duplicated into isolated gameplay categories.
-
-Example capability tags may include:
-
-- `Capability.Pickup`
-- `Capability.Carry`
-- `Capability.Throw`
-- `Capability.Swing`
-- `Capability.Block`
-- `Capability.Stab`
-- `Capability.Cut`
-- `Capability.Break`
-- `Capability.Repair`
-- `Capability.Dig`
-- `Capability.Harvest`
-- `Capability.Place`
-- `Capability.Consume`
-- `Capability.Craft`
-
-Relevant object properties can include mass, material, hardness, dimensions, shape, grip/handling, durability, condition, ownership, value, and world persistence.
-
-Damage should ultimately be able to consider object properties, attack/use type, velocity, character ability, hit location, armor, and object condition rather than relying exclusively on one hardcoded `Damage` number.
 
 Recommended modules/components:
 
@@ -334,33 +297,8 @@ Goals:
 - Branching skills with prerequisites.
 - Cross-tree hybrid builds.
 - Passive bonuses and active abilities.
-- Physical skills that can affect stamina use, carrying, melee, shooting, movement, crafting, survival, and work.
-- Mental/social skills that can affect trading, persuasion, business, leadership, reputation, crafting, learning, and other systems.
-- Magic/supernatural trees that use Mana.
+- Physical, mental, social, professional, and supernatural skill families.
 - Profession and lifestyle progression without locking the player permanently into one career.
-
-Possible skill families include:
-
-- Strength / Athletics
-- Endurance / Survival
-- Melee
-- Firearms
-- Defense
-- Stealth
-- Driving
-- Mechanics
-- Building / Construction
-- Crafting
-- Farming
-- Cooking
-- Medicine
-- Trading / Commerce
-- Business / Management
-- Social / Charisma
-- Leadership
-- Scavenging
-- Magic / Mana disciplines
-- Specialized professions added later
 
 Recommended modules/components:
 
@@ -378,38 +316,13 @@ Social gameplay is a core part of Metaworld, but social spaces remain part of th
 
 Goals:
 
-- Parties.
-- Clubs.
-- Bars.
-- Concerts.
-- Player gatherings.
-- Homes and private events.
-- Social interactions.
-- Entertainment activities.
+- Parties, clubs, bars, concerts, player gatherings, homes/private events.
+- Social interactions and entertainment activities.
 - Relationships and reputation hooks.
 - Venue ownership/business hooks.
 - Dynamic events that can interrupt ordinary life.
 
-Example emergent scenario:
-
-> Players are partying in a club when a zombie attack begins outside, breaches the venue, and turns a social night into an emergency survival event.
-
-The party system does not need special zombie code. The venue, AI, threat, combat, law/security, NPC, and event systems should be able to interact through shared world events and interfaces.
-
-Possible dynamic interruptions include:
-
-- Zombie attacks
-- Crime
-- Faction attacks
-- Fires
-- Blackouts
-- Weather emergencies
-- Police/security incidents
-- NPC disputes
-- World bosses or supernatural events
-- Mission/event chains
-- Supply shortages
-- Community emergencies
+Possible dynamic interruptions include zombie attacks, crime, faction attacks, fires, blackouts, weather emergencies, police/security incidents, world bosses, supernatural events, supply shortages, and community emergencies.
 
 Recommended modules/components:
 
@@ -447,6 +360,95 @@ Recommended modules/components:
 - Cost and cooldown evaluators
 - Skill-tree integration
 
+## Phase 9 — Living Earth Environment: Day/Night, Weather & Climate
+
+Metaworld uses a shared world clock and regional environment simulation so the Earth setting changes continuously and affects gameplay.
+
+Goals:
+
+- Server-authoritative date/time/world clock.
+- Full day/night cycle.
+- Sunrise, sunset, moon, stars, atmosphere, cloud and lighting transitions.
+- Regional weather and climate profiles.
+- Rain, storms, wind, fog, temperature, snow/ice where appropriate.
+- Weather transitions rather than simple random visual toggles.
+- Time/weather integration with NPC schedules, shops, nightlife, traffic, zombies, visibility, stealth, driving, crops, fires, power, survival, and dynamic events.
+- UE5.8 scalability so high-end visual systems improve presentation without changing simulation rules.
+
+Recommended modules/components:
+
+- World Clock Subsystem
+- Environment/Weather Subsystem
+- Region/Climate definitions
+- Time/weather event dispatcher
+- Day Sequence adapter/presentation layer
+- Sky Atmosphere / Volumetric Cloud integration
+- Lumen/MegaLights scalability integration
+- World Partition / HLOD environment integration
+
+Detailed design: `Docs/Living_World_Environment_NPC_AI.md`
+
+## Phase 10 — Systemic NPC Life & World Population
+
+Every important NPC should have systemic identity and behavior rather than existing only as a static quest dispenser.
+
+Goals:
+
+- NPC identity, home, job, schedule, needs, skills, inventory, money, relationships, reputation, personality and goals.
+- Sleep/work/leisure schedules affected by world conditions.
+- Smart Object use for beds, chairs, shops, workstations, vehicles, doors, venues and other interactions.
+- StateTree-based local behavior.
+- Background/population simulation for distant NPCs.
+- LOD transition between lightweight simulation and full local agents.
+- Emergency reactions to zombies, crime, fire, storms and player actions.
+- NPC use of the same object capability, economy, property, law and world-event systems as players wherever practical.
+
+Recommended modules/components:
+
+- NPC Identity/State record
+- NPC Needs/Goals component
+- NPC Schedule subsystem
+- StateTree behavior layer
+- Smart Object integration
+- NPC memory/relationship hooks
+- Population LOD/simulation layer
+- Event Bus integration
+
+Detailed design: `Docs/Living_World_Environment_NPC_AI.md`
+
+## Phase 11 — Advanced Companion Teams & Optional AI Model Gateway
+
+Players can recruit/purchase/employ capable NPCs and build specialized teams. External or local AI models may enhance selected NPCs, but ordinary NPCs must remain functional without paid APIs.
+
+Goals:
+
+- Player companion/team commands.
+- Specialized NPC roles such as guard, medic, mechanic, driver, builder, farmer, scavenger, trader, manager, cook, scout or mage.
+- Base/home, vehicle, storage, equipment, budget, schedule, emergency and combat permissions.
+- Team coordination and task delegation.
+- Persistent memory and progress reporting.
+- Optional local/external model integration for richer dialogue, planning and reasoning.
+- Shared AI provider gateway: multiple NPC agents can use one configured provider connection subject to provider limits and player budgets.
+- Per-NPC persona, memory, model choice, autonomy, context/token/cost budget and permissions.
+- Secure credential isolation.
+- Offline/rate-limit fallback to normal Metaworld NPC intelligence.
+- AI model selects high-level intent; validated Metaworld gameplay systems execute actual actions.
+
+Recommended modules/components:
+
+- Companion/Team Subsystem
+- NPC Command/Task system
+- AI Gateway
+- AI Agent profile
+- Per-NPC memory namespace
+- Permission/capability validator
+- Cost/usage budget tracker
+- Local-model adapter
+- External-provider adapters
+- Fallback behavior layer
+
+Detailed design: `Docs/Living_World_Environment_NPC_AI.md`
+
 ---
 
 # Development Order After Phase 1
@@ -460,8 +462,11 @@ The preferred order is:
 5. Skill trees + RPG progression
 6. Social venues + dynamic world events
 7. Mana + magic/supernatural abilities
+8. World clock + day/night + regional weather/climate
+9. Systemic NPC schedules + population simulation
+10. Advanced companion teams + optional AI-model enhancement
 
-This order creates shared data, ownership, currency, physical-object, attribute, progression, and event foundations before systems depending on them become complex.
+This order creates shared data, ownership, currency, physical-object, attribute, progression, environment, event, and NPC foundations before expensive model-powered intelligence is introduced.
 
 # Current Status
 
@@ -475,3 +480,8 @@ This order creates shared data, ownership, currency, physical-object, attribute,
 - Open skill-tree / no-rigid-class progression philosophy defined.
 - Social venues and dynamic world interruptions established as core design principles.
 - Broad player freedom established: own, do, and become almost anything within systemic world rules.
+- Earth-based property, vehicle storage, spatial media, and factual living-news design documented.
+- UE5.8 established as the target engine version.
+- Day/night, regional weather/climate, and environment-to-gameplay integration added to the roadmap.
+- Systemic NPC life, schedules and layered population simulation added to the roadmap.
+- Optional AI-model-enhanced companion teams added with a shared gateway/fallback architecture rather than requiring one API key per NPC.
