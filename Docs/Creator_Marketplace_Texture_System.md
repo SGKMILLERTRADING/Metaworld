@@ -12,6 +12,8 @@ The creator does not duplicate or redistribute the underlying base mesh. A creat
 
 This provides a Second Life / IMVU-style creator economy while keeping the technical asset foundation under Metaworld control.
 
+A mandatory **Metaworld marketplace commission** is taken automatically from every successful creator sale. The creator receives the remaining proceeds. The commission percentage must be configurable by server/economy policy rather than hardcoded into product logic, so Metaworld can tune the fee later without breaking marketplace data or creator products.
+
 ---
 
 # 1. Base Mesh + Creator Texture Architecture
@@ -168,6 +170,8 @@ A product listing can contain:
 
 Players can buy a creator texture from a real in-world store and apply it to an owned compatible Metaworld item.
 
+Every successful sale is split automatically between the creator and Metaworld according to the current marketplace commission policy.
+
 ---
 
 # 6. GrimKoin / PromoKoin Integration
@@ -180,14 +184,48 @@ Recommended rule:
 - Low-cost promotional/common creator goods may accept PromoKoin.
 - Creators choose from marketplace-approved pricing/currency policies.
 - Metaworld can enforce anti-abuse pricing rules if required.
+- The marketplace commission applies regardless of whether the transaction uses GrimKoin or PromoKoin, unless a specific promotional policy explicitly overrides it.
 
 The marketplace should not create a third unrelated currency unless a later design explicitly requires one.
 
-Every transaction generates a server-authoritative ledger record containing buyer, seller, product, price, currency, timestamp, and entitlement result.
+Every transaction generates a server-authoritative ledger record containing buyer, seller, product, gross price, currency, marketplace fee percentage, marketplace fee amount, creator net proceeds, timestamp, and entitlement result.
 
 ---
 
-# 7. Ownership & Entitlements
+# 7. Marketplace Commission / Metaworld Revenue Share
+
+Metaworld must earn a small percentage from creator-marketplace sales so the platform itself benefits as the creator economy grows.
+
+Core rules:
+
+- Every normal creator sale includes a Metaworld commission.
+- The commission percentage is defined by economy configuration, not hardcoded into individual products.
+- The creator sees the fee before publishing the listing.
+- The buyer sees the final purchase price.
+- The creator receives the net amount after the Metaworld commission.
+- Metaworld receives the commission automatically as part of the same atomic transaction.
+- Failed/refunded/reversed transactions must reverse both creator proceeds and the marketplace commission according to the final refund policy.
+- The ledger stores both gross and net values so accounting is auditable.
+
+Recommended initial design target:
+
+- Use a **small single-digit percentage** as the default marketplace commission.
+- Keep the exact launch value configurable until economy testing determines the right balance.
+- A provisional example for testing could be **5% Metaworld / 95% creator**, but this is not yet a locked final rate.
+
+Example with a 5% test fee:
+
+Sale price: 100 GrimKoin
+- Creator receives: 95 GrimKoin
+- Metaworld receives: 5 GrimKoin
+
+The same architecture can later support limited promotions such as temporary reduced fees, new-creator incentives, featured marketplace events, or category-specific policies, but ordinary sales should always default back to a Metaworld commission.
+
+The purpose of the fee is to create a sustainable platform revenue stream tied directly to marketplace activity without taking so much that creators lose the incentive to build successful businesses.
+
+---
+
+# 8. Ownership & Entitlements
 
 Buying a creator texture creates an entitlement, not a loose local file assumption.
 
@@ -214,7 +252,7 @@ This prevents duplication exploits and keeps ownership tied to the world economy
 
 ---
 
-# 8. Creator Permissions
+# 9. Creator Permissions
 
 Texture products can later support permission models inspired by virtual-world creator economies, but the rules should remain simple and explicit.
 
@@ -233,7 +271,7 @@ A buyer receiving a texture entitlement does not receive the right to alter the 
 
 ---
 
-# 9. Content Safety, Copyright & Moderation
+# 10. Content Safety, Copyright & Moderation
 
 Metaworld should protect creators and the platform from abuse.
 
@@ -253,7 +291,7 @@ Creators should only upload textures they have the right to use and sell.
 
 ---
 
-# 10. Performance Budget
+# 11. Performance Budget
 
 User-created textures must not be allowed to destroy client performance.
 
@@ -274,7 +312,7 @@ High-quality creator content is encouraged, but it must fit the same scalability
 
 ---
 
-# 11. Creator Workflow
+# 12. Creator Workflow
 
 Recommended first-version workflow:
 
@@ -285,17 +323,18 @@ Recommended first-version workflow:
 5. Creator uploads the texture package only.
 6. Automated validation checks base-asset compatibility, UV version, texture channels, resolution, file size, metadata, and performance constraints.
 7. Moderation/policy checks run where needed.
-8. Creator sets shop listing, price, currency, preview, and permissions.
+8. Creator sets shop listing, price, currency, preview, and permissions and sees the current marketplace commission before publishing.
 9. Product becomes available in the creator's shop/marketplace.
 10. Buyer purchases the product.
-11. Metaworld grants the buyer a texture entitlement.
-12. Buyer applies the texture product to a compatible owned item.
+11. Transaction service atomically splits creator proceeds and the Metaworld commission.
+12. Metaworld grants the buyer a texture entitlement.
+13. Buyer applies the texture product to a compatible owned item.
 
 At no point does the creator edit the mesh's material slots.
 
 ---
 
-# 12. Creator Texture Categories
+# 13. Creator Texture Categories
 
 The texture marketplace can support many asset categories while preserving the same locked-mesh/locked-material rule:
 
@@ -317,12 +356,14 @@ All categories remain texture-only unless Metaworld explicitly introduces a diff
 
 ---
 
-# 13. Core Principle
+# 14. Core Principle
 
 Metaworld owns and controls the physical and material structure of the asset.
 
 Creators control only the approved texture appearance.
 
+Creators build businesses and keep the majority of each sale. Metaworld earns a small commission from each marketplace transaction so the creator economy also contributes directly to operating and growing the world.
+
 The same chair mesh and the same locked material slots can support thousands of player-created texture products without duplicating the mesh or allowing creators to alter its technical construction.
 
-That is the target: a player-created economy where the world remains technically controlled, optimized, secure, and visually shaped by its community.
+That is the target: a player-created economy where the world remains technically controlled, optimized, secure, financially sustainable, and visually shaped by its community.
