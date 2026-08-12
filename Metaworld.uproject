@@ -1,0 +1,19 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.6",
+  "Category": "Games",
+  "Description": "Metaworld modular open-world social RPG project.",
+  "Modules": [
+    {
+      "Name": "Metaworld",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "EnhancedInput",
+      "Enabled": true
+    }
+  ]
+}
