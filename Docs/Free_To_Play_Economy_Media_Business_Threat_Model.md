@@ -279,24 +279,114 @@ Gameplay crime is part of Metaworld. Harassment, cheating, exploits, or platform
 
 ---
 
-# 9. Offline and Low-Population Protection Must Be Systemic, Not Magical
+# 9. Persistent Ownership — Logging Out Does Not Pause the World
 
-Because the world is persistent, property should not become trivial to destroy merely because its owner logged out.
+Metaworld is persistent. Logging out does **not** freeze, hide, phase out, or automatically protect a player's land, home, business, vehicles, storage, crops, hired NPCs, or other owned assets.
+
+Core rule:
+
+> If you own something valuable, you are responsible for arranging its protection before you leave it unattended.
 
 Protection can come from systems such as:
 
 - Hired NPC guards
+- Trusted player guards
+- Police friends/relationships
+- Local police protection where law and response capacity permit
 - Player security organizations
-- Automated alarms
-- Defensive construction
-- Ownership permissions
-- Law-enforcement response
-- Neighborhood/faction protection
-- Insurance/recovery systems
-- Attack-cost/risk systems
-- Persistent evidence and consequences
+- Faction/guild/community protection
+- Neighbors
+- Walls, fences, gates and defensive construction
+- Locks and access controls
+- Cameras and evidence systems
+- Alarms and remote alerts
+- Guard animals/creatures if later supported
+- Automated defenses where the game permits them
+- Hidden/secure storage
+- Vehicle locks/garages
+- Backup power
+- Emergency plans
+- Strong reputation or political relationships
 
-The exact offline-attack balance should be tuned later so the world remains dangerous without rewarding players for attacking only when defenders are asleep or offline.
+None of these are magical invulnerability. They are actual systems that can succeed or fail.
+
+## Offline Raid and Theft
+
+While the owner is offline, hostile players or hostile/evil NPCs may be able to:
+
+- Trespass
+- Break or bypass defenses if capable
+- Steal loose items
+- Break into storage
+- Steal vehicles
+- Damage structures
+- Damage utilities
+- Kill or defeat guards/NPC residents
+- Occupy buildings
+- Loot businesses
+- Sabotage property
+- Claim or seize property when conquest/claim conditions are satisfied
+
+The same world rules apply whether the defender is online or offline. Logging out is not a defensive ability.
+
+## Property Seizure / Claim
+
+Taking land should be a world action, not a one-click ownership exploit.
+
+A valid seizure system can require conditions such as:
+
+- Physical access to the property
+- Defeating/bypassing active defenses
+- Controlling a deed/claim point/property authority object
+- Holding/occupying the property for a configured claim period
+- Meeting regional law/faction/conquest rules
+- Paying any required claim, repair, debt, tax, or registration costs where applicable
+- Surviving counterattack during the claim process
+
+Different regions may have different legal consequences, but the world must permit genuine loss of ownership when the rules are satisfied.
+
+Hostile NPC factions or intelligent evil NPCs can use the same claim framework where appropriate. An NPC gang, raider group, corrupt faction, or other hostile force can take over a poorly defended property rather than merely despawning when the player logs in.
+
+## What the Returning Owner Sees
+
+When the player logs back in, Metaworld loads the world **as it actually became**.
+
+They may discover:
+
+- Missing inventory
+- A stolen vehicle
+- Dead/injured guards
+- Broken doors or walls
+- Damaged utilities
+- An occupied home
+- A hostile flag/faction presence
+- A changed deed/claim state
+- A business that was looted
+- A property that has been fully taken
+
+There is no automatic rollback merely because the owner was offline.
+
+The returning player can respond through gameplay:
+
+- Call police
+- Use evidence/camera records
+- Pursue thieves
+- File an in-world legal claim where applicable
+- Hire fighters/security
+- Recruit allies
+- Negotiate
+- Pay ransom
+- Retake the property by force where allowed
+- Hunt the hostile NPC/player group
+- Rebuild somewhere else
+
+This turns property ownership into responsibility, politics, alliances, security, law, warfare, business, and reputation rather than a static inventory entitlement.
+
+## Event Ledger and News
+
+Major raids, seizures, murders, famous defenses, criminal takeovers, faction occupations, and property recoveries should be recorded by the Event Ledger when they meet significance/visibility rules.
+
+A player may literally log back in and learn from Metaworld News that their district was attacked while they were gone.
 
 ---
 
@@ -352,10 +442,14 @@ Players create value.
 
 Players sell value.
 
-Players protect value.
+Players own value.
 
-Players can attack value under world rules and accept the consequences.
+Players must protect value.
+
+Players and hostile NPCs can threaten, steal, occupy, damage, or seize value under world rules and accept the resulting consequences.
 
 Metaworld provides the platform and receives a small share of supported economic activity.
 
-No place is automatically safe. Peace exists because somebody built it, paid for it, defended it, enforced it, negotiated it, or earned it.
+No place is automatically safe, and logging out is not protection.
+
+Peace exists because somebody built it, paid for it, defended it, enforced it, negotiated it, allied for it, or earned it.
