@@ -2,17 +2,21 @@
 
 ## Canonical Creator Economy Rule
 
-Metaworld provides the approved base meshes and technical asset foundations. Players/creators can create compatible textures, material variants, decals, colorways, surface treatments, and other approved visual derivatives for those meshes, publish them in player-owned shops, and sell them to other players.
+Metaworld provides and controls the approved base meshes, UVs, material slots, master materials, shader logic, rigging, collision, sockets, LOD/Nanite setup, physics, gameplay metadata, and performance standards.
 
-The creator should not need to duplicate or redistribute the underlying base mesh in order to sell a texture product.
+Players/creators may create and sell **texture-only visual derivatives** for creator-enabled Metaworld assets.
 
-This allows a Second Life / IMVU-style creator economy while keeping geometry, rigging, collision, sockets, LOD/Nanite setup, physics, gameplay metadata, and performance standards under Metaworld control.
+Creators may not add, remove, rename, reorder, replace, or otherwise edit material slots. They may not upload or modify shader graphs, master materials, material-slot structure, mesh geometry, collision, rigging, sockets, physics, or gameplay behavior.
+
+The creator does not duplicate or redistribute the underlying base mesh. A creator product is a texture package that references a compatible Metaworld base asset.
+
+This provides a Second Life / IMVU-style creator economy while keeping the technical asset foundation under Metaworld control.
 
 ---
 
-# 1. Base Mesh + Creator Skin Architecture
+# 1. Base Mesh + Creator Texture Architecture
 
-Each supported asset should have a stable Metaworld Asset ID.
+Each supported asset has a stable Metaworld Asset ID.
 
 Example:
 
@@ -21,7 +25,8 @@ Base Asset:
 - Type: Furniture
 - Mesh: Metaworld-managed
 - UV Layout Version: 1
-- Material Slot Contract: 3 slots
+- Material Slots: Metaworld-locked
+- Material Slot Count: 3
 - Gameplay capabilities: Sit, Pickup, Carry, Throw, Break, Place
 - Collision/LOD/physics: Metaworld-managed
 
@@ -29,39 +34,47 @@ Creator Product:
 - Product ID: creator-specific
 - Base Asset ID: `MW_CHAIR_001`
 - Creator ID
-- Texture/material package
-- Compatibility version
+- Texture package
+- UV compatibility version
 - Preview images
 - Price
 - Currency eligibility
 - License/usage rules
 - Moderation status
 
-A buyer receives the creator visual package plus a usage entitlement referencing the original base asset. The base mesh remains the canonical Metaworld asset.
+A buyer receives a texture entitlement referencing the original base asset. The base mesh, material-slot layout, and master materials remain canonical Metaworld assets.
 
 ---
 
-# 2. Supported Creator Modifications
+# 2. Texture-Only Creator Modifications
 
-Initial creator content can support approved visual changes such as:
+Creators may only provide approved texture maps for the channels already exposed by the Metaworld asset.
 
-- Base Color / Albedo
-- Normal maps
-- Roughness
-- Metallic
-- Ambient Occlusion where used
-- Emissive
-- Opacity/masks where the base asset supports it
-- Decals
-- Pattern overlays
-- Color parameters
-- Material-instance parameters
-- Approved fabric/wood/metal/plastic/leather surface presets
+Depending on the asset, allowed texture inputs may include:
 
-Later systems can optionally support more advanced creator packages, but the first marketplace should focus on safe, predictable texture/material derivatives.
+- Base Color / Albedo texture
+- Normal map texture
+- Roughness texture
+- Metallic texture
+- Ambient Occlusion texture where used
+- Emissive texture where supported
+- Opacity/mask texture where supported
+- Decal texture where supported by the base asset
 
-The creator package must not silently change:
+The exact set of allowed texture channels is defined per base asset by Metaworld.
 
+Creators may **not** change:
+
+- Material slot count
+- Material slot names
+- Material slot order
+- Material assignment
+- Master material
+- Shader graph
+- Material functions
+- Material parameters outside approved texture inputs
+- Mesh geometry
+- UV layout
 - Collision
 - Gameplay capabilities
 - Weapon statistics
@@ -69,59 +82,64 @@ The creator package must not silently change:
 - Physics mass
 - Rig/skeleton
 - Sockets
-- Inventory value rules
+- Inventory/economy rules
 - Hidden gameplay code
 
-Visual products should remain visual unless a separate approved creator-program system explicitly allows gameplay extensions later.
+Creator products are visual texture products only.
 
 ---
 
-# 3. UV and Template Distribution
+# 3. UV and Texture Template Distribution
 
-For each creator-enabled base mesh, Metaworld should expose a Creator Template containing:
+For each creator-enabled base mesh, Metaworld exposes a Creator Texture Template containing:
 
 - UV template
-- Material slot names
+- Locked material slot names for reference
+- Which texture maps belong to each locked slot
 - Texture channel requirements
 - Supported resolutions
 - Safe naming rules
 - Preview/test scene
 - Color-space rules
 - Compression guidance
-- Compatibility version
-- Optional Substance/Blender/PSD-style templates where legally and technically appropriate
+- UV compatibility version
 
-Creators should be able to design against the template without receiving unrestricted source assets that are unnecessary for texturing.
+Creators design against the template without receiving edit authority over the underlying material-slot structure.
 
-If a base mesh UV layout changes, Metaworld increments the compatibility version instead of breaking old creator products silently.
+If a base mesh UV layout changes, Metaworld increments the compatibility version instead of silently breaking old creator products.
 
 ---
 
-# 4. Material Instance Strategy
+# 4. Locked Material Architecture
 
-Where practical, Metaworld should use controlled master materials and creator-driven material instances.
+Metaworld controls the complete material system.
 
-Base mesh
--> Metaworld Master Material
--> Creator Material Instance / Texture Set
--> Player-owned product instance
+Architecture:
+
+Base Mesh
+-> Locked Metaworld Material Slots
+-> Locked Metaworld Master Materials
+-> Creator Texture Inputs
+-> Rendered Player-Owned Variant
+
+Creators do not create or edit material instances themselves. Metaworld may internally create or configure material instances at runtime or during asset processing, but those instances remain controlled by the game and only receive validated creator texture inputs.
 
 Benefits:
 
-- Better performance consistency
+- Predictable performance
+- Stable shader complexity
+- Consistent lighting behavior
 - Easier validation
-- Predictable shader complexity
 - Easier LOD/Nanite compatibility
 - Easier future migration
-- Reduced risk of malicious/expensive shaders
-
-Creator uploads should not contain arbitrary executable code or unrestricted shader graphs in the first marketplace version.
+- No creator-made expensive or malicious shader graphs
+- No material-slot exploits
 
 ---
 
 # 5. Marketplace & Player Shops
 
-Creators should be able to operate stores inside Metaworld.
+Creators can operate stores inside Metaworld.
 
 Possible storefront forms:
 
@@ -148,7 +166,7 @@ A product listing can contain:
 - Update history
 - Ratings/reviews later if desired
 
-Players can buy a creator texture from a real in-world store, then apply it to an owned compatible item.
+Players can buy a creator texture from a real in-world store and apply it to an owned compatible Metaworld item.
 
 ---
 
@@ -160,18 +178,18 @@ Recommended rule:
 
 - Premium/high-value creator goods normally use GrimKoin.
 - Low-cost promotional/common creator goods may accept PromoKoin.
-- Creators can choose from marketplace-approved pricing/currency policies.
-- Metaworld can enforce minimum/maximum or anti-abuse rules if needed.
+- Creators choose from marketplace-approved pricing/currency policies.
+- Metaworld can enforce anti-abuse pricing rules if required.
 
 The marketplace should not create a third unrelated currency unless a later design explicitly requires one.
 
-Every transaction should generate a server-authoritative ledger record containing buyer, seller, product, price, currency, timestamp, and entitlement result.
+Every transaction generates a server-authoritative ledger record containing buyer, seller, product, price, currency, timestamp, and entitlement result.
 
 ---
 
 # 7. Ownership & Entitlements
 
-Buying a creator texture should create an entitlement, not a loose local file assumption.
+Buying a creator texture creates an entitlement, not a loose local file assumption.
 
 Entitlement record can include:
 
@@ -179,6 +197,7 @@ Entitlement record can include:
 - Product ID
 - Creator ID
 - Compatible Base Asset ID
+- UV compatibility version
 - Purchase timestamp
 - License/permission flags
 - Transferability
@@ -187,9 +206,9 @@ Entitlement record can include:
 - Update entitlement
 - Revocation state only for exceptional policy/security cases
 
-When a player equips/rezzes/places an item, Metaworld resolves:
+When a player equips, rezzes, places, or uses an item, Metaworld resolves:
 
-Owned Base Asset + Owned Creator Visual Entitlement -> Rendered Item Variant
+Owned Base Asset + Owned Creator Texture Entitlement -> Rendered Item Variant
 
 This prevents duplication exploits and keeps ownership tied to the world economy.
 
@@ -197,7 +216,7 @@ This prevents duplication exploits and keeps ownership tied to the world economy
 
 # 8. Creator Permissions
 
-Products can later support permission models inspired by virtual-world creator economies, but simplified and made explicit.
+Texture products can later support permission models inspired by virtual-world creator economies, but the rules should remain simple and explicit.
 
 Possible flags:
 
@@ -205,51 +224,51 @@ Possible flags:
 - Giftable
 - Transferable
 - Resellable
-- Modifiable parameters
-- Derivative creation allowed/not allowed
-- Commercial use in player business allowed
+- Derivative texture creation allowed/not allowed
+- Commercial display/use in a player business allowed
 
-Permissions must be understandable in the UI. Avoid hidden combinations that confuse buyers or creators.
+Permissions must be understandable in the UI.
+
+A buyer receiving a texture entitlement does not receive the right to alter the underlying Metaworld mesh, UV layout, material slots, or master materials.
 
 ---
 
 # 9. Content Safety, Copyright & Moderation
 
-Metaworld should protect creators and the platform from obvious abuse.
+Metaworld should protect creators and the platform from abuse.
 
-Creator uploads need:
+Creator texture uploads need:
 
 - File validation
 - Resolution/size limits
-- Malware-safe asset pipeline
-- Texture/material complexity limits
+- Safe asset processing
+- Allowed texture format validation
 - Duplicate/hash checks where useful
 - Moderation/reporting
 - Copyright/trademark complaint process
-- Adult/age-restricted content policy if Metaworld later supports such categories
 - Prohibited-content rules
+- Audit records for uploads, approvals, takedowns, purchases, and creator identity
 
-Creators should only upload content they have the right to use and sell.
-
-The system should keep audit records of uploads, approvals, takedowns, purchases, and creator identity.
+Creators should only upload textures they have the right to use and sell.
 
 ---
 
 # 10. Performance Budget
 
-User-created visuals must not be allowed to destroy client performance.
+User-created textures must not be allowed to destroy client performance.
 
-Each product should be validated against rules such as:
+Each product is validated against rules such as:
 
 - Maximum texture resolution by category
 - Maximum total texture memory budget
 - Allowed texture formats
-- Material instance only where required
-- Shader complexity limits
-- Number of material slots inherited from base mesh
+- Allowed texture channels per asset
 - Streaming settings
 - Mip generation
-- LOD/Nanite compatibility
+- Compression settings
+- Locked material-slot count inherited from the base mesh
+
+Creator uploads cannot increase the number of material slots or introduce new shader complexity.
 
 High-quality creator content is encouraged, but it must fit the same scalability philosophy as the rest of Metaworld.
 
@@ -260,51 +279,50 @@ High-quality creator content is encouraged, but it must fit the same scalability
 Recommended first-version workflow:
 
 1. Creator chooses an approved Metaworld base asset.
-2. Creator downloads/opens the creator UV/material template.
-3. Creator makes textures/material parameters in Blender, Substance, Photoshop, GIMP, Krita, or another supported tool.
-4. Creator previews the work in a Metaworld creator preview tool/test scene.
-5. Creator uploads the texture/material package.
-6. Automated validation checks compatibility, file limits, metadata, and performance constraints.
+2. Creator downloads/opens the official UV/texture template.
+3. Creator makes compatible texture maps in Blender, Substance Painter, Photoshop, GIMP, Krita, or another supported tool.
+4. Creator previews the textures on the locked Metaworld mesh/material setup in the creator preview tool/test scene.
+5. Creator uploads the texture package only.
+6. Automated validation checks base-asset compatibility, UV version, texture channels, resolution, file size, metadata, and performance constraints.
 7. Moderation/policy checks run where needed.
 8. Creator sets shop listing, price, currency, preview, and permissions.
 9. Product becomes available in the creator's shop/marketplace.
 10. Buyer purchases the product.
-11. Metaworld grants the buyer an entitlement.
-12. Buyer applies the visual package to a compatible owned item.
+11. Metaworld grants the buyer a texture entitlement.
+12. Buyer applies the texture product to a compatible owned item.
+
+At no point does the creator edit the mesh's material slots.
 
 ---
 
-# 12. Future Expansion
+# 12. Creator Texture Categories
 
-Once the texture marketplace is stable, the creator economy can expand carefully into:
+The texture marketplace can support many asset categories while preserving the same locked-mesh/locked-material rule:
 
 - Clothing textures
-- Furniture skins
-- Vehicle liveries
-- Weapon skins
-- Building materials
-- Wall/floor textures
-- Signs/posters
+- Furniture textures
+- Vehicle liveries/textures
+- Weapon textures/skins
+- Building surface textures where supported by approved base assets
+- Wall/floor texture sets
+- Signs/posters using approved texture surfaces
 - Tattoos
 - Makeup
-- Hair color/material variants
-- Decals
-- UI-safe business branding
-- Interior design packages
-- Approved animations/poses later
-- Approved sound/media products later
-- Approved mesh submissions later only if a separate validation pipeline is created
+- Hair textures where supported
+- Decals where supported
+- Business branding textures
+- Interior design texture packages
 
-Metaworld should not open arbitrary mesh uploads on day one. Starting with Metaworld-controlled base meshes plus player-created textures gives creators freedom while protecting compatibility, performance, gameplay fairness, and security.
+All categories remain texture-only unless Metaworld explicitly introduces a different creator program in the future.
 
 ---
 
 # 13. Core Principle
 
-Metaworld provides the physical object foundation.
+Metaworld owns and controls the physical and material structure of the asset.
 
-Creators provide identity, fashion, branding, style, culture, and endless visual variety.
+Creators control only the approved texture appearance.
 
-The same chair mesh can become thousands of player-created products without requiring thousands of duplicated chair meshes.
+The same chair mesh and the same locked material slots can support thousands of player-created texture products without duplicating the mesh or allowing creators to alter its technical construction.
 
-That is the target: a player-created economy where the world remains technically controlled but visually belongs to its community.
+That is the target: a player-created economy where the world remains technically controlled, optimized, secure, and visually shaped by its community.
