@@ -25,6 +25,7 @@ All permanent rules from Part 1 remain active, including:
 - relocation is an authorized construction transaction, never unrestricted transform editing.
 - permanent structural pieces should remain in the most efficient appropriate settled mobility/rendering state wherever practical; relocation uses a temporary movable ghost rather than forcing all finished structure components to remain engine-Movable.
 - visual mesh merging/optimization never erases authoritative logical construction data needed for openings, supports, utilities, ownership, damage, renovation, persistence or server validation.
+- common persistent-buildable lifecycle belongs in a shallow shared Blueprint parent; capabilities remain interface/component/data driven so the parent never becomes a giant all-purpose construction Blueprint.
 
 ---
 
@@ -171,11 +172,44 @@ Approved:
 
 Detailed companion: `Docs/Prefab_PreBuilt_House_Construction_System.md`
 
+## Episode Upgrade 15 — Buildable Master Blueprint & Shared Inheritance
+
+**Classification:** UPGRADE — APPROVED
+
+Approved:
+
+- tutorial `BuildMaster` concept is adopted as canonical `BP_MW_Buildable_Master`
+- common persistent-buildable lifecycle behavior moves into the master instead of being copied into Foundation/Wall/Floor/Door/Window/Prefab classes
+- master centralizes stable Structure/Object ID, Buildable/Family/Variant identity, authoritative definition link, ownership/property hooks, construction-state lifecycle, persistence hooks, shared placement/removal/relocation lifecycle hooks, generic management/highlight hooks and other truly universal state
+- master does **not** assume every child owns exactly one Static Mesh or one collision/snap layout
+- suggested shared component roots are a generic Scene Root plus optional Visual/Collision/Query roots; children add the geometry/query components they actually need
+- Blueprint inheritance remains shallow; Metaworld avoids deep chains of FoundationMaster -> WallMaster -> OpeningWallMaster -> variant-specific subclasses when components/data can express the same behavior
+- Actor Components are preferred for reusable systems such as support, utilities, inventory/container behavior, security/locks, condition/damage or other cross-family capabilities when componentization reduces duplication
+- Blueprint Interfaces remain canonical capability contracts and are not replaced by inheritance; `BPI_MW_BuildSnapProvider` and `BPI_MW_Interactable` continue to let unrelated classes expose common capabilities without cast chains
+- data remains the preferred source for mesh/variant/configuration differences such as footprint, rotation, relocation, snap compatibility, support requirements, recipes, demolition policy, opening definitions, utility points and catalog metadata
+- true family-specific behavior remains in specialized children/components: Foundation terrain support, Wall openings, Floor multi-story support, Door/Window runtime motion/security, Prefab logical sections/service points, etc.
+- tutorial `Call to Parent Function` pattern becomes a formal lifecycle rule: child overrides must preserve required parent ownership/persistence/state logic unless a replacement is explicitly documented
+- parent can expose small template hooks such as `ApplyDefinitionVisuals`, `ApplyConstructionStageVisuals`, `OnSupportRelationshipsChanged`, `OnRelocationCommitted` and `OnDemolitionCommitted` so children customize behavior without copying the full parent graph
+- build preview/ghost remains a separate low-cost placement representation; preview does not instantiate every persistent component/system from `BP_MW_Buildable_Master`
+- buildable children do not hardcode keyboard keys; input remains in Enhanced Input contexts/components so keyboard/mouse, Xbox-style and PlayStation-style controller paths invoke the same world lifecycle
+- server authority remains unchanged: client child functions cannot grant ownership, completion, relocation, deletion or forged persistent state
+- parent has no default permanent Tick requirement; idle structures remain event-driven/dormancy/relevancy/streaming friendly
+- shared definition data should prevent thousands of placed pieces from duplicating heavy configuration state unnecessarily
+- settled structures retain Nanite/HLOD/World Partition/scalability compatibility where applicable
+- migration is incremental: create master -> move only truly common logic -> reparent one simple family -> test placement/persistence/ownership/removal/relocation -> migrate the rest -> remove duplicated child graphs only after verification
+- mass-reparenting every buildable and deleting child logic in one unverified pass is rejected
+- Python Editor tooling can later audit expected parent inheritance, overly deep inheritance chains, duplicated lifecycle graphs, accidental Tick, invalid mobility setup, missing policies and other architecture drift
+- vertical slice must prove Foundation, Wall, Floor, Door/Window and one Prefab can share the common master lifecycle without breaking their specialized systems
+
+Detailed companion: `Docs/Buildable_Master_Blueprint_Inheritance_Architecture.md`
+
 ---
 
 # Current Phase 20 Construction Stack — Continued
 
-`Build Catalog / Selection / Prefab Plans`
+`BP_MW_Buildable_Master + Components / Interfaces / Data`
+
+`-> Build Catalog / Selection / Prefab Plans`
 
 `-> Ghost Placement / Rotation / Orientation`
 
@@ -224,6 +258,12 @@ Detailed companion: `Docs/Prefab_PreBuilt_House_Construction_System.md`
 # Prefab Principle
 
 > A pre-built house is a convenient construction plan, not a dumb giant prop. Metaworld may merge visual geometry for performance, but the authoritative prefab instance still knows its footprint, supports, construction recipe, openings, installed objects, utilities, ownership, damage/renovation zones and persistent relationships.
+
+---
+
+# Buildable Master Principle
+
+> Use inheritance for true shared buildable identity and lifecycle, interfaces for capabilities, Actor Components for reusable systems, and data for variants. `BP_MW_Buildable_Master` exists to remove duplication—not to become a giant Blueprint containing every construction feature.
 
 ---
 
