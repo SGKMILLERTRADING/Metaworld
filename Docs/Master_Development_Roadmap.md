@@ -1,4 +1,4 @@
-# Metaworld — Master Development Roadmap v2.4
+# Metaworld — Master Development Roadmap v2.5
 
 **Status:** Canonical / Approved
 
@@ -79,6 +79,12 @@ Metaworld is always **game first**. Realism exists to create stories, choices, r
 49. Construction supports both quick next/previous cycling and a scalable build-catalog UI. A selected buildable must not depend only on a fragile array index.
 50. Build snapping is data-driven through sockets/snap points and compatibility metadata such as Gameplay Tags. Dedicated trace/collision channels may be used as low-level filters where useful, but Metaworld will not require a new global trace channel for every future build category.
 51. The client never authoritatively chooses a permanent construction Actor Class, Buildable cost, resource requirement, or `CanBuild` result. Final placement resolves the submitted Buildable ID against server-authoritative data.
+52. Xbox-style controllers, PlayStation-style controllers, and keyboard/mouse are first-class control paths. A reasonable player-facing feature is not considered complete if required gameplay can only be completed with keyboard/mouse.
+53. Metaworld input is action-driven through Enhanced Input and contextual mapping rather than hardcoding gameplay logic to physical keyboard/controller buttons. Rebinding and controller-friendly UI navigation are required where practical.
+54. Construction snapping uses a common Blueprint Interface contract such as `BPI_MW_BuildSnapProvider` so foundations, floors, walls, roofs, utilities and future buildable classes can expose snap points without class-specific cast chains.
+55. Snap acquisition may use Query-Only Box Collision or equivalent lightweight volumes, but high-level compatibility comes from stable Snap Point IDs and data/tag rules. Final snapped placement is revalidated by the server using authoritative Buildable, parent Structure and Snap Point data.
+56. There is **no Owner/Creator rank in the playable hierarchy**. The real-world creator plays by the same in-world survival, economy, profession, voting, law, death, reputation and rank rules as other players. King/Sovereign Queen is the highest in-world player rank; President is directly below that tier.
+57. Every official role/rank has responsibilities that fit the role. Duties should be generated from actual world/community needs rather than repetitive arbitrary chores. Higher rank means greater responsibility and accountability, not free status.
 
 ---
 
@@ -113,16 +119,18 @@ Food is both a player survival resource and a household/NPC economy pillar. Play
 - multiplayer authority rules
 - naming/folder conventions
 - Python Editor tools
+- Enhanced Input architecture for keyboard/mouse + Xbox-style + PlayStation-style controllers
 - performance budgets
 - profiling/stress-test maps
 - automated asset validation later
-- automated Nanite, animation, creator-content, and performance audits later
+- automated Nanite, animation, creator-content, controller/input, and performance audits later
 
 ## Phase 1 — Master Third-Person Character
 
 - third-person locomotion
 - optional first-person camera mode
 - Enhanced Input
+- keyboard/mouse + gamepad movement/look/action mappings
 - walking/running/sprinting/jumping/crouching/swimming
 - interaction/combat/vehicle/animation hooks
 - AI/player control compatibility
@@ -143,6 +151,7 @@ Food is both a player survival resource and a household/NPC economy pillar. Play
 - tattoos/scars/freckles/makeup
 - age appearance from young adult through elderly-looking
 - age presentation through facial morphs, wrinkles, skin detail, hair greying/thinning, posture/animation options
+- full keyboard/mouse and controller navigation/slider editing
 
 ## Phase 3 — Clothing & Body Fitting
 
@@ -266,6 +275,7 @@ Stone, bottle, pipe, chair, hammer, firearm, tool, debris, etc. can be interpret
 - physical safes/containers
 - household pantry/refrigerator inventories
 - team/base ration storage
+- controller-navigable inventory UI
 
 **Upgrade:** weight + volume + dimensions + compartment rules where useful.
 
@@ -312,7 +322,17 @@ Always maintain legitimate lower-entry GrimKoin earning paths such as cleaning, 
 
 Food costs make employment meaningful, but active players should retain realistic legal routes to earn enough to survive and work upward.
 
-## Phase 16 — Profession & Career Rank System
+Daily/recurring job duties should be generated from real world demand and active incidents rather than artificial repetitive quotas.
+
+Examples:
+
+- delivery worker gets actual deliveries
+- mechanic gets damaged/maintenance vehicles
+- farmer gets crop/animal/supply work
+- bartender serves active customers/events
+- sanitation worker responds to actual city sanitation needs
+
+## Phase 16 — Profession, Career Rank & Role Duty System
 
 Action tiers:
 
@@ -339,7 +359,18 @@ Structured career promotion can consider:
 
 **Locked:** GrimKoin cannot directly purchase rank.
 
-**Upgrade:** apprenticeship, certifications, schools, mentors, mastery, professional reputation, licenses/suspension, configurable organization rank trees.
+**Role duty rule:** every profession/rank can define a `RoleDutyProfile` containing responsibilities, eligible duty types, jurisdiction, minimum/maximum workload, response priority, escalation rules and reputation consequences. The World Event/Job systems create duties from actual needs.
+
+Examples:
+
+- Police Officer: patrol, respond to calls, traffic, evidence, public assistance.
+- Sergeant/Lieutenant/Captain: supervise personnel, assign resources, review incidents, manage emergencies and department problems appropriate to rank.
+- Doctor/Nurse: treat real patients and emergencies.
+- Builder: construction, repair, inspection and contract work.
+- Journalist: investigate/report real events.
+- Judge/Lawyer: handle actual cases where their role applies.
+
+**Upgrade:** apprenticeship, certifications, schools, mentors, mastery, professional reputation, licenses/suspension, configurable organization rank trees, role duty templates and dynamic staffing needs.
 
 ## Phase 17 — Taxation & City Treasury
 
@@ -349,7 +380,9 @@ City treasury pays public workers/services such as police, firefighters, emergen
 
 Food supply/emergency reserves may later become a legitimate city budget responsibility during storms, war, famine/shortage, displacement, or disaster.
 
-## Phase 18 — Government, Elections & Community Leadership
+Public payroll should connect to actual staffed roles and responsibilities rather than decorative titles.
+
+## Phase 18 — Government, Elections, Community Leadership & Leadership Duties
 
 Government features:
 
@@ -367,6 +400,8 @@ Government features:
 - licenses
 - public spending
 - policing priorities
+
+**Playable hierarchy rule:** there is no Owner/Creator in-world rank. King/Sovereign Queen is the highest player-held rank; President is directly beneath the Royal/Sovereign tier, followed by lower civic structures according to jurisdiction.
 
 **Canonical leadership rule:** legitimate top leadership requires eligibility plus community/organizational support. Titles cannot be purchased from a store with GrimKoin.
 
@@ -401,6 +436,17 @@ GrimKoin can legitimately fund:
 
 But it does not directly change official vote totals or promotion rank.
 
+**Leadership duties:** high office receives world-state-driven responsibility rather than generic daily grind tasks.
+
+Examples:
+
+- Mayor: local budgets, city services, zoning, public complaints, local emergencies, contracts and staffing problems.
+- Governor: regional infrastructure, inter-city issues, emergency coordination and regional policy.
+- President: national budgets/policy, appointments, diplomacy, national emergencies and major security/economic issues.
+- King/Sovereign Queen: highest sovereign responsibilities, major diplomacy, kingdom-wide crises, war/peace decisions where law permits, high appointments and national/kingdom stability.
+
+Ignoring duties can affect services, city/state performance, public trust, elections, recalls, faction stability and news reputation.
+
 **Corruption gameplay:** bribery, illegal vote buying, pressure, or secret influence can be attempted where enabled, but can fail and can create financial/camera/witness evidence, police investigations, court cases, disqualification, removal, scandal, jail/fines, and news coverage.
 
 **Upgrade:** corruption investigations, recalls, impeachment/removal procedures, protests, strikes, political factions, polls, endorsements, campaign finance rules, coalition governments, referendums.
@@ -420,7 +466,8 @@ Supports houses, rooms, apartments, farms, garages, shops, warehouses, clubs, of
 **Core implementation:**
 
 - `BPC_MW_BuildComponent` attached to `BP_MW_Character_Master`
-- Enhanced Input build-mode action rather than a permanently hardcoded `B` key
+- Enhanced Input build-mode actions instead of a permanently hardcoded keyboard key
+- keyboard/mouse + Xbox-style + PlayStation-style controller mappings
 - `BuildModeOn`, `CanBuild`, `SelectedBuildableID`, selected definition, category/index, placement transform and placement-reason state
 - active camera/view reference for placement traces
 - data-driven build range rather than one fixed trace distance for every object
@@ -430,7 +477,7 @@ Supports houses, rooms, apartments, farms, garages, shops, warehouses, clubs, of
 - timer/event-driven `BuildCycle` while build mode is active
 - no placement trace/update cost while build mode is off
 - grid snapping
-- socket/snap-point placement
+- interface-driven socket/snap-point placement
 - free placement for eligible objects
 - surface-aligned placement where appropriate
 - configurable rotation steps and fine adjustment
@@ -459,18 +506,25 @@ For the prototype, a small Data Table can be loaded/cached into an array. At sca
 
 **Selection and controls:**
 
-- next/previous quick cycling, including mouse wheel as an optional default
+- next/previous quick cycling, including mouse wheel as an optional keyboard/mouse default
+- controller next/previous/category navigation through Enhanced Input
 - safe wrap from Last -> First and First -> Last
 - selected identity uses stable Buildable ID rather than only array position
 - scalable Build Catalog UI with categories, search, filters, favorites, recently used, costs and unavailable reason
+- build catalog must be fully navigable with controller focus/D-pad/stick/confirm/back paths
 - selection change refreshes ghost mesh, placement rules, snap compatibility, trace/query filters, costs and requirements
 
 **Snap architecture:**
 
-- foundations/floors/walls/roofs/stairs/doors/windows/utilities expose snap points/sockets
-- snap points carry compatibility metadata such as `Build.Snap.Foundation`, `Build.Snap.Wall`, `Build.Snap.Roof`, `Build.Snap.Door`, `Build.Snap.Utility.Power`
+- foundations/floors/walls/roofs/stairs/doors/windows/utilities implement or participate in `BPI_MW_BuildSnapProvider`
+- snap points can use Scene Components/sockets for exact transform plus Query-Only Box Collision or equivalent lightweight acquisition volumes
+- snap point Box Extent defines usable acquisition area; keep component scale at 1 where practical
+- snap points carry stable Snap Point IDs and compatibility metadata such as `Build.Snap.Foundation`, `Build.Snap.Wall`, `Build.Snap.Roof`, `Build.Snap.Door`, `Build.Snap.Utility.Power`
 - Buildable Definitions declare snap types they accept and provide
-- dedicated collision/trace channels remain allowed where useful as low-level query filters
+- Build Component queries the hit/relevant structure through the interface, filters compatible/available points and scores/selects the best candidate
+- no class-specific Foundation -> Floor -> Wall cast chain
+- no scanning all snap points in the world every update
+- dedicated collision/query profiles remain allowed for efficient low-level filtering
 - Metaworld does not create a separate global trace channel for every future buildable category
 
 **Placement validation integrates with the whole Metaworld:**
@@ -481,7 +535,7 @@ For the prototype, a small Data Table can be loaded/cached into an array. At sca
 - permits/licenses where required
 - material/resource availability
 - GrimKoin/fees where applicable
-- snap compatibility
+- snap compatibility and occupancy
 - collision/overlap
 - terrain/slope
 - foundation/support
@@ -492,16 +546,17 @@ For the prototype, a small Data Table can be loaded/cached into an array. At sca
 **Multiplayer authority / `SpawnBuild`:**
 
 - client owns responsive ghost preview
-- confirm sends `SelectedBuildableID + candidate transform + optional snap target`
+- confirm sends `SelectedBuildableID + candidate transform + optional ParentStructureID + SnapPointID`
 - server resolves the authoritative Buildable Definition independently
+- server resolves the authoritative parent Structure and Snap Point when snapping is used
 - server re-validates the final requested transform and all rules
-- client `CanBuild`, Actor Class, cost and resource requirements are never authoritative
+- client `CanBuild`, Actor Class, cost, resource requirements, snap compatibility and snap occupancy are never authoritative
 - resources/payment are consumed only after authoritative validation succeeds
 - successful placement receives persistent Structure ID, owner/property links, support/snap relationships and world state
 
-**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; heavy buildable assets can use soft references/category loading; permanent structures participate in World Partition/HLOD/relevancy systems.
+**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; snap queries target the hit/relevant structure; heavy buildable assets can use soft references/category loading; permanent structures participate in World Partition/HLOD/relevancy systems.
 
-**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, doors/windows, build catalog favorites/recently used, snap-tag debugger, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
+**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, doors/windows, build catalog favorites/recently used, snap occupancy/reservation, snap-point scoring, snap-tag debugger, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
 
 Detailed canonical design: `Docs/Modular_Blueprint_Base_Building_System.md`.
 
@@ -529,6 +584,8 @@ Nonpayment can lead to actual service shutoff and gameplay consequences.
 Businesses include bars, clubs, stores, restaurants, garages, hotels, security companies, transport, apartment businesses, theaters/drive-ins, farms, construction companies, media companies and more.
 
 Owners pay wages, rent, tax, utilities, inventory, maintenance, security, advertising, and food/staff-meal costs where contracts or business models include them. Appropriate workers receive tips.
+
+Business owners/managers receive operational duties based on actual stock, staff, bills, customers, repairs, security, contracts and supply problems rather than decorative management menus.
 
 ## Phase 23 — Advertising
 
@@ -587,6 +644,7 @@ Detailed canonical design: `Docs/AI_Media_Ownership_Playback_Licensing.md`.
 - damage
 - theft
 - recovery
+- keyboard/mouse + gamepad driving controls
 
 **Upgrade:** trailers, towing, insurance, impound, GPS, plates, repairs, customization, racing, taxis, buses, freight/public transport.
 
@@ -597,6 +655,8 @@ Voice channels can include proximity, vehicle, room/property, party, phone/radio
 Text can include local, DM, party, business, faction, property/room, system/news.
 
 Players choose voice, text, or both.
+
+Communication UI must remain controller-navigable where it is part of required gameplay.
 
 ## Phase 28 — Social Activities
 
@@ -627,6 +687,8 @@ Persistent verified world-event records:
 - importance
 
 Election results, public appointments, recalls, major scandals, public-office deaths, major food shortages and similar civic events can feed the ledger.
+
+Role-duty completion/failure can feed relevant organization/public records when significant.
 
 ## Phase 30 — Metaworld News
 
@@ -678,9 +740,10 @@ Performance rule: evidence data may be recorded cheaply; do not render every sec
 
 **Upgrade:** body cams, dash cams, traffic cameras, fingerprints, footprints, ballistics, forensic/DNA-style evidence if desired, chain-of-custody, evidence lockers, detectives.
 
-## Phase 34 — Police, Ranks & Courts
+## Phase 34 — Police, Ranks, Duties & Courts
 
 - patrol/dispatch
+- world-state-driven daily/shift duties
 - warrants
 - evidence review
 - arrests
@@ -703,6 +766,8 @@ Promotion can consider service, successful work/cases, evidence quality, lawful 
 
 A bad officer who mistreats the city cannot simply spend GrimKoin to become Captain.
 
+Higher police rank changes duties: supervisors must manage personnel, priorities, resources, cases, emergencies and accountability rather than merely receiving a stronger badge.
+
 Player police have in-world legal authority only — not platform moderation powers.
 
 ## Phase 35 — Universal Combat
@@ -717,6 +782,7 @@ Player police have in-world legal authority only — not platform moderation pow
 - hit locations
 - injuries/bleeding/status
 - durability/condition
+- complete keyboard/mouse + controller combat mappings
 
 ## Phase 36 — Destruction
 
@@ -776,6 +842,7 @@ Detailed canonical design: `Docs/Food_Family_NPC_Needs_Community_Ranks_Governanc
 - treatment/rehabilitation
 - medical bills
 - supernatural medicine
+- real patient/emergency duties for healthcare roles
 
 **Upgrade:** insurance, specialist care, emergency rooms, blood banks and other systemic healthcare.
 
@@ -788,6 +855,7 @@ Detailed canonical design: `Docs/Food_Family_NPC_Needs_Community_Ranks_Governanc
 - magical equipment
 - magical locations/events
 - skill trees/professions
+- controller-compatible spell/ability selection and activation
 
 ## Phase 41 — Supernatural Lineages
 
@@ -832,6 +900,8 @@ Humans, vampires, werewolves and future lineages may create mixed or separate fa
 
 Faction leaders can use internal member/community election or other approved collective selection rules. GrimKoin does not automatically buy command rank.
 
+Faction ranks also carry role-appropriate responsibilities where the organization supports them.
+
 ## Phase 45 — Diplomacy
 
 Relationship states can include alliance, trade agreement, peace, tension, hostility, defensive pact, ceasefire, truce, occupation and war.
@@ -846,9 +916,13 @@ It can affect borders, checkpoints, travel, property, businesses, prices, food s
 
 No separate disconnected war lobby is required.
 
+Leadership/military role duties respond to actual war state, logistics and threats.
+
 ## Phase 47 — Real-Time Calendar
 
 Real elapsed time drives days/weeks/months/years and economic obligations such as bills, rent, taxes, payroll, permits, elections, campaign periods, leadership terms, contracts, estate windows and seasonal events.
+
+Role schedules, shifts and recurring responsibilities can use the same calendar without requiring every duty to be a daily repetitive quest.
 
 ## Phase 48 — Day/Night
 
@@ -869,7 +943,7 @@ Real elapsed time drives days/weeks/months/years and economic obligations such a
 - snow/ice where appropriate
 - regional climate
 
-Weather affects driving, survival, utilities, power, crops, food supply/prices, visibility, fires, businesses, NPC schedules and world events.
+Weather affects driving, survival, utilities, power, crops, food supply/prices, visibility, fires, businesses, NPC schedules, role duties and world events.
 
 ## Phase 50 — World Partition / HLOD
 
@@ -898,6 +972,8 @@ Unloaded NPC:
 
 NPC spouses/family/households can share food reserves and budgets where relevant.
 
+NPC workers/leaders can receive the same role-duty categories as players, resolved through cheaper scheduled simulation when unloaded.
+
 ## Phase 53 — NPC Intelligence
 
 - StateTree
@@ -906,6 +982,7 @@ NPC spouses/family/households can share food reserves and budgets where relevant
 - event-driven reasoning
 - schedules/goals/needs
 - food-seeking and meal behavior
+- role-duty selection/execution
 - emergency reactions
 - same world capability rules as players wherever practical
 
@@ -916,7 +993,7 @@ NPC spouses/family/households can share food reserves and budgets where relevant
 - distant NPC: lightweight state simulation
 - unloaded NPC: data record + timestamp/event simulation only
 
-Food, household consumption, employment and voting behavior must use aggregated/scheduled simulation when NPCs are unloaded rather than per-frame logic.
+Food, household consumption, employment, role duties and voting behavior must use aggregated/scheduled simulation when NPCs are unloaded rather than per-frame logic.
 
 Mass-based systems may be evaluated later but must not violate the Blueprint-first rule or become a required dependency until proven suitable.
 
@@ -937,27 +1014,38 @@ Provisioning options can include:
 - wages with permission for NPC to buy their own food
 - cook/logistics NPC maintaining supplies
 
+Companion tasks should fit their assigned role and actual team needs.
+
 ## Phase 56 — Optional AI NPC Gateway
 
 Optional local/external AI can improve selected NPC dialogue/planning, but normal NPC gameplay must function without paid AI.
 
 AI chooses high-level intent; Metaworld Blueprint systems validate and execute actual actions.
 
-AI-enhanced NPCs remain hungry, need resources, obey professions, spend real budget, and cannot invent food or bypass economy/world rules.
+AI-enhanced NPCs remain hungry, need resources, obey professions, spend real budget, perform role responsibilities, and cannot invent food or bypass economy/world rules.
 
-## Phase 57 — World Event Director
+## Phase 57 — World Event & Role Duty Director
 
 Contextual events can include zombie outbreaks, robberies, blackouts, fires, storms, faction attacks, supernatural incidents, protests, political events, elections, recalls, corruption scandals, food shortages, supply disruptions and war declarations.
+
+The same world state can generate duties for relevant roles instead of generic daily quests.
+
+Examples:
+
+- robbery -> police response/investigation + journalist coverage + hospital treatment if injured
+- storm -> utility repair + police traffic control + mayor emergency decisions + supply deliveries
+- food shortage -> farmer/driver/grocer contracts + leadership response + news coverage
+- war -> military/security duties + medical response + diplomacy + logistics + refugee aid
 
 ## Phase 58 — Zombies & Threat Systems
 
 Threats can reach houses, clubs, stores, hospitals, police stations, streets, farms, businesses and other places. No magical safe-zone immunity.
 
-Threats can disrupt food production, transport and household supply.
+Threats can disrupt food production, transport and household supply and generate emergency duties for many professions.
 
 ## Phase 59 — Authoritative Multiplayer
 
-Server authority governs money, inventory, combat outcomes, death, ownership, property, construction placement, evidence, tax, jobs, businesses, vehicles, votes, leadership rank, career rank, household state, and other critical state.
+Server authority governs money, inventory, combat outcomes, death, ownership, property, construction placement, evidence, tax, jobs, businesses, vehicles, votes, leadership rank, career rank, role-duty completion/rewards, household state, and other critical state.
 
 Construction placement requests use stable Buildable IDs; the server resolves authoritative Actor Class, cost, resource, snapping and permission data rather than trusting client values.
 
@@ -967,6 +1055,8 @@ Use relevancy/dormancy/update-rate reduction/compact state so clients do not rec
 
 Construction ghosts remain local/transient unless a deliberate cooperative-build feature requires sharing preview state; permanent structures replicate/stream through normal world relevancy.
 
+Role-duty UI receives only duties relevant to the player/organization/jurisdiction rather than global task spam.
+
 Evaluate UE5.8 replication options such as standard replication, Replication Graph and Iris only after Blueprint workflow and production suitability are verified.
 
 ## Phase 61 — Smoothness Program
@@ -975,9 +1065,13 @@ Primary target: stable 60-FPS-class gameplay on recommended PC hardware where pr
 
 Every major system has CPU/GPU/network/memory/significance budgets.
 
-Food, family, NPC hunger, elections and rank checks must be event/timestamp-driven rather than per-frame world scans.
+Food, family, NPC hunger, elections, role-duty checks and rank checks must be event/timestamp-driven rather than per-frame world scans.
 
 Construction placement updates run only during build mode, use targeted traces/overlaps, and stop immediately when build mode exits. Large build catalogs use lightweight indexes/soft references/category caching rather than loading every heavy construction asset at once.
+
+Construction snap detection asks only the hit/relevant structure for filtered compatible snap points; it never scans the whole world every placement update.
+
+Controller support must use Enhanced Input actions/context mappings rather than expensive polling hacks.
 
 ## Phase 62 — Nanite-First Rendering
 
@@ -999,7 +1093,7 @@ Use where appropriate for dense city/nightlife/local-light scenes, subject to pr
 
 Animation cost is significance-aware. Local player and important nearby characters receive priority; crowd/distant characters reduce update rate, IK, facial detail and other expensive layers.
 
-Meal/cooking/social animations only run at full fidelity when characters are relevant/visible.
+Meal/cooking/social/role-duty animations only run at full fidelity when characters are relevant/visible.
 
 ## Phase 66 — Shader Hitch Prevention
 
@@ -1009,14 +1103,24 @@ Construction ghost/preview materials and the full library of buildable materials
 
 ## Phase 67 — User Interface
 
-UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, construction/build catalogs, household/pantry needs, team provisioning, communications, news, police tools, elections/candidates/voting, career rank, creator systems, AI-media libraries and other game domains.
+UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, construction/build catalogs, household/pantry needs, team provisioning, communications, news, police tools, elections/candidates/voting, career rank, role duties/responsibilities, creator systems, AI-media libraries and other game domains.
 
 Construction UI can include categories, search/filter, favorites/recently used, thumbnails, material/resource costs, profession/permit requirements, snap compatibility, rotate/snap controls, placement failure reason and cancel/confirm controls.
 
-## Phase 68 — Accessibility
+All major required menus must have controller focus/navigation paths; mouse-only critical controls are not acceptable.
 
-- keyboard/mouse/controller
-- full rebinding
+## Phase 68 — Accessibility, Rebinding & Controller Compatibility
+
+- keyboard/mouse
+- Xbox-style controllers
+- PlayStation-style controllers
+- full/reasonable rebinding
+- Enhanced Input action/context architecture
+- controller focus navigation
+- device-appropriate prompts where practical
+- stick sensitivity/dead-zone settings
+- invert axes where appropriate
+- hold/toggle options where useful
 - subtitles
 - text alternative to voice
 - per-player voice volume/mute/block
@@ -1029,7 +1133,11 @@ Construction UI can include categories, search/filter, favorites/recently used, 
 - rebindable construction controls rather than a mandatory `B` key
 - next/previous construction cycling is rebindable and also accessible through catalog UI
 
-## Phase 69 — Worst-Case Performance Test Worlds
+**Acceptance gate:** every major player-facing feature is tested with keyboard/mouse, an Xbox-style gamepad and a PlayStation-style gamepad. A feature is not complete if required gameplay cannot be completed through a supported controller path.
+
+Detailed canonical design: `Docs/Controller_Input_Compatibility_Architecture.md`.
+
+## Phase 69 — Worst-Case Performance & Input Test Worlds
 
 Required stress tests include:
 
@@ -1038,15 +1146,18 @@ Required stress tests include:
 - zombie attack during crowded event
 - police response + cameras + vehicles + news
 - city election/rally with many player/NPC voters
+- role-duty director generating simultaneous legitimate duties across multiple professions
 - large household/companion base with food consumption and schedules
 - restaurant/grocery supply scene with many NPC consumers
-- active construction site with catalog cycling, ghost preview, foundation/floor/wall snapping, repeated modular pieces and many nearby finished structures
+- active construction site with catalog cycling, ghost preview, interface snap detection, foundation/floor/wall snap boxes, repeated modular pieces and many nearby finished structures
 - large construction catalog selection stress test without loading every heavy asset
+- full construction flow tested with keyboard/mouse, Xbox-style controller and PlayStation-style controller
+- controller navigation through character creator, inventory, build catalog, bank and job/role-duty UI
 - war/combat/destruction scene
 - dense property with many owned items
 - creator marketplace/business district
 
-A feature is not complete because it works in an empty test map.
+A feature is not complete because it works in an empty test map or only with one input device.
 
 ## Phase 70 — Wildlife & Animals
 
@@ -1060,6 +1171,8 @@ Future expansion: crops, livestock, food supply chains, grocery businesses, rest
 
 Agriculture is a strategic food-economy pillar because household, NPC, business and city demand consumes actual food supply.
 
+Agriculture roles receive actual production/harvest/supply duties based on season, land, weather, demand and shortages.
+
 ## Phase 72 — Education
 
 Future expansion: profession schools, universities, training centers, certifications, mentorship and skill instruction.
@@ -1071,6 +1184,8 @@ Builder training/certification can unlock larger or regulated construction categ
 ## Phase 73 — Public Transportation
 
 Future expansion: buses, taxis, trains, stations, transit jobs and fares.
+
+Transit employees receive real route/transport duties based on schedules and demand.
 
 ## Phase 74 — Insurance
 
@@ -1090,13 +1205,15 @@ Future expansion: religions, temples/churches/orders, ceremonies, faith reputati
 
 Religious/community leadership can use its own trust/election/selection rules and cannot automatically be purchased with GrimKoin unless that specific institution's legitimate world rules explicitly allow a monetary office — which does not override public-government rank rules.
 
+Leadership roles can receive institution-appropriate responsibilities generated from actual followers/events/community needs.
+
 ## Phase 77 — Legacy / Long-Term Player Goals
 
 Metaworld does not need a single final boss/end screen.
 
 Long-term accomplishments can include becoming Mayor, Governor, President, King, Queen, Police Captain/Chief where configured, business elite, famous AI-media creator/musician/filmmaker, notorious criminal, legendary builder/gunsmith, landlord/property owner, faction leader, vampire coven leader, werewolf pack leader, war survivor/hero, historical figure, family founder or community leader.
 
-Leadership is meaningful because players/NPC communities must trust and select you. GrimKoin cannot simply purchase these achievements.
+Leadership is meaningful because players/NPC communities must trust and select you and because high office carries real responsibilities. GrimKoin cannot simply purchase these achievements.
 
 Builders can leave persistent architectural history through famous homes, businesses, public works, monuments and districts recorded in property/history systems.
 
@@ -1117,29 +1234,32 @@ Current development only preserves the ledger/provenance architecture needed so 
 | Foundation | Approved Upgrade |
 |---|---|
 | Third-person starter | Master Blueprint + modular Blueprint Components |
+| Input | Enhanced Input + keyboard/mouse + Xbox-style + PlayStation-style controller support across every major player-facing feature |
 | Basic locomotion | Motion Matching + IK + contextual movement |
-| Character creator | Full morph system + age + body diversity + clothing fitting |
-| Inventory | Persistent Item DNA + container/household storage rules |
+| Character creator | Full morph system + age + body diversity + clothing fitting + controller navigation |
+| Inventory | Persistent Item DNA + container/household storage rules + controller UI |
 | Weapons | Universal object capabilities |
 | GrimKoin/PromoKoin | Full server-authoritative ledger + provenance |
 | Banking | Bank privacy + death settlement + estates/wills |
 | Jobs | Profession qualifications + licensing + apprenticeship later |
+| Role duties | Dynamic world-state-driven responsibilities fitting each job/rank rather than repetitive arbitrary daily chores |
 | Career ranks | Merit/service/trust-based promotion; no GrimKoin rank purchase |
-| Government | Community elections/selection for Mayor/President/King/Queen and other civic leadership |
+| Playable hierarchy | No Owner rank; King/Sovereign Queen highest player rank, President next, lower ranks scoped by jurisdiction/organization |
+| Government | Community elections/selection for Mayor/President/King/Queen and other civic leadership + real leadership responsibilities |
 | Political economy | Campaign spending allowed; vote buying/bribery only as risky corruption gameplay |
 | City tax | Persistent city treasury + budgets/government |
 | Food | Real household/NPC consumption + meaningful pricing + supply-chain economy |
 | Family | Spouse/household needs + pantry/budget responsibility |
 | AI/NPC companions | Hunger + provisioning/rations/wages; AI does not remove physical needs |
 | Property | 3D parcels + utilities + real-calendar bills |
-| Construction | Modular `BPC_MW_BuildComponent` + Data Table/Data Asset catalog + stable Buildable IDs + quick cycling/catalog UI + snap tags/sockets + timer ghost preview + property/profession/resource validation + server-authoritative persistent placement |
-| Business | Employees + payroll + food where applicable + tax + tips + advertising |
-| Vehicles | Cargo + ownership + theft + maintenance + damage |
+| Construction | Modular `BPC_MW_BuildComponent` + Data Table/Data Asset catalog + stable Buildable IDs + quick cycling/catalog UI + `BPI_MW_BuildSnapProvider` + query-only snap volumes + snap tags/IDs + controller controls + timer ghost preview + property/profession/resource validation + server-authoritative persistent placement |
+| Business | Employees + payroll + food where applicable + tax + tips + advertising + operational duties |
+| Vehicles | Cargo + ownership + theft + maintenance + damage + controller driving |
 | Social | Spatial voice + text + living social venues |
 | Player media | AI-generated-only + creator ownership + per-buyer entitlements + spatial shared playback |
 | Cameras | Evidence system without omniscient identity or constant SceneCapture |
 | News | Event Ledger-driven news throughout world |
-| NPCs | StateTree + Smart Objects + population LOD + scheduled needs/voting |
+| NPCs | StateTree + Smart Objects + population LOD + scheduled needs/voting/role duties |
 | Supernatural | Lineages + morphs + politics + territory + war |
 | Rendering | Nanite-first + HLOD + scalable Lumen/MegaLights |
 | Smoothness | Performance budgets + PSO precaching + continuous profiling |
@@ -1173,15 +1293,21 @@ Recommended vertical slice contains:
 - selection change refreshes ghost mesh and placement rules
 - camera-based placement trace with data-driven range
 - timer-driven green/red ghost preview
-- grid rotation/snap
+- `BPI_MW_BuildSnapProvider` implemented by Foundation/Floor/Wall pieces
+- Query-Only Box Collision or equivalent snap acquisition volumes with stable Snap Point IDs
 - snap metadata proving Foundation/Floor/Wall compatibility
-- invalid snap combination rejection
+- interface-driven snap detection on the hit/relevant structure
+- invalid/occupied snap combination rejection
+- grid rotation/snap
 - property-boundary permission rejection
 - Builder qualification check for structural piece
 - material/GrimKoin cost validation
-- server resolves Buildable ID rather than trusting client Actor Class/cost
+- server resolves Buildable ID + Parent Structure ID + Snap Point ID rather than trusting client Actor Class/cost/snap state
 - server-authoritative final placement and persistent Structure ID
-- one usable vehicle
+- complete construction flow tested with keyboard/mouse
+- complete construction flow tested with Xbox-style controller
+- complete construction flow tested with PlayStation-style controller
+- one usable vehicle with keyboard/mouse and controller driving
 - GrimKoin + PromoKoin
 - VIP purchase architecture stub without future cashout
 - banking
@@ -1189,10 +1315,13 @@ Recommended vertical slice contains:
 - bills/utilities
 - inventory + Item DNA
 - jobs/professions
+- at least three role-duty examples generated from actual town state
 - police rank prototype based on service/reputation rather than money
+- one police shift with world-state-driven duties
 - one local election prototype with player/NPC voters
 - campaign spending separated from actual votes
-- morph character creator
+- one Mayor leadership-duty example based on a real town problem
+- morph character creator fully navigable with controller
 - clothing fitting baseline
 - voice/text
 - one AI-generated song marketplace purchase + owned-copy playback test
@@ -1213,6 +1342,7 @@ Recommended vertical slice contains:
 - estate/recovery system
 - Event Ledger
 - news reporting what actually happened
+- controller navigation test through major vertical-slice menus
 - performance stress testing
 
 If this town works smoothly and the systems truly interoperate, Metaworld has proven the architecture needed to scale outward.
@@ -1236,6 +1366,8 @@ The permanent architecture is:
 `Budget expensive systems`
 
 `Profile continuously`
+
+`Support controller and keyboard/mouse from feature inception`
 
 `Scale visuals before sacrificing responsiveness`
 
@@ -1268,8 +1400,10 @@ Rules for intake:
 6. Preserve Blueprint-first runtime architecture unless the owner explicitly changes that rule.
 7. Preserve the smoothness/performance target.
 8. Preserve player ownership/economy/security rules.
-9. Mark experimental Unreal features as research/evaluation until proven suitable.
-10. Keep the roadmap current so it can always answer: what is approved, what comes later, and what still needs research.
+9. Preserve Xbox-style and PlayStation-style controller compatibility for player-facing features alongside keyboard/mouse.
+10. Preserve role-appropriate responsibility/duty integration when a new feature affects jobs, professions, departments or leadership.
+11. Mark experimental Unreal features as research/evaluation until proven suitable.
+12. Keep the roadmap current so it can always answer: what is approved, what comes later, and what still needs research.
 
 ---
 
@@ -1283,6 +1417,7 @@ The Master Roadmap is supported by detailed companion designs in `Docs/`, includ
 - `Blueprint_Python_Nanite_Architecture.md`
 - `Character_Morph_Customization_System.md`
 - `City_Taxation_Jobs_Wealth_Reputation.md`
+- `Controller_Input_Compatibility_Architecture.md`
 - `Creator_Marketplace_Texture_System.md`
 - `Earth_Property_Vehicles_Media_News.md`
 - `Estate_Wills_Inheritance_Succession.md`
@@ -1302,6 +1437,8 @@ For player music/video ownership and playback, `AI_Media_Ownership_Playback_Lice
 
 For food, family/household needs, NPC provisioning, community voting, professional rank and elected leadership, `Food_Family_NPC_Needs_Community_Ranks_Governance.md` is the detailed canonical companion design.
 
+For controller/input compatibility, `Controller_Input_Compatibility_Architecture.md` is the detailed canonical companion design. Every future player-facing feature must preserve keyboard/mouse plus Xbox-style and PlayStation-style controller operation where a reasonable control path exists.
+
 For construction/base-building, `Modular_Blueprint_Base_Building_System.md` is the detailed canonical companion design and supersedes generic older construction wording when additional detail is required.
 
-For global roleplay rank placement and the relative order of Owner -> King/Sovereign Queen -> President -> lower civic and professional authority, `World_Rank_Hierarchy_Roleplay_Authority.md` is the detailed canonical companion design.
+For global playable roleplay rank placement, `World_Rank_Hierarchy_Roleplay_Authority.md` is the detailed canonical companion design. There is no Owner/Creator gameplay rank; King/Sovereign Queen is the highest player-held rank and President is directly below it.
