@@ -21,6 +21,7 @@
 - Construction systems should integrate with Builder jobs, NPC workers, contracts, economy and role duties rather than remain isolated minigames.
 - Buildable orientation is data-driven and snap-aware; snapping constrains legal rotation instead of automatically disabling rotation.
 - Physical overlap validation uses explicit placement footprints plus logical slot occupancy; render-mesh bounds, Visibility traces and one universal shrink multiplier are not authoritative placement rules.
+- Structural support must terminate through valid terrain or an approved support chain. Elevated structures are allowed when their definition and real supports permit them; arbitrary unsupported floating structures are not.
 
 ---
 
@@ -221,6 +222,38 @@ Approved:
 
 Detailed companion: `Docs/Construction_Overlap_Collision_Validation_System.md`
 
+## Episode Upgrade 11 — Foundation Height, Terrain Support & Extensions
+
+**Classification:** UPGRADE — APPROVED
+
+Approved:
+- foundations check for valid support below authored support sample points rather than permitting arbitrary floating placement
+- tutorial four-corner Arrow Components are generalized into data-driven `SupportSamplePoints[]`; small foundations may still use four corners while larger/irregular pieces can use more appropriate authored patterns
+- support queries measure direct-ground/support distance and classify direct support, extension-required support or invalid support
+- single fixed floating-height limits become per-buildable `MaximumUnsupportedDistance`, support query range, slope/normal and support-type rules
+- a downward trace hit is not automatically valid ground; accepted terrain/structural support is defined through tags/data
+- vehicles, characters, loose props and other non-structural objects cannot become fake foundation support merely because a trace hits them
+- uneven terrain may automatically preview pier/post/footing/foundation-extension pieces beneath required sample points
+- extension segment family/type, height, stack count, maximum depth, allowed surfaces, collision, durability and support metadata are data-driven
+- required support extensions add real material/resource cost and Construction Work Units; auto-generated support is not free
+- required extension cost/work is shown before confirmation where practical
+- missing materials, excessive depth, invalid support surface, collision, zoning/property/depth-right violations or unsupported slope can block placement
+- elevated/stilt/deck-style structures remain possible when their Buildable Definition explicitly allows the support pattern and a valid structural chain exists
+- extension ghosts are transient/non-blocking during preview and use construction/ghost presentation rather than finished physical collision
+- successful support extensions become real persistent structural elements with Structure IDs and parent/support relationships
+- foundation support connects into the existing structural graph: approved ground/base -> extension/pier -> foundation -> walls/columns -> upper floors
+- support-extension placement uses the canonical overlap footprint system and allows only intentional structural contact
+- unfinished support pieces participate in the build-to-completion system rather than magically becoming completed if their construction definition requires labor/stages
+- support state can later participate in damage, repair, inspection, collapse/instability and emergency Builder duties when critical supports are lost
+- no permanent per-frame ground tracing after placement; support validation/recalculation is event-driven
+- client support calculations are advisory; server independently resolves sample points, support hits, extension counts, total cost and legal depth before creating the construction site
+- modified clients cannot fake ground height, omit required extensions or bypass extension resource/depth rules
+- property footprint, 3D build volume, subsurface/depth rights, zoning, protected/public space and future underground-utility restrictions can apply
+- keyboard/mouse, Xbox-style controller and PlayStation-style controller users receive the same support/height feedback and confirmation flow
+- Python Editor tooling can audit support sample points, extension definitions, pivots, collision/footprints and suspicious support metadata
+
+Detailed companion: `Docs/Foundation_Terrain_Support_Extension_System.md`
+
 ---
 
 # Current Phase 20 Construction Stack
@@ -230,6 +263,8 @@ Detailed companion: `Docs/Construction_Overlap_Collision_Validation_System.md`
 `-> Ghost Placement / Rotation / Orientation`
 
 `-> Placement Footprint / Overlap / Slot-Occupancy Validation`
+
+`-> Terrain / Foundation Support Sampling & Required Extensions`
 
 `-> Property / Profession / Resource Validation`
 
@@ -266,6 +301,12 @@ Detailed companion: `Docs/Construction_Overlap_Collision_Validation_System.md`
 # Overlap Validation Principle
 
 > Metaworld separates what an asset looks like from the space it is allowed to occupy. Explicit placement footprints, snap-slot occupancy and authoritative server obstruction checks decide whether a structure fits; tutorial trace channels, mesh bounds and shrink constants are implementation aids, not world truth.
+
+---
+
+# Foundation Support Principle
+
+> Metaworld does not require every foundation to touch flat terrain, but every structural load path must end in valid support. Uneven/elevated construction uses real authored support rules and persistent extension pieces with real cost and labor; unsupported floating construction is rejected.
 
 ---
 
