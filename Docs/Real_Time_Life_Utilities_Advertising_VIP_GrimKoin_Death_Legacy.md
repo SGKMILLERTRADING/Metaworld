@@ -215,11 +215,26 @@ Players can obtain GrimKoin through:
 - Trading
 - Contracts
 - City/public work
-- Player gifts
+- Legitimate player-to-player gifts of already-existing GrimKoin
 - Other legitimate in-world earnings
 - Optional purchase from the official VIP Store
 
-A player-to-player gift transfers already-existing GrimKoin; it does not create new currency.
+## Strict Gifting Rule
+
+A GrimKoin gift must come from GrimKoin the gifting player already owns.
+
+Valid gift sources are:
+
+- GrimKoin the player legitimately earned through gameplay/economic activity; or
+- GrimKoin the player previously purchased from the official Metaworld VIP Store.
+
+A gift is only an ownership transfer. It never creates new GrimKoin.
+
+The gifting player must have the transferred amount available in an eligible owned balance at the time the transfer commits. The system must debit the giver and credit the receiver atomically.
+
+There is no separate system-generated "gift GrimKoin," no infinite gifting allowance, and no other method for a player to mint currency by calling a gift function.
+
+If future bank-to-bank gifting/transfers are allowed, the same rule applies: the funds must already exist in the sender's own account and must move through the authoritative ledger.
 
 ---
 
@@ -262,7 +277,17 @@ Recommended ledger provenance fields:
 - Wallet/bank destination
 - Fraud/refund status
 
-This allows Metaworld to distinguish currency that was issued through the VIP Store from currency earned through gameplay.
+Every player-to-player gift should also record:
+
+- Giver account/character ID
+- Receiver account/character ID
+- Amount
+- Source balance
+- Provenance linkage to already-existing GrimKoin
+- Timestamp
+- Before/after balances
+
+This allows Metaworld to distinguish currency that was issued through the VIP Store from currency earned through gameplay while still proving that gifts only move existing currency.
 
 This distinction may become important for future economy analytics, fraud detection, refunds, balancing, and any future GrimKoin buyback program.
 
@@ -328,7 +353,33 @@ They must survive their new life using whatever resources, allies, knowledge, le
 
 ---
 
-# 13. Physical Property and Possessions Can Be Lost After Death
+# 13. Death Must Be Expensive Enough to Change Player Behavior
+
+Permanent death is intentionally costly.
+
+Metaworld should create a real reason for players to value ordinary life, friendships, entertainment, business, family/community activity, parties, professions, and peaceful prosperity instead of treating constant fighting as the only meaningful activity.
+
+A player considering a pointless fight may be risking:
+
+- Their current character identity
+- Carried GrimKoin
+- A major portion of banked GrimKoin
+- Property security
+- Vehicles
+- Equipment
+- Businesses
+- Relationships
+- Reputation
+- Recovery time
+- Valuable possessions
+
+Core design goal:
+
+> Fighting can be exciting, but dying should hurt enough that a successful life is worth protecting.
+
+---
+
+# 14. Physical Property and Possessions Can Be Lost After Death
 
 The dead character's physical world does not disappear.
 
@@ -352,9 +403,11 @@ Friends, guards, employees, tenants, enemies, thieves, raiders, hostile NPCs, fa
 
 The new character does not automatically teleport every old item into a new inventory.
 
+If the dead character's friends, guards, or allies also die or abandon the property, no artificial protection appears. Hostile players or NPCs can take advantage of the loss of defenders under normal world rules.
+
 ---
 
-# 14. Tracking Codes / Asset Recovery Codes
+# 15. Tracking Codes / Asset Recovery Codes
 
 Important owned assets can expose a private tracking/recovery code while the original character owns them.
 
@@ -380,7 +433,7 @@ If the player never saved the code, the new character may have no direct trackin
 
 ---
 
-# 15. Limited Legacy Recovery Window
+# 16. Limited Legacy Recovery Window
 
 After permanent character death, the account's new character receives a limited recovery/legacy period for eligible former assets.
 
@@ -398,13 +451,17 @@ When it expires:
 
 - Special legacy tracking/recovery privileges end.
 - Unrecovered physical property is no longer treated as specially recoverable by the former account.
-- Whoever legally or successfully possesses/claims the asset under world rules may retain it.
+- A player or NPC who has successfully taken/claimed/possessed the property under world rules may keep it.
+- Unclaimed or abandoned estate assets can pass into city/NPC/system-controlled abandoned-property, auction, salvage, repossession, cleanup, or other Metaworld sink processes depending on asset type and jurisdiction.
+- The former account no longer receives a special right to recover those assets merely because a previous character once owned them.
+
+If the original player's friends also die, fail, or cannot recover the property before the timer expires, the same rule applies: the old estate is lost to whoever successfully controls it or to the applicable Metaworld/NPC/city system.
 
 The exact duration should be balanced later rather than hardcoded now.
 
 ---
 
-# 16. Recovery Is Not Automatic Ownership Restoration
+# 17. Recovery Is Not Automatic Ownership Restoration
 
 Knowing where your former property is does not mean the world gives it back.
 
@@ -430,28 +487,45 @@ A friend may:
 - Help reclaim property
 - Protect the recovery mission
 
+But friends are not immortal insurance. If they die too, abandon the estate, lose the fight, or fail to act before the recovery window ends, the estate can be permanently lost.
+
 This makes relationships have real stakes.
 
 ---
 
-# 17. Banked GrimKoin and Death
+# 18. Banked GrimKoin and Death — Up to 50% Can Be Lost
 
-Banked GrimKoin should not become a loose physical object that a random killer receives automatically.
+Banking protects GrimKoin from ordinary carried-cash loss, but it does not make death financially harmless.
 
-Recommended architecture:
+Canonical death rule:
 
-- The dead character's bank balance enters an estate/legacy state.
-- It is not immediately available as ordinary wallet money to the new character.
-- It is not automatically lootable by whoever killed the character.
-- A future estate/inheritance process determines what portion, if any, can pass to the new character or named beneficiaries.
+> On permanent character death, the bank/estate system may take up to 50% of the deceased character's banked GrimKoin before any surviving legacy balance can be recovered.
 
-The exact inheritance rule remains a separate design decision and should be configured before permanent-death implementation is finalized.
+The exact percentage may be configured by the final death/estate balance rules, but it must never exceed 50% under this rule.
 
-Physical carried GrimKoin, if the death/loot rules make carried currency lootable, can be treated separately from banked funds.
+Example:
+
+Bank balance before death: 20,000 GrimKoin
+
+Possible death settlement:
+- Estate/bank loss: 8,000 GrimKoin
+- Surviving legacy balance: 12,000 GrimKoin
+
+Maximum case:
+- Estate/bank loss: 10,000 GrimKoin
+- Surviving legacy balance: 10,000 GrimKoin
+
+The lost share becomes an intentional economy sink or bank/estate settlement according to the configured economic rules. It is not automatically awarded to the killer.
+
+The surviving balance enters the legacy/estate process rather than automatically appearing in the new character's wallet.
+
+Physical carried GrimKoin can be governed by separate loot/death rules.
+
+This creates a major reason to avoid meaningless death: even a wealthy player who banks carefully can lose a painful portion of accumulated wealth.
 
 ---
 
-# 18. Death Becomes World History
+# 19. Death Becomes World History
 
 A permanent character death can generate Event Ledger records.
 
@@ -477,7 +551,7 @@ The new character is a new person, not a magical resurrection of the old identit
 
 ---
 
-# 19. Example — Life, Bills, Death and Recovery
+# 20. Example — Life, Bills, Death and Recovery
 
 A player owns a house in a cold region.
 
@@ -507,6 +581,8 @@ Later the character dies during another world event.
 
 That identity is permanently dead.
 
+The bank/estate system applies the configured death settlement and removes a portion of the dead character's banked GrimKoin, potentially as much as half.
+
 The player returns through the same account as a newly named character and receives no first-time food/water package.
 
 Their old truck has been stolen.
@@ -519,13 +595,13 @@ They discover a hostile group now has the truck.
 
 The new character and loyal friends must decide whether to negotiate, involve police, pay for recovery, or fight to get it back.
 
-If the recovery timer expires before they reclaim it, the special legacy claim is gone.
+If both friends die during the recovery attempt and the new character still cannot reclaim the estate before the recovery timer expires, the former estate loses its special legacy protection. The hostile possessors or applicable NPC/city/Metaworld systems keep or dispose of the assets under world rules.
 
 The world remembers the original character's death and everything that happened afterward.
 
 ---
 
-# 20. Core Principle
+# 21. Core Principle
 
 Metaworld should not feel like a lobby where nothing matters after logout or death.
 
@@ -539,11 +615,13 @@ Businesses advertise and pay the city.
 
 News follows the world everywhere.
 
-Players can work for GrimKoin or optionally buy GrimKoin only from Metaworld's VIP Store.
+Players can work for GrimKoin or optionally buy newly issued GrimKoin only from Metaworld's VIP Store.
 
-Players can gift existing GrimKoin to each other.
+Players can gift only GrimKoin they already legitimately own; gifting never creates currency.
 
 Death ends the character's identity.
+
+Death can also destroy up to half of that character's banked GrimKoin through the bank/estate settlement system.
 
 The account continues, but the next character starts a new life without first-time starter resources.
 
@@ -551,6 +629,8 @@ Property and possessions remain in the world and may be stolen, occupied, defend
 
 Tracking codes and loyal relationships can help recover a former life — but only for a limited time.
 
+If the new character and their allies fail, other players, NPCs, the city, or Metaworld's abandoned-property systems can ultimately keep or absorb what remains.
+
 The target feeling is simple:
 
-> A great life in Metaworld is possible, but the player has to build it, maintain it, protect it, and survive long enough to keep it.
+> A great life in Metaworld is possible, but the player has to build it, maintain it, protect it, survive long enough to keep it, and understand that death can erase a painful part of everything they built.
