@@ -1,4 +1,4 @@
-# Metaworld — Master Development Roadmap v2.6
+# Metaworld — Master Development Roadmap v2.7
 
 **Status:** Canonical / Approved
 
@@ -89,6 +89,12 @@ Metaworld is always **game first**. Realism exists to create stories, choices, r
 59. Door-opening and window-opening walls are real structural variants, not cosmetic mesh swaps. Their collision, opening dimensions, attachment slots, costs, support metadata, damage state and future door/window compatibility may differ.
 60. Foundations and floors expose compatible wall-edge snap points through the common snap-provider architecture. All valid wall-family variants can use the same edge snap contract when their data allows it.
 61. Preview mesh/variant switching may use movable preview components, but permanent structures are not required to remain Movable merely to support build-menu variant cycling. Final variant state is resolved authoritatively and persisted.
+62. A structural door opening is not the door, and a structural window opening is not the window. Doors/windows are separate persistent buildable objects installed into compatible opening/attachment slots.
+63. Each opening has stable identity, dimensions, compatibility, occupancy and obstruction metadata. A door/window installation must reference and occupy a real authoritative opening rather than relying only on raw world coordinates.
+64. Door/window families are data-driven. Different styles should primarily add definitions/variants, not duplicate whole wall Blueprints.
+65. Metaworld does not create a new global trace channel for every door/window/buildable type. A small set of general build/snap/obstruction queries is combined with tags, IDs and attachment-slot metadata.
+66. Tutorial collision extents such as setting a Y Box Extent to `1` may be useful tuning examples but are not canonical magic values. Final placement uses opening occupancy, object bounds, obstruction checks, snap/attachment metadata and server collision validation to prevent building inside walls or other structures.
+67. Door/window asset alignment is standardized through pivot/orientation/opening metadata. Arbitrary Blueprint rotation/offset fixes are data exceptions, not the normal content pipeline.
 
 ---
 
@@ -545,6 +551,29 @@ For the prototype, a small Data Table can be loaded/cached into an array. At sca
 - preview can dynamically change wall variants; the server resolves and persists the final variant definition
 - converting a placed solid wall into an opening later is an authorized renovation transaction, not an untracked cosmetic mesh swap
 
+**Doors, windows & opening attachment upgrade:**
+
+- `Wall.DoorOpening` provides a real persistent door opening/attachment slot; it is not itself the installed door
+- `Wall.WindowOpening` provides a real persistent window opening/attachment slot; it is not itself the installed window
+- initial installable families include `Build.Family.Door` and `Build.Family.Window`
+- each opening has stable Opening/Attachment Slot ID, transform, dimensions, facing, compatibility tags, occupancy state, installed Object/Structure ID and obstruction bounds
+- door/window definitions declare accepted opening types/sizes and their own dimensions, collision, cost, durability and behavior
+- player targets a compatible opening; preview snaps to that exact opening transform
+- an occupied opening rejects another normal installation unless a future multi-part definition explicitly allows it
+- solid walls reject Door/Window installation because they expose no compatible opening slot
+- final server request references Buildable ID + Parent Structure ID + Opening/Attachment Slot ID; raw coordinates alone are not authoritative
+- server checks opening existence, occupancy, size/type compatibility, property permissions, Builder requirements, cost/resources, obstruction/collision and world rules before installation
+- door/window receives its own persistent ID and state while retaining a parent-opening relationship
+- save/load restores wall, opening, installed object, state and relationship
+- door/window pivots/orientation/closed-state transforms are standardized in the asset pipeline; per-asset offsets are explicit data exceptions
+- use a small number of Build Placement/Snap/Obstruction query profiles rather than one new global trace channel for each door/window type
+- collision/acquisition extents are tuned per kit; no single tutorial number such as Y Extent `1` is treated as universal correctness
+- doors can later integrate open/close, locks, keys, household/business permissions, alarms, breach/damage and security systems
+- windows can later integrate openable variants, breakable glass, reinforcement, alarms, weather exposure and repair
+- full door/window selection, installation and interaction paths must remain controller-compatible
+
+Detailed canonical design: `Docs/Doors_Windows_Openings_Construction_System.md`.
+
 **Placement validation integrates with the whole Metaworld:**
 
 - property/deed/build-volume rights
@@ -554,8 +583,10 @@ For the prototype, a small Data Table can be loaded/cached into an array. At sca
 - material/resource availability
 - GrimKoin/fees where applicable
 - snap compatibility and occupancy
+- opening/attachment-slot compatibility and occupancy where applicable
 - variant compatibility
 - variant-specific collision/overlap
+- obstruction bounds
 - terrain/slope
 - foundation/support
 - height/air-right/subsurface restrictions
@@ -565,19 +596,20 @@ For the prototype, a small Data Table can be loaded/cached into an array. At sca
 **Multiplayer authority / `SpawnBuild`:**
 
 - client owns responsive ghost preview
-- confirm sends `SelectedBuildableID/VariantID + candidate transform + optional ParentStructureID + SnapPointID`
+- structural placement confirm sends `SelectedBuildableID/VariantID + candidate transform + optional ParentStructureID + SnapPointID`
+- opening installation sends selected Door/Window Buildable ID + Parent Structure ID + Opening/Attachment Slot ID + candidate transform
 - server resolves the authoritative Buildable/Variant Definition independently
-- server resolves the authoritative parent Structure and Snap Point when snapping is used
+- server resolves the authoritative parent Structure, Snap Point or Opening/Attachment Slot when used
 - server re-validates the final requested transform and all rules
-- client `CanBuild`, Actor Class, mesh, cost, resource requirements, snap compatibility and snap occupancy are never authoritative
+- client `CanBuild`, Actor Class, mesh, cost, resource requirements, snap/opening compatibility and occupancy are never authoritative
 - resources/payment are consumed only after authoritative validation succeeds
-- successful placement receives persistent Structure ID, Family/Variant state, owner/property links, support/snap relationships and world state
+- successful placement receives persistent Structure/Object ID, Family/Variant state, owner/property links, support/snap/opening relationships and world state
 
-**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; snap queries target the hit/relevant structure; heavy buildable assets can use soft references/category loading; wall variants share common logic; permanent structures participate in World Partition/HLOD/relevancy systems.
+**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; snap/opening queries target the hit/relevant structure; heavy buildable assets can use soft references/category loading; wall/door/window variants share common logic; moving door logic runs only while needed; permanent structures participate in World Partition/HLOD/relevancy systems.
 
-**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, standard/door-opening/window-opening walls, placeable doors/windows attached to openings, multiple opening sizes/styles, build catalog favorites/recently used, snap occupancy/reservation, snap-point scoring, snap-tag debugger, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
+**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, standard/door-opening/window-opening walls, separate placeable doors/windows attached to persistent opening slots, multiple opening sizes/styles, door locks/keys/access permissions, security/reinforced doors/windows, breakable windows, build catalog favorites/recently used, snap/opening occupancy/reservation, snap-point scoring, snap-tag debugger, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
 
-Detailed canonical design: `Docs/Modular_Blueprint_Base_Building_System.md`.
+Detailed canonical construction design: `Docs/Modular_Blueprint_Base_Building_System.md`.
 
 ## Phase 21 — Utilities & Bills
 
@@ -812,6 +844,8 @@ Player police have in-world legal authority only — not platform moderation pow
 
 Destruction must obey physics/performance budgets.
 
+Door/window destruction later uses the separate persistent object state rather than requiring the entire wall to be replaced.
+
 ## Phase 37 — Player Needs & Survival
 
 - Health
@@ -964,6 +998,8 @@ Role schedules, shifts and recurring responsibilities can use the same calendar 
 
 Weather affects driving, survival, utilities, power, crops, food supply/prices, visibility, fires, businesses, NPC schedules, role duties and world events.
 
+Open/broken windows and doors can later affect weather exposure/interior comfort when those systems are implemented.
+
 ## Phase 50 — World Partition / HLOD
 
 Large Earth regions use streaming/HLOD so players never pay full simulation/rendering cost for the entire world at once.
@@ -1004,6 +1040,8 @@ NPC workers/leaders can receive the same role-duty categories as players, resolv
 - role-duty selection/execution
 - emergency reactions
 - same world capability rules as players wherever practical
+
+NPCs should understand usable doors/openings through normal navigation/interaction systems rather than construction-only snap collision.
 
 ## Phase 54 — NPC Population LOD
 
@@ -1054,6 +1092,7 @@ Examples:
 - robbery -> police response/investigation + journalist coverage + hospital treatment if injured
 - storm -> utility repair + police traffic control + mayor emergency decisions + supply deliveries
 - food shortage -> farmer/driver/grocer contracts + leadership response + news coverage
+- damaged/breached property -> Builder/security/police/insurance duties where relevant
 - war -> military/security duties + medical response + diplomacy + logistics + refugee aid
 
 ## Phase 58 — Zombies & Threat Systems
@@ -1062,17 +1101,21 @@ Threats can reach houses, clubs, stores, hospitals, police stations, streets, fa
 
 Threats can disrupt food production, transport and household supply and generate emergency duties for many professions.
 
+Doors/windows can later be breached/damaged according to their real durability/security state rather than acting as magic barriers.
+
 ## Phase 59 — Authoritative Multiplayer
 
 Server authority governs money, inventory, combat outcomes, death, ownership, property, construction placement, evidence, tax, jobs, businesses, vehicles, votes, leadership rank, career rank, role-duty completion/rewards, household state, and other critical state.
 
-Construction placement requests use stable Buildable/Variant IDs; the server resolves authoritative Actor Class, mesh/variant, cost, resource, snapping and permission data rather than trusting client values.
+Construction placement requests use stable Buildable/Variant IDs; the server resolves authoritative Actor Class, mesh/variant, cost, resource, snapping, opening/attachment and permission data rather than trusting client values.
 
 ## Phase 60 — Replication Scaling
 
 Use relevancy/dormancy/update-rate reduction/compact state so clients do not receive every NPC, camera, business, property, election state, construction preview and vehicle in the world.
 
 Construction ghosts remain local/transient unless a deliberate cooperative-build feature requires sharing preview state; permanent structures replicate/stream through normal world relevancy.
+
+Door/window state replication should transmit meaningful state changes rather than require continuous full-rate updates while idle.
 
 Role-duty UI receives only duties relevant to the player/organization/jurisdiction rather than global task spam.
 
@@ -1088,7 +1131,9 @@ Food, family, NPC hunger, elections, role-duty checks and rank checks must be ev
 
 Construction placement updates run only during build mode, use targeted traces/overlaps, and stop immediately when build mode exits. Large build catalogs use lightweight indexes/soft references/category caching rather than loading every heavy construction asset at once.
 
-Construction snap detection asks only the hit/relevant structure for filtered compatible snap points; it never scans the whole world every placement update. Related wall variants share common logic/data rather than multiplying placement Blueprints.
+Construction snap/opening detection asks only the hit/relevant structure for filtered compatible points/slots; it never scans the whole world every placement update. Related wall/door/window variants share common logic/data rather than multiplying placement Blueprints.
+
+Idle doors/windows do not run unnecessary permanent Tick logic; movement/interaction updates occur only when required.
 
 Controller support must use Enhanced Input actions/context mappings rather than expensive polling hacks.
 
@@ -1124,7 +1169,7 @@ Construction ghost/preview materials and the full library of buildable materials
 
 UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, construction/build catalogs, household/pantry needs, team provisioning, communications, news, police tools, elections/candidates/voting, career rank, role duties/responsibilities, creator systems, AI-media libraries and other game domains.
 
-Construction UI can include categories, families/variants, search/filter, favorites/recently used, thumbnails, material/resource costs, profession/permit requirements, snap compatibility, rotate/snap controls, placement failure reason and cancel/confirm controls.
+Construction UI can include categories, families/variants, Door/Window categories, opening compatibility, search/filter, favorites/recently used, thumbnails, material/resource costs, profession/permit requirements, snap compatibility, rotate/snap controls, placement failure reason and cancel/confirm controls.
 
 All major required menus must have controller focus/navigation paths; mouse-only critical controls are not acceptable.
 
@@ -1151,6 +1196,7 @@ All major required menus must have controller focus/navigation paths; mouse-only
 - FOV controls where practical
 - rebindable construction controls rather than a mandatory `B` key
 - next/previous construction and family/variant cycling are rebindable and also accessible through catalog UI
+- Door/Window installation and interaction has controller-equivalent select/target/confirm/cancel/open/close/lock actions where applicable
 
 **Acceptance gate:** every major player-facing feature is tested with keyboard/mouse, an Xbox-style gamepad and a PlayStation-style gamepad. A feature is not complete if required gameplay cannot be completed through a supported controller path.
 
@@ -1168,11 +1214,13 @@ Required stress tests include:
 - role-duty director generating simultaneous legitimate duties across multiple professions
 - large household/companion base with food consumption and schedules
 - restaurant/grocery supply scene with many NPC consumers
-- active construction site with catalog cycling, wall variant cycling, ghost preview, interface snap detection, foundation/floor wall-edge snap boxes, repeated modular pieces and many nearby finished structures
+- active construction site with catalog cycling, wall variant cycling, door/window opening installation, ghost preview, interface snap detection, foundation/floor wall-edge snap boxes, repeated modular pieces and many nearby finished structures
 - large construction catalog selection stress test without loading every heavy asset
 - full construction flow tested with keyboard/mouse, Xbox-style controller and PlayStation-style controller
 - controller navigation through character creator, inventory, build catalog, bank and job/role-duty UI
 - wall collision/navigation test with Standard, DoorOpening and WindowOpening variants
+- install/remove/replace door and window tests with opening occupancy/obstruction validation
+- repeated door open/close interaction without idle Tick cost explosion
 - war/combat/destruction scene
 - dense property with many owned items
 - creator marketplace/business district
@@ -1212,6 +1260,8 @@ Transit employees receive real route/transport duties based on schedules and dem
 Future expansion: vehicle, property, business, health and cargo insurance. Insurance must not become magical instant replacement of all loss.
 
 Construction/property insurance may later recognize inspected structures, code compliance, security, utilities and damage history.
+
+Damaged/breached doors and windows can later participate in legitimate property insurance/repair claims if that system is implemented.
 
 ## Phase 75 — Tourism & Entertainment
 
@@ -1272,7 +1322,7 @@ Current development only preserves the ledger/provenance architecture needed so 
 | Family | Spouse/household needs + pantry/budget responsibility |
 | AI/NPC companions | Hunger + provisioning/rations/wages; AI does not remove physical needs |
 | Property | 3D parcels + utilities + real-calendar bills |
-| Construction | Modular `BPC_MW_BuildComponent` + Data Table/Data Asset catalog + stable Buildable/Family/Variant IDs + quick cycling/catalog UI + `BPI_MW_BuildSnapProvider` + query-only snap volumes + snap tags/IDs + Standard/DoorOpening/WindowOpening wall family + controller controls + timer ghost preview + property/profession/resource validation + server-authoritative persistent placement |
+| Construction | Modular `BPC_MW_BuildComponent` + Data Table/Data Asset catalog + stable Buildable/Family/Variant IDs + quick cycling/catalog UI + `BPI_MW_BuildSnapProvider` + query-only snap volumes + Standard/DoorOpening/WindowOpening wall family + separate persistent Door/Window families installed into authoritative opening slots + pivot/orientation standards + obstruction/occupancy validation + controller controls + timer ghost preview + property/profession/resource validation + server-authoritative persistent placement |
 | Business | Employees + payroll + food where applicable + tax + tips + advertising + operational duties |
 | Vehicles | Cargo + ownership + theft + maintenance + damage + controller driving |
 | Social | Spatial voice + text + living social venues |
@@ -1321,16 +1371,25 @@ Recommended vertical slice contains:
 - interface-driven snap detection on the hit/relevant structure
 - invalid/occupied snap combination rejection
 - Standard wall blocks correctly
-- DoorOpening wall leaves a usable doorway opening
-- WindowOpening wall leaves a usable window opening
+- DoorOpening wall leaves a usable doorway opening and exposes a stable Door attachment/opening slot
+- WindowOpening wall leaves a usable window opening and exposes a stable Window attachment/opening slot
+- separate Door Buildable snaps only into a compatible unoccupied Door opening
+- separate Window Buildable snaps only into a compatible unoccupied Window opening
+- Door/Window size/type mismatch is rejected
+- a solid wall cannot accept Door/Window installation
+- a second normal Door/Window cannot occupy the same opening
+- obstruction validation prevents a Door/Window from being installed inside wall geometry/another object
+- installed Door receives its own persistent ID and can open/close correctly
+- installed Window receives its own persistent ID
+- save/load restores wall + Opening ID + installed Door/Window + relationship/state
+- unauthorized player cannot replace/remove installed Door/Window
 - snap query volumes do not block player movement
 - grid rotation/snap
 - property-boundary permission rejection
-- Builder qualification check for structural piece
-- material/GrimKoin cost validation per wall variant
-- server resolves Buildable/Variant ID + Parent Structure ID + Snap Point ID rather than trusting client Actor Class/mesh/cost/snap state
-- server-authoritative final placement and persistent Structure ID/Variant state
-- save/load restores wall variant/opening/snap relationship
+- Builder qualification check for structural piece/installation where required
+- material/GrimKoin cost validation per wall/Door/Window variant
+- server resolves Buildable/Variant ID + Parent Structure ID + Snap/Openings IDs rather than trusting client Actor Class/mesh/cost/snap state
+- server-authoritative final placement and persistent Structure/Object ID state
 - complete construction flow tested with keyboard/mouse
 - complete construction flow tested with Xbox-style controller
 - complete construction flow tested with PlayStation-style controller
@@ -1430,8 +1489,10 @@ Rules for intake:
 9. Preserve Xbox-style and PlayStation-style controller compatibility for player-facing features alongside keyboard/mouse.
 10. Preserve role-appropriate responsibility/duty integration when a new feature affects jobs, professions, departments or leadership.
 11. Prefer shared family/variant/data architecture over duplicated Blueprint logic when related content differs mainly by configuration or structural variant.
-12. Mark experimental Unreal features as research/evaluation until proven suitable.
-13. Keep the roadmap current so it can always answer: what is approved, what comes later, and what still needs research.
+12. Keep structural openings separate from installed functional objects when that separation improves replacement, damage, security, ownership or persistence.
+13. Do not turn tutorial-specific collision values or one-off trace channels into universal architecture unless profiling/testing proves they belong there.
+14. Mark experimental Unreal features as research/evaluation until proven suitable.
+15. Keep the roadmap current so it can always answer: what is approved, what comes later, and what still needs research.
 
 ---
 
@@ -1447,6 +1508,7 @@ The Master Roadmap is supported by detailed companion designs in `Docs/`, includ
 - `City_Taxation_Jobs_Wealth_Reputation.md`
 - `Controller_Input_Compatibility_Architecture.md`
 - `Creator_Marketplace_Texture_System.md`
+- `Doors_Windows_Openings_Construction_System.md`
 - `Earth_Property_Vehicles_Media_News.md`
 - `Estate_Wills_Inheritance_Succession.md`
 - `Food_Family_NPC_Needs_Community_Ranks_Governance.md`
@@ -1468,5 +1530,7 @@ For food, family/household needs, NPC provisioning, community voting, profession
 For controller/input compatibility, `Controller_Input_Compatibility_Architecture.md` is the detailed canonical companion design. Every future player-facing feature must preserve keyboard/mouse plus Xbox-style and PlayStation-style controller operation where a reasonable control path exists.
 
 For construction/base-building, `Modular_Blueprint_Base_Building_System.md` is the detailed canonical companion design and supersedes generic older construction wording when additional detail is required, including wall-family variants, wall-edge snapping, variant-specific collision/openings and future door/window attachment slots.
+
+For installed doors/windows/opening attachment behavior, `Doors_Windows_Openings_Construction_System.md` is the detailed canonical companion design. Door/window objects remain separate persistent buildables attached to structural openings.
 
 For global playable roleplay rank placement, `World_Rank_Hierarchy_Roleplay_Authority.md` is the detailed canonical companion design. There is no Owner/Creator gameplay rank; King/Sovereign Queen is the highest player-held rank and President is directly below it.
