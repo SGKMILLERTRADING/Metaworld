@@ -366,7 +366,122 @@ Derived totals should be reproducible from authoritative base data + modifier so
 
 ---
 
-# 13. Acceptance Tests
+# 13. Stat Semantic Types
+
+Do not force every numeric stat into a `Current / Max` pair.
+
+Recommended semantic types include:
+
+## Resource
+Examples: Health, Stamina, Mana.
+
+Presentation:
+
+`Current / Max`
+
+Example:
+
+`Health 82 / 120`
+
+## Scalar / Derived Attribute
+Examples: Armor, Attack Speed, Damage, Carry Capacity, Resistance.
+
+Presentation:
+
+one effective/derived value with units where appropriate.
+
+Examples:
+
+- `Armor 46`
+- `Attack Speed 1.15 /s`
+- `Carry Capacity 42 kg`
+
+A scalar stat does not use a fake `Max` merely because the tutorial structure only has Current/Max fields.
+
+The Stat Definition declares its semantic/display mode, so UI does not need name-based exceptions such as `if Armor then hide Max`.
+
+## Bounded Scalar
+Some stats may have a designed clamp/range without being a consumable Current/Max resource.
+
+Example:
+
+`Resistance.Fire = 25%` constrained by the system's legal range.
+
+The clamp is implementation policy, not a second visible Max resource.
+
+---
+
+# 14. Equip / Unequip Modifier Transaction
+
+The tutorial's `Change Stats(Add/Remove)` intent is approved, but Metaworld does not implement reversal by multiplying the same arbitrary value by `-1` and mutating final stats.
+
+Canonical flow:
+
+`RequestEquip(ItemInstanceID)`
+-> authoritative equipment transaction succeeds
+-> register modifier records whose `SourceID = ItemInstanceID`
+-> recalculate affected derived stats once
+-> emit `OnStatsChanged(AffectedStatIDs)`
+-> UI refreshes relevant rows
+
+Unequip:
+
+`RequestUnequip(ItemInstanceID)`
+-> authoritative equipment transaction succeeds
+-> remove modifiers whose `SourceID = ItemInstanceID`
+-> recalculate affected derived stats once
+-> emit stat-change event
+
+This is safer because:
+
+- the exact source is traceable;
+- repeated equip/unequip cannot drift base values;
+- condition or item upgrades can change effective modifiers cleanly;
+- different operations (add/multiply/override) remain reversible;
+- one item can affect several stats without baking permanent changes.
+
+---
+
+# 15. Character Stats Display
+
+A character stat panel inside inventory/character UI is approved.
+
+Possible initial display:
+
+- Health Current / Max
+- Mana Current / Max
+- Stamina Current / Max
+- Damage / active combat profile summary
+- Attack Speed
+- Armor / protection summary
+- Carry Load / Carry Capacity
+- Encumbrance state
+
+But the panel is data-driven rather than permanently hardcoded to exactly six fields.
+
+Recommended flow:
+
+`BPC_MW_Stats / relevant dedicated systems`
+-> build authorized CharacterStatsPresentationSnapshot
+-> UI updates on open + `OnStatsChanged` / equipment / resource-change events
+
+Formatting comes from the Stat Definition:
+
+- display name;
+- icon;
+- units;
+- decimal precision;
+- Resource vs Scalar presentation;
+- comparison direction;
+- category/order.
+
+Do not blindly convert all floats to integers. Health may display as whole numbers while Attack Speed, movement multipliers, percentages or other values may require decimals.
+
+Icons may have tooltips/detail labels, but core stat identification must also work with keyboard/controller focus and accessibility settings.
+
+---
+
+# 16. Acceptance Tests
 
 1. Current Health clamps when Max Health decreases.
 2. Increasing Max Health does not automatically heal unless defined.
@@ -386,7 +501,12 @@ Derived totals should be reproducible from authoritative base data + modifier so
 16. Unloaded inventory items require no live StatsComponent.
 17. Multiplayer clients cannot set authoritative final stat totals.
 18. Save/load reconstructs persistent base stats/modifier sources correctly.
+19. Scalar Armor displays one derived value rather than fake Current/Max semantics.
+20. Health/Stamina/Mana display Current/Max correctly.
+21. Equipping one ItemInstance registers its modifiers once; unequip removes exactly those source modifiers.
+22. Attack Speed preserves configured decimal precision.
+23. Character stat UI updates from change events rather than per-frame binding.
 
 ## Core Rule
 
-> Metaworld reuses stat mathematics without turning the whole living world into one anonymous RPG stat map. Meaning stays with the owning system; modifiers are traceable; encumbrance respects actual carried mass.
+> Metaworld reuses stat mathematics without turning the whole living world into one anonymous RPG stat map. Meaning stays with the owning system; modifiers are traceable; scalar stats are not forced into fake Current/Max semantics; encumbrance respects actual carried mass.
