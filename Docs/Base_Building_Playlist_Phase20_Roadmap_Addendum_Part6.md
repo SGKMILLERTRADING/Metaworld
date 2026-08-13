@@ -21,6 +21,7 @@ All permanent rules from Parts 1-5 remain active, including:
 - settled construction uses relevancy/dormancy/performance budgets.
 - keyboard/mouse, Xbox-style and PlayStation-style gameplay paths remain first-class.
 - no paid external service is required for the baseline persistence architecture; local/free adapters are acceptable during development.
+- private residential property is locked to unauthorized outsiders by default; household/property access is server-authoritative persistent permission state rather than a client-side Door Boolean.
 
 ---
 
@@ -101,6 +102,94 @@ Related canonical companions remain:
 
 ---
 
+## Episode 23 — Raise/Lower Foundation Elevation + Household Property Access
+
+**Classification:** UPGRADE — APPROVED.
+
+**Phase Ownership:** Phase 20 foundation terrain/support placement + Property/Household/Security access integration.
+
+Updated foundation companion:
+
+`Docs/Foundation_Terrain_Support_Extension_System.md`
+
+New household/property access companion:
+
+`Docs/Household_Property_Access_Lock_Permissions_System.md`
+
+Related Door/Window interaction companion remains:
+
+`Docs/Interactive_Doors_Windows_Runtime_System.md`
+
+### Approved Foundation Tutorial Intent
+
+- foundation placement can be raised or lowered relative to its initial terrain-derived candidate height;
+- vertical adjustment is available only to buildables whose definitions permit it;
+- lowering can allow controlled foundation embed into uneven terrain;
+- elevation offset resets when starting a fresh build flow so one preview's adjustment does not leak into another.
+
+### Metaworld Foundation Upgrades
+
+- tutorial raw `AddLocation` vector becomes `RequestedFoundationElevationOffset` owned by `BPC_MW_BuildComponent` during preview;
+- Foundation Buildable Definitions can expose `AllowElevationAdjustment`, `ElevationStep`, `MinElevationOffset`, `MaxElevationOffset`, `MaxTerrainEmbedDepth` and related support metadata;
+- physical keys `8` and `2` are not canonical; use Enhanced Input actions such as `IA_MW_BuildRaise` / `IA_MW_BuildLower` with keyboard/mouse, Xbox-style and PlayStation-style mappings;
+- capability is data-driven rather than one hardcoded `IsFoundation ? AddLocation : Zero` branch; other buildable families gain vertical adjustment only when their own definitions explicitly allow it;
+- every raise/lower step dirties the candidate transform and re-runs terrain/support/overlap/property validation;
+- raising may increase support-gap depth and therefore increase required pier/footing/extension segment count, resources and Construction Work Units;
+- elevation that exceeds legal support depth, build height, property/air rights, zoning or support rules remains blocked;
+- lowering into terrain is controlled intentional contact, not a universal collision bypass;
+- tutorial box-extent shrinking/dividing is not adopted as a global fix; Metaworld uses authored terrain-contact/embed allowance and separate above-ground/below-ground placement volumes where needed;
+- `MaxTerrainEmbedDepth` limits how far a foundation can intentionally enter terrain;
+- lowered foundations still cannot penetrate protected utilities, public infrastructure, neighboring property, invalid underground structures or unrelated buildable obstruction footprints;
+- the visible mesh remains separate from the authoritative placement/obstruction footprint;
+- offset resets on Build Mode start, buildable selection change, placement completion/cancel or selection of a buildable that does not support elevation adjustment;
+- final server placement independently clamps/rejects elevation and recalculates support samples/extensions/cost; a modified client cannot fake ground height or remove required supports;
+- persistence stores the committed foundation transform and explicit support graph; save/load does not infer a new elevation from current player settings;
+- no permanent elevation/terrain polling exists after placement.
+
+### Household / Home Access Rule — User Canon
+
+The user-established residential access rule is canonical:
+
+> A private house is locked to outsiders by default. The owner, their husband/wife/spouse, their children/dependents where they are legitimate household members, and anyone else the owner explicitly gives access to can enter according to their permissions. Everyone else remains locked out unless a separate legitimate lease, legal or emergency authority grants access.
+
+Approved access architecture:
+
+- owner access is always recognized from authoritative property/title state;
+- spouse/partner household access can be granted automatically for the shared residence without automatically transferring property ownership;
+- legitimate household children/dependents can enter the home by default while high-risk powers such as sale, demolition, lock administration or secure-vault access remain separately permissioned;
+- owner/authorized manager can explicitly grant or revoke access to friends, guests, tenants, employees, Builders, repair workers, security staff and other people/NPCs;
+- grants may be permanent, temporary, scheduled, room/zone limited, contract-linked or one-time where supported;
+- tenancy/lease rights are separate legal access rights and cannot always be revoked by simply clicking the ordinary lock UI while the lease remains legally active;
+- legal/emergency override can exist for properly authorized police/court/fire/medical/emergency conditions; this is not an unrestricted admin bypass;
+- physical/digital keys and credentials can exercise access, but possession of a stolen key does not make entry legally authorized;
+- private properties can use room/access zones so `EnterHouse` does not automatically mean `OpenVault`, `ManageSecurity`, `Demolish`, `SellProperty` or `GrantAccess`;
+- exterior residential access defaults to deny for unknown/unauthorized players and NPCs;
+- a breached/destroyed door may allow physical passage but does not convert the intruder into an authorized resident; trespass/crime/evidence rules can still apply;
+- Door Actors query the authoritative property/access policy rather than owning the entire household permission list themselves;
+- access lists and grants persist across server restart and expose only necessary results to other clients; unrelated players do not receive the owner's full private access list;
+- NPC residents/tenants/employees use the same permission model and locked doors affect their navigation/behavior;
+- access management UI must work with keyboard/mouse, Xbox-style and PlayStation-style controllers;
+- no per-door Tick checks household membership; permission checks are event-driven and can use safe revision-based caches.
+
+### Tutorial Future-Roadmap Notes
+
+The tutorial mentions future allowed/forbidden build zones, furniture, collision outlines and a Fortnite-style snapping grid. These are recorded as playlist signals, not automatic replacements of existing canon:
+
+- **Allowed/forbidden building zones:** already substantially covered by Metaworld property/build volumes, zoning, protected/public areas and exclusion validation; future videos may add useful UI/authoring ideas.
+- **Furniture:** compatible with the existing placeable/free-standing object direction; future playlist videos can contribute placement, interaction and relocation details.
+- **Collision outlines:** useful as a future preview/readability enhancement if it can show blocked volumes/support reasons without expensive continuous rendering/query cost.
+- **Fortnite-style grid snapping:** Metaworld already has data-driven GridSize/RotationStep plus typed structural snap points; future grid ideas can improve usability but will not replace support/opening/relationship-aware snapping with one universal grid.
+
+### Foundation Elevation Principle
+
+> Raising or lowering a foundation changes the requested placement elevation, not the rules. Every adjusted position still owes valid support, legal terrain embed, collision clearance, property rights, resources and server approval.
+
+### Household Access Principle
+
+> Metaworld homes are private by default. Household membership and explicit authorization grant access; ownership, residency, guest access and administrative powers remain distinct permissions, and outsiders stay locked out unless a legitimate world rule says otherwise.
+
+---
+
 # Current Persistence / Multiplayer Construction Flow
 
 `Authoritative World Transaction`
@@ -126,6 +215,28 @@ Related canonical companions remain:
 `-> Clients derive visuals/UI`
 
 `-> Settled objects return to dormancy`
+
+---
+
+# Current Foundation Elevation Flow
+
+`Select Foundation Definition`
+
+`-> Base terrain/snap candidate`
+
+`-> Player raises/lowers RequestedFoundationElevationOffset`
+
+`-> Candidate transform becomes dirty`
+
+`-> Recalculate support samples / terrain embed / overlap / property rules`
+
+`-> Recalculate extension count / resource + work cost`
+
+`-> Client displays valid/blocked prediction`
+
+`-> Server independently validates final transform/support/cost`
+
+`-> Persistent Foundation + support graph created`
 
 ---
 
