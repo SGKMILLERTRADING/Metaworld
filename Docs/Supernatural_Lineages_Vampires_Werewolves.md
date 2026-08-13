@@ -303,7 +303,139 @@ Different cities may develop different reputations and laws toward supernatural 
 
 ---
 
-# 12. Balance Principle
+# 12. Lineage Territories, Politics and War
+
+Metaworld does not assume every lineage lives together peacefully.
+
+Different communities, cities, regions, factions, packs, covens, governments, and alliances may have very different relationships.
+
+Possible world arrangements include:
+
+- Human-majority cities
+- Vampire-controlled districts or cities
+- Werewolf-controlled territories
+- Mixed cities
+- Neutral trade cities
+- Hidden supernatural settlements
+- Contested border regions
+- Faction-controlled neighborhoods
+- Demilitarized/neutral zones
+- Refugee areas
+- Occupied territory during wars
+
+Lineage does not automatically determine political allegiance.
+
+Examples:
+
+- A vampire may fight against a vampire coven.
+- A human may ally with a vampire faction.
+- A werewolf may protect a human city.
+- A mixed player organization may include humans, vampires, and werewolves.
+- Two vampire houses may be at war with one another while both remain peaceful with a nearby human city.
+- A human government may ally with one werewolf pack against another.
+
+This prevents supernatural identity from becoming a simple red-team/blue-team system.
+
+## War States
+
+Factions, cities, governments, covens, packs, and other political organizations can enter states such as:
+
+- Peace
+- Tension
+- Trade agreement
+- Alliance
+- Defensive pact
+- Ceasefire
+- Hostility
+- Open war
+- Occupation
+- Truce
+
+Wars can affect:
+
+- Borders
+- Travel safety
+- Checkpoints
+- Police/military/security presence
+- Property risk
+- Business access
+- Trade routes
+- Taxes and emergency spending
+- Refugees/displaced characters
+- Jobs/contracts
+- News
+- Prices and shortages
+- Faction reputation
+- Crime/enforcement
+- World events
+
+## Territory Matters
+
+A character's experience can depend on where they are.
+
+Example:
+
+A vampire entering a neutral mixed city may live normally.
+
+The same vampire entering a werewolf-controlled region during an active vampire-werewolf war may face:
+
+- Checkpoints
+- Suspicion
+- Refused services
+- Arrest/detention under local wartime law
+- Attack from hostile factions
+- Need for disguise or safe passage
+- Smuggling opportunities
+- Diplomatic missions
+- Refugee/escape gameplay
+
+The reverse can also happen to werewolves or humans in hostile territory.
+
+## War Does Not Override Ordinary Metaworld Systems
+
+Even during war:
+
+- Property still exists.
+- Businesses still need money.
+- Bills can still become due.
+- Banks still function where institutions remain operational.
+- GrimKoin remains governed by the economy ledger.
+- Cameras/evidence still work where infrastructure survives.
+- News records the conflict.
+- Death remains permanent.
+- Wills and estates still matter.
+- Professions still matter.
+- Civilians may try to work, party, trade, evacuate, hide, or survive.
+
+War becomes another condition of the living world, not a separate match/lobby.
+
+## Dynamic Politics
+
+Relationships should be able to change over time through world events and player/NPC actions.
+
+Possible causes:
+
+- Elections
+- Leadership changes
+- Assassinations
+- Treaty violations
+- Territorial disputes
+- Resource shortages
+- Religious conflict
+- Criminal incidents
+- Retaliation
+- Trade agreements
+- Player diplomacy
+- NPC diplomacy
+- Historical grievances
+- Major supernatural attacks
+- Shared enemies
+
+Metaworld News and the Event Ledger should record major declarations of war, ceasefires, alliances, occupations, peace agreements, and major battles.
+
+---
+
+# 13. Balance Principle
 
 Metaworld should not make one lineage objectively mandatory.
 
@@ -326,7 +458,7 @@ A disciplined werewolf may avoid fights because permanent death, property, bank 
 
 ---
 
-# 13. Future Supernatural Types
+# 14. Future Supernatural Types
 
 The architecture should permit future lineages without requiring them now.
 
@@ -345,12 +477,14 @@ Every future lineage must define:
 - NPC behavior implications
 - Death behavior
 - Economy/profession compatibility
+- Political/faction relationships
+- Territory implications
 
 Do not add a lineage merely as a power upgrade.
 
 ---
 
-# 14. Core Principle
+# 15. Core Principle
 
 Metaworld should let players build the identity and life they actually want.
 
@@ -365,7 +499,10 @@ A player may want to be:
 - A human mage
 - A supernatural criminal
 - A peaceful supernatural family member
+- A vampire diplomat in a human city
+- A werewolf soldier defending pack territory
+- A human trader crossing a supernatural war zone
 
 All of those lives belong in the same persistent world.
 
-> Metaworld gives players freedom of identity, but every identity still has to live with the world.
+> Metaworld gives players freedom of identity, but every identity still has to live with the world — including its politics, alliances, territory, and wars.
