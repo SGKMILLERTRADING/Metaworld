@@ -1,4 +1,4 @@
-# Metaworld — Master Development Roadmap v2.1
+# Metaworld — Master Development Roadmap v2.2
 
 **Status:** Canonical / Approved
 
@@ -62,6 +62,16 @@ Metaworld is always **game first**. Realism exists to create stories, choices, r
 32. Leaving the media zone ends shared access unless the player has their own legitimate entitlement or another authorized source is playing it.
 33. Listening to or watching media does not grant ownership.
 34. Official Metaworld News is separate from player AI-generated entertainment media and remains driven by verified Event Ledger facts.
+35. Important NPCs have real survival needs. AI-enhanced NPCs do not become exempt from hunger or physical world rules.
+36. Player-owned/recruited NPC companions and teams must actually obtain food through household supplies, team rations, wages/purchases, business meals, or other legitimate world systems.
+37. Family/household members such as a wife, husband, spouse, partner, or other supported dependents have real needs. A household must maintain food and other necessities.
+38. Food is a major recurring economic resource with meaningful cost. It should remain obtainable through work, but supporting a family, employees, guards, or a large team should materially increase living costs.
+39. GrimKoin can never be the official XP/rank-up mechanism for police rank, government authority, judicial authority, military/faction command, or other public/community leadership.
+40. Public leadership titles such as Mayor, Governor, President, King, Queen, council leader, or other configured civic titles require eligibility plus community/organizational support through votes or another approved collective selection process.
+41. Career ranks such as police Captain are earned through service, competence, lawful conduct, reputation, leadership, training, and trust; they are not purchased.
+42. Wealth can fund legitimate campaigning, advertising, events, staff, transport, security, and public projects, but the vote/rank system remains separate from wallet balance.
+43. Bribery/corruption may exist as risky crime/political gameplay, but it is never a guaranteed `pay GrimKoin -> receive rank` button. Attempts can fail, create evidence, cause scandal, trigger police/court action, remove a candidate from office, or damage reputation.
+44. Wealth reputation and public/community trust are separate axes. A character can be rich and hated, poor and respected, or any combination in between.
 
 ---
 
@@ -76,6 +86,8 @@ Metaworld is always **game first**. Realism exists to create stories, choices, r
 - Later: temperature, pain, injuries, sickness, infection/status effects where fun and appropriate
 
 Needs create meaningful decisions without turning gameplay into constant meter maintenance.
+
+Food is both a player survival resource and a household/NPC economy pillar. Players who maintain larger families, teams, businesses, events, or security forces must plan and pay for larger food supplies.
 
 ---
 
@@ -201,7 +213,15 @@ Locked systems:
 7. unclaimed estates
 8. bank inheritance claims
 
-**Upgrade:** executors, joint ownership, trusts, family businesses, divorces/prenups if wanted, estate auctions, funeral services, cemeteries, memorials.
+Family/household expansion:
+
+- spouse/partner household roles
+- shared home/pantry/refrigerator resources
+- household food/water budgeting
+- household relationship consequences when needs are ignored
+- household members may buy food themselves if they have funds/permission, but food must still come from the economy
+
+**Upgrade:** executors, joint ownership, trusts, family businesses, divorces/prenups if wanted, estate auctions, funeral services, cemeteries, memorials, additional dependent/family structures if deliberately designed later.
 
 Inheritance grants legal rights/claims; it does not teleport physically stolen property back to heirs.
 
@@ -237,6 +257,8 @@ Stone, bottle, pipe, chair, hammer, firearm, tool, debris, etc. can be interpret
 - vehicle storage
 - warehouses/stores
 - physical safes/containers
+- household pantry/refrigerator inventories
+- team/base ration storage
 
 **Upgrade:** weight + volume + dimensions + compartment rules where useful.
 
@@ -253,6 +275,8 @@ Stone, bottle, pipe, chair, hammer, firearm, tool, debris, etc. can be interpret
 - creator sales
 - economic reputation
 - wealth visibility based on observable behavior rather than hidden wallet-reading
+- food and household costs as recurring economic sinks
+- public/community authority tracked separately from wealth
 
 ## Phase 13 — Banking
 
@@ -273,12 +297,15 @@ Stone, bottle, pipe, chair, hammer, firearm, tool, debris, etc. can be interpret
 - free players remain viable through work/gameplay
 - paid players receive faster purchasing power, not immunity from world rules
 - player gifting transfers existing owned GrimKoin only
+- purchased wealth does not purchase official career/public rank
 
 ## Phase 15 — Jobs
 
 Always maintain legitimate lower-entry GrimKoin earning paths such as cleaning, delivery, loading, farm work, sanitation, courier, construction labor, store/bar/restaurant work, driving, temporary city work, security assistance, and other gigs.
 
-## Phase 16 — Profession System
+Food costs make employment meaningful, but active players should retain realistic legal routes to earn enough to survive and work upward.
+
+## Phase 16 — Profession & Career Rank System
 
 Action tiers:
 
@@ -289,7 +316,23 @@ Action tiers:
 
 Examples: Gunsmith, Builder, Mechanic, Electrician, Plumber, Doctor, Nurse, Lawyer, Judge, Police, Security, Farmer, Driver, Chef, Bartender, DJ, Musician, Journalist, Realtor, Banker, Investigator, Teacher, Engineer, supernatural/magic specialists.
 
-**Upgrade:** apprenticeship, certifications, schools, mentors, mastery, professional reputation, licenses/suspension.
+Career rank is distinct from profession qualification.
+
+Structured career promotion can consider:
+
+- service history
+- performance
+- training/certification
+- lawful conduct
+- complaints/discipline
+- professional reputation
+- leadership behavior
+- community trust
+- supervisor/peer/department vote or appointment where configured
+
+**Locked:** GrimKoin cannot directly purchase rank.
+
+**Upgrade:** apprenticeship, certifications, schools, mentors, mastery, professional reputation, licenses/suspension, configurable organization rank trees.
 
 ## Phase 17 — Taxation & City Treasury
 
@@ -297,9 +340,16 @@ Taxable activities can include sales, player businesses, creator products, servi
 
 City treasury pays public workers/services such as police, firefighters, emergency response, courts, sanitation, roads, public transit, inspectors, utilities where public, and other municipal employees.
 
-## Phase 18 — Government
+Food supply/emergency reserves may later become a legitimate city budget responsibility during storms, war, famine/shortage, displacement, or disaster.
+
+## Phase 18 — Government, Elections & Community Leadership
+
+Government features:
 
 - mayor/council
+- governors/regions where used
+- President where a nation/government supports that title
+- King/Queen where a kingdom-style government supports those titles
 - city budgets
 - tax rates
 - public contracts
@@ -311,7 +361,42 @@ City treasury pays public workers/services such as police, firefighters, emergen
 - public spending
 - policing priorities
 
-**Upgrade:** corruption investigations, recalls, protests, strikes, political factions.
+**Canonical leadership rule:** legitimate top leadership requires eligibility plus community/organizational support. Titles cannot be purchased from a store with GrimKoin.
+
+Possible election flow:
+
+Eligibility
+-> candidate registration
+-> campaign period
+-> debates/events/advertising
+-> voting
+-> authoritative count/certification
+-> office granted
+-> term begins
+
+Possible voter groups depend on office and can include eligible player citizens, eligible NPC citizens, organization members, profession members, or another approved electorate.
+
+NPC votes should consider information they can reasonably know: service history, city safety, jobs, taxes, infrastructure, scandals, news, faction/lineage relations, candidate platform, personal relationships, war/security concerns, and economic conditions.
+
+King/Queen are currently community-recognized/elected leadership titles, not automatic hereditary ranks. Hereditary succession is not assumed unless explicitly approved later.
+
+GrimKoin can legitimately fund:
+
+- campaign advertising
+- billboards
+- media appearances
+- events
+- staff
+- transportation
+- venues
+- security
+- public projects/donations where allowed
+
+But it does not directly change official vote totals or promotion rank.
+
+**Corruption gameplay:** bribery, illegal vote buying, pressure, or secret influence can be attempted where enabled, but can fail and can create financial/camera/witness evidence, police investigations, court cases, disqualification, removal, scandal, jail/fines, and news coverage.
+
+**Upgrade:** corruption investigations, recalls, impeachment/removal procedures, protests, strikes, political factions, polls, endorsements, campaign finance rules, coalition governments, referendums.
 
 ## Phase 19 — Land & 3D Property
 
@@ -358,7 +443,7 @@ Nonpayment can lead to actual service shutoff and gameplay consequences.
 
 Businesses include bars, clubs, stores, restaurants, garages, hotels, security companies, transport, apartment businesses, theaters/drive-ins, farms, construction companies, media companies and more.
 
-Owners pay wages, rent, tax, utilities, inventory, maintenance, security, and advertising. Appropriate workers receive tips.
+Owners pay wages, rent, tax, utilities, inventory, maintenance, security, advertising, and food/staff-meal costs where contracts or business models include them. Appropriate workers receive tips.
 
 ## Phase 23 — Advertising
 
@@ -367,7 +452,7 @@ Owners pay wages, rent, tax, utilities, inventory, maintenance, security, and ad
 - premium locations
 - storefront/public displays
 
-**Upgrade:** radio commercials, TV ads, sponsored events, digital billboard schedules, district campaigns.
+**Upgrade:** radio commercials, TV ads, sponsored events, digital billboard schedules, district campaigns, political/campaign advertising under configured election rules.
 
 ## Phase 24 — Creator Marketplace
 
@@ -434,9 +519,11 @@ Players choose voice, text, or both.
 - parties
 - concerts
 - dates/weddings/funerals
+- family meals/gatherings
 - malls/parks/beaches/gyms
 - sports/community gatherings
 - ceremonies
+- political rallies/debates/community meetings
 
 Leisure remains inside the living world and can be interrupted by danger/events.
 
@@ -454,11 +541,15 @@ Persistent verified world-event records:
 - public/private state
 - importance
 
+Election results, public appointments, recalls, major scandals, public-office deaths, major food shortages and similar civic events can feed the ledger.
+
 ## Phase 30 — Metaworld News
 
 News exists through TV, radio, car radio, store/bar/hotel screens, public displays, phones/computers later, publications, emergency alerts and other appropriate channels.
 
 Official verified news remains distinct from player journalism, player AI-generated entertainment media, opinion, rumor and advertising.
+
+News can report elections, campaigns, debates, scandals, recalls, shortages, strikes, food emergencies, leadership changes and professional/public achievements when newsworthy.
 
 ## Phase 31 — Living History
 
@@ -472,6 +563,7 @@ Official verified news remains distinct from player journalism, player AI-genera
 - property histories
 - major player biographies
 - wars/elections/disasters/discoveries recorded
+- former Presidents/Kings/Queens/Mayors/community leaders recorded where historically important
 
 ## Phase 32 — Crime System
 
@@ -485,6 +577,7 @@ Official verified news remains distinct from player journalism, player AI-genera
 - fraud
 - illegal business actions
 - supernatural crimes
+- bribery/corruption/election crimes where enabled
 
 ## Phase 33 — Cameras & Evidence
 
@@ -500,7 +593,7 @@ Performance rule: evidence data may be recorded cheaply; do not render every sec
 
 **Upgrade:** body cams, dash cams, traffic cameras, fingerprints, footprints, ballistics, forensic/DNA-style evidence if desired, chain-of-custody, evidence lockers, detectives.
 
-## Phase 34 — Police & Courts
+## Phase 34 — Police, Ranks & Courts
 
 - patrol/dispatch
 - warrants
@@ -514,6 +607,16 @@ Performance rule: evidence data may be recorded cheaply; do not render every sec
 - fines
 - bail
 - community service
+
+Police career rank is earned, not bought.
+
+Possible configurable progression:
+
+Officer -> Senior Officer -> Sergeant -> Lieutenant -> Captain -> higher command where supported.
+
+Promotion can consider service, successful work/cases, evidence quality, lawful conduct, community trust, training/certification, leadership, complaints, discipline, corruption history, and department/community evaluation or vote where configured.
+
+A bad officer who mistreats the city cannot simply spend GrimKoin to become Captain.
 
 Player police have in-world legal authority only — not platform moderation powers.
 
@@ -549,7 +652,13 @@ Destruction must obey physics/performance budgets.
 - Mana
 - temperature/injuries/sickness/pain later where fun
 
-## Phase 38 — Food & Cooking
+NPC and household needs use the same general world philosophy but scale through lower-cost simulation at distance.
+
+## Phase 38 — Food, Cooking & Household Supply Economy
+
+Food is a first-class recurring economic resource.
+
+Core systems:
 
 - farming/groceries
 - cooking/recipes
@@ -558,6 +667,21 @@ Destruction must obey physics/performance budgets.
 - spoilage/refrigeration
 - Chef profession
 - delivery
+- household pantry/refrigerator
+- family meal supply
+- companion/team ration supply
+- business staff meals where applicable
+- emergency food reserves later
+
+Food should not be unrealistically cheap. Pricing can reflect production, transport, wages, rent, utilities/refrigeration, city tax, scarcity, quality, spoilage risk, weather, war/disruption, local demand, and region.
+
+A solo player has lower food costs than a player supporting a spouse/family, guards, AI companions, employees whose contract includes meals, or a large event/team.
+
+Food must remain obtainable through work and normal economic play; the goal is meaningful budgeting, not unavoidable starvation for active players.
+
+**Upgrade:** food preferences/diets, food supply contracts, wholesale markets, restaurant reputation, emergency rationing, famine/shortage events, city food reserves, household auto-shopping permissions.
+
+Detailed canonical design: `Docs/Food_Family_NPC_Needs_Community_Ranks_Governance.md`.
 
 ## Phase 39 — Healthcare
 
@@ -621,6 +745,8 @@ Lineage is not faction.
 
 Humans, vampires, werewolves and future lineages may create mixed or separate factions, governments, covens, packs, gangs, companies, communities and alliances.
 
+Faction leaders can use internal member/community election or other approved collective selection rules. GrimKoin does not automatically buy command rank.
+
 ## Phase 45 — Diplomacy
 
 Relationship states can include alliance, trade agreement, peace, tension, hostility, defensive pact, ceasefire, truce, occupation and war.
@@ -631,13 +757,13 @@ Relationship states can include alliance, trade agreement, peace, tension, hosti
 
 War remains inside the living persistent world.
 
-It can affect borders, checkpoints, travel, property, businesses, prices, shortages, jobs, taxes, security, refugees, news, deaths, inheritance and territory.
+It can affect borders, checkpoints, travel, property, businesses, prices, food supply, shortages, jobs, taxes, security, refugees, news, deaths, inheritance and territory.
 
 No separate disconnected war lobby is required.
 
 ## Phase 47 — Real-Time Calendar
 
-Real elapsed time drives days/weeks/months/years and economic obligations such as bills, rent, taxes, payroll, permits, elections, contracts, estate windows and seasonal events.
+Real elapsed time drives days/weeks/months/years and economic obligations such as bills, rent, taxes, payroll, permits, elections, campaign periods, leadership terms, contracts, estate windows and seasonal events.
 
 ## Phase 48 — Day/Night
 
@@ -646,6 +772,7 @@ Real elapsed time drives days/weeks/months/years and economic obligations such a
 - shop schedules
 - nightlife
 - NPC sleep/work
+- NPC meals
 - street lights
 - crime patterns
 - vampire behavior
@@ -657,7 +784,7 @@ Real elapsed time drives days/weeks/months/years and economic obligations such a
 - snow/ice where appropriate
 - regional climate
 
-Weather affects driving, survival, utilities, power, crops, visibility, fires, businesses, NPC schedules and world events.
+Weather affects driving, survival, utilities, power, crops, food supply/prices, visibility, fires, businesses, NPC schedules and world events.
 
 ## Phase 50 — World Partition / HLOD
 
@@ -667,9 +794,24 @@ Large Earth regions use streaming/HLOD so players never pay full simulation/rend
 
 PCG can support vegetation, roadside dressing, rocks, rural variation, forests and large-scale environment dressing while important locations remain deliberately designed.
 
-## Phase 52 — Systemic NPCs
+## Phase 52 — Systemic NPCs & Household Needs
 
-Important NPCs can have identity, home, job, profession, schedule, needs, health/stamina/mana, skills, inventory, money, relationships, reputation, personality, goals, ownership and legal state.
+Important NPCs can have identity, home, job, profession, schedule, needs, health/stamina/mana, hunger/thirst/fatigue where appropriate, skills, inventory, money, relationships, reputation, personality, goals, ownership and legal state.
+
+NPC hunger is real.
+
+Nearby NPC:
+- can seek food
+- shop/eat/cook through world systems
+- consume actual inventory/resources
+
+Distant NPC:
+- lightweight food/need simulation
+
+Unloaded NPC:
+- timestamp/resource/income/household-state calculations rather than continuous Actor Tick
+
+NPC spouses/family/households can share food reserves and budgets where relevant.
 
 ## Phase 53 — NPC Intelligence
 
@@ -678,6 +820,7 @@ Important NPCs can have identity, home, job, profession, schedule, needs, health
 - significance-aware perception
 - event-driven reasoning
 - schedules/goals/needs
+- food-seeking and meal behavior
 - emergency reactions
 - same world capability rules as players wherever practical
 
@@ -688,13 +831,26 @@ Important NPCs can have identity, home, job, profession, schedule, needs, health
 - distant NPC: lightweight state simulation
 - unloaded NPC: data record + timestamp/event simulation only
 
+Food, household consumption, employment and voting behavior must use aggregated/scheduled simulation when NPCs are unloaded rather than per-frame logic.
+
 Mass-based systems may be evaluated later but must not violate the Blueprint-first rule or become a required dependency until proven suitable.
 
-## Phase 55 — Companion Teams
+## Phase 55 — Companion Teams & Provisioning
 
 Recruit/employ NPC guards, mechanics, medics, drivers, builders, farmers, cooks, managers, scouts, security and other roles.
 
-Players can assign tasks, budgets, equipment, permissions, schedules, vehicles, storage and emergency rules.
+Players can assign tasks, budgets, equipment, permissions, schedules, vehicles, storage, emergency rules, and food/ration access.
+
+Companions do not receive free food because they are owned/recruited.
+
+Provisioning options can include:
+
+- shared home pantry
+- base/team food storage
+- direct rations
+- employer-provided meals
+- wages with permission for NPC to buy their own food
+- cook/logistics NPC maintaining supplies
 
 ## Phase 56 — Optional AI NPC Gateway
 
@@ -702,21 +858,25 @@ Optional local/external AI can improve selected NPC dialogue/planning, but norma
 
 AI chooses high-level intent; Metaworld Blueprint systems validate and execute actual actions.
 
+AI-enhanced NPCs remain hungry, need resources, obey professions, spend real budget, and cannot invent food or bypass economy/world rules.
+
 ## Phase 57 — World Event Director
 
-Contextual events can include zombie outbreaks, robberies, blackouts, fires, storms, faction attacks, supernatural incidents, protests, political events, supply shortages and war declarations.
+Contextual events can include zombie outbreaks, robberies, blackouts, fires, storms, faction attacks, supernatural incidents, protests, political events, elections, recalls, corruption scandals, food shortages, supply disruptions and war declarations.
 
 ## Phase 58 — Zombies & Threat Systems
 
 Threats can reach houses, clubs, stores, hospitals, police stations, streets, farms, businesses and other places. No magical safe-zone immunity.
 
+Threats can disrupt food production, transport and household supply.
+
 ## Phase 59 — Authoritative Multiplayer
 
-Server authority governs money, inventory, combat outcomes, death, ownership, property, evidence, tax, jobs, businesses, vehicles and other critical state.
+Server authority governs money, inventory, combat outcomes, death, ownership, property, evidence, tax, jobs, businesses, vehicles, votes, leadership rank, career rank, household state, and other critical state.
 
 ## Phase 60 — Replication Scaling
 
-Use relevancy/dormancy/update-rate reduction/compact state so clients do not receive every NPC, camera, business, property and vehicle in the world.
+Use relevancy/dormancy/update-rate reduction/compact state so clients do not receive every NPC, camera, business, property, election state and vehicle in the world.
 
 Evaluate UE5.8 replication options such as standard replication, Replication Graph and Iris only after Blueprint workflow and production suitability are verified.
 
@@ -725,6 +885,8 @@ Evaluate UE5.8 replication options such as standard replication, Replication Gra
 Primary target: stable 60-FPS-class gameplay on recommended PC hardware where practical, with stable frame pacing prioritized over peak FPS.
 
 Every major system has CPU/GPU/network/memory/significance budgets.
+
+Food, family, NPC hunger, elections and rank checks must be event/timestamp-driven rather than per-frame world scans.
 
 ## Phase 62 — Nanite-First Rendering
 
@@ -744,13 +906,15 @@ Use where appropriate for dense city/nightlife/local-light scenes, subject to pr
 
 Animation cost is significance-aware. Local player and important nearby characters receive priority; crowd/distant characters reduce update rate, IK, facial detail and other expensive layers.
 
+Meal/cooking/social animations only run at full fidelity when characters are relevant/visible.
+
 ## Phase 66 — Shader Hitch Prevention
 
 Integrate PSO precaching and hitch analysis early enough that new materials/effects do not create recurring runtime shader stalls.
 
 ## Phase 67 — User Interface
 
-UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, communications, news, police tools, creator systems, AI-media libraries and other game domains.
+UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, household/pantry needs, team provisioning, communications, news, police tools, elections/candidates/voting, career rank, creator systems, AI-media libraries and other game domains.
 
 ## Phase 68 — Accessibility
 
@@ -774,6 +938,9 @@ Required stress tests include:
 - busy nightclub + voice + dancing + AI music/video screens + security
 - zombie attack during crowded event
 - police response + cameras + vehicles + news
+- city election/rally with many player/NPC voters
+- large household/companion base with food consumption and schedules
+- restaurant/grocery supply scene with many NPC consumers
 - war/combat/destruction scene
 - dense property with many owned items
 - creator marketplace/business district
@@ -784,13 +951,19 @@ A feature is not complete because it works in an empty test map.
 
 Future expansion: wildlife, pets, guard dogs, farm animals, hunting, fishing, ownership and veterinary gameplay.
 
+Animals may later create additional feeding/feed-supply costs where appropriate.
+
 ## Phase 71 — Agriculture
 
 Future expansion: crops, livestock, food supply chains, grocery businesses, restaurants and agricultural professions.
 
+Agriculture is a strategic food-economy pillar because household, NPC, business and city demand consumes actual food supply.
+
 ## Phase 72 — Education
 
 Future expansion: profession schools, universities, training centers, certifications, mentorship and skill instruction.
+
+Education can contribute to eligibility for advanced professional rank and public office where rules require qualifications.
 
 ## Phase 73 — Public Transportation
 
@@ -804,17 +977,23 @@ Future expansion: vehicle, property, business, health and cargo insurance. Insur
 
 Future expansion: hotels, resorts, attractions, beaches, arenas, festivals, concerts, tourism businesses and events.
 
+Large events create food/service demand and campaign/civic-event opportunities.
+
 ## Phase 76 — Expanded Religion & Belief Systems
 
 Future expansion: religions, temples/churches/orders, ceremonies, faith reputation, player leadership, supernatural belief responses and social/political effects.
+
+Religious/community leadership can use its own trust/election/selection rules and cannot automatically be purchased with GrimKoin unless that specific institution's legitimate world rules explicitly allow a monetary office — which does not override public-government rank rules.
 
 ## Phase 77 — Legacy / Long-Term Player Goals
 
 Metaworld does not need a single final boss/end screen.
 
-Long-term accomplishments can include becoming mayor, business elite, famous AI-media creator/musician/filmmaker, notorious criminal, legendary builder/gunsmith, landlord/property owner, faction leader, vampire coven leader, werewolf pack leader, war survivor/hero, historical figure, family founder or community leader.
+Long-term accomplishments can include becoming Mayor, Governor, President, King, Queen, Police Captain/Chief where configured, business elite, famous AI-media creator/musician/filmmaker, notorious criminal, legendary builder/gunsmith, landlord/property owner, faction leader, vampire coven leader, werewolf pack leader, war survivor/hero, historical figure, family founder or community leader.
 
-The world can remember those lives through inheritance, news, museums, monuments, property history and the Event Ledger.
+Leadership is meaningful because players/NPC communities must trust and select you. GrimKoin cannot simply purchase these achievements.
+
+The world can remember those lives through inheritance, news, museums, monuments, property history, election history and the Event Ledger.
 
 ## Phase 78 — Future GrimKoin Buyback
 
@@ -833,20 +1012,26 @@ Current development only preserves the ledger/provenance architecture needed so 
 | Third-person starter | Master Blueprint + modular Blueprint Components |
 | Basic locomotion | Motion Matching + IK + contextual movement |
 | Character creator | Full morph system + age + body diversity + clothing fitting |
-| Inventory | Persistent Item DNA + container rules |
+| Inventory | Persistent Item DNA + container/household storage rules |
 | Weapons | Universal object capabilities |
 | GrimKoin/PromoKoin | Full server-authoritative ledger + provenance |
 | Banking | Bank privacy + death settlement + estates/wills |
 | Jobs | Profession qualifications + licensing + apprenticeship later |
+| Career ranks | Merit/service/trust-based promotion; no GrimKoin rank purchase |
+| Government | Community elections/selection for Mayor/President/King/Queen and other civic leadership |
+| Political economy | Campaign spending allowed; vote buying/bribery only as risky corruption gameplay |
 | City tax | Persistent city treasury + budgets/government |
+| Food | Real household/NPC consumption + meaningful pricing + supply-chain economy |
+| Family | Spouse/household needs + pantry/budget responsibility |
+| AI/NPC companions | Hunger + provisioning/rations/wages; AI does not remove physical needs |
 | Property | 3D parcels + utilities + real-calendar bills |
-| Business | Employees + payroll + tax + tips + advertising |
+| Business | Employees + payroll + food where applicable + tax + tips + advertising |
 | Vehicles | Cargo + ownership + theft + maintenance + damage |
 | Social | Spatial voice + text + living social venues |
 | Player media | AI-generated-only + creator ownership + per-buyer entitlements + spatial shared playback |
 | Cameras | Evidence system without omniscient identity or constant SceneCapture |
 | News | Event Ledger-driven news throughout world |
-| NPCs | StateTree + Smart Objects + population LOD |
+| NPCs | StateTree + Smart Objects + population LOD + scheduled needs/voting |
 | Supernatural | Lineages + morphs + politics + territory + war |
 | Rendering | Nanite-first + HLOD + scalable Lumen/MegaLights |
 | Smoothness | Performance budgets + PSO precaching + continuous profiling |
@@ -865,8 +1050,9 @@ Recommended vertical slice contains:
 
 - one small town
 - one bank
-- one store
+- one store/grocery
 - one bar/club
+- one restaurant/food source
 - one police station
 - one hospital/clinic
 - one rental/apartment building
@@ -880,6 +1066,9 @@ Recommended vertical slice contains:
 - bills/utilities
 - inventory + Item DNA
 - jobs/professions
+- police rank prototype based on service/reputation rather than money
+- one local election prototype with player/NPC voters
+- campaign spending separated from actual votes
 - morph character creator
 - clothing fitting baseline
 - voice/text
@@ -888,6 +1077,9 @@ Recommended vertical slice contains:
 - verification that shared listeners/viewers do not receive ownership
 - security cameras/evidence
 - police investigation
+- household/family food inventory prototype
+- recruited NPC/companion hunger + provisioning prototype
+- grocery/restaurant food purchase and consumption loop
 - day/night
 - weather
 - 20–50 meaningful NPCs with population LOD
@@ -971,6 +1163,7 @@ The Master Roadmap is supported by detailed companion designs in `Docs/`, includ
 - `Creator_Marketplace_Texture_System.md`
 - `Earth_Property_Vehicles_Media_News.md`
 - `Estate_Wills_Inheritance_Succession.md`
+- `Food_Family_NPC_Needs_Community_Ranks_Governance.md`
 - `Free_To_Play_Economy_Media_Business_Threat_Model.md`
 - `Living_World_Environment_NPC_AI.md`
 - `Performance_Smoothness_FrameTime_Architecture.md`
@@ -981,3 +1174,5 @@ The Master Roadmap is supported by detailed companion designs in `Docs/`, includ
 When a companion document contains more detail than this roadmap, the roadmap establishes the approved feature direction and the companion document defines the detailed behavior, unless a later explicit canonical decision supersedes it.
 
 For player music/video ownership and playback, `AI_Media_Ownership_Playback_Licensing.md` supersedes older broader wording that allowed generic non-AI player media sales.
+
+For food, family/household needs, NPC provisioning, community voting, professional rank and elected leadership, `Food_Family_NPC_Needs_Community_Ranks_Governance.md` is the detailed canonical companion design.
