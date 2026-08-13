@@ -1,4 +1,4 @@
-# Metaworld — Master Development Roadmap v2
+# Metaworld — Master Development Roadmap v2.1
 
 **Status:** Canonical / Approved
 
@@ -54,6 +54,14 @@ Metaworld is always **game first**. Realism exists to create stories, choices, r
 24. The backend may know true actor IDs for technical authority, but in-world police/news only know what legitimate evidence reveals.
 25. Supernatural identity does not exempt players from property, jobs, taxes, law, evidence, businesses, death, inheritance, or the rest of the world.
 26. Lineage does not automatically determine faction loyalty. Humans, vampires, werewolves, and future lineages can ally, rival, split, govern territory, or go to war dynamically.
+27. Player-sold music and video is **AI-generated-only**.
+28. A player may publish/sell AI-generated music or video only when they own the output and are permitted to sell/distribute it.
+29. The creator owns the original Metaworld media product; each normal sale creates a separate buyer-owned Metaworld media copy/entitlement.
+30. Buying a song/video does not make it globally owned. Another player who wants independent playback on their own device must obtain their own copy/entitlement.
+31. Shared playback is spatial. People physically present in the same room, house, vehicle, club, bar, theater, drive-in, or other authorized media zone may hear/watch the owner's playback without owning the file themselves.
+32. Leaving the media zone ends shared access unless the player has their own legitimate entitlement or another authorized source is playing it.
+33. Listening to or watching media does not grant ownership.
+34. Official Metaworld News is separate from player AI-generated entertainment media and remains driven by verified Event Ledger facts.
 
 ---
 
@@ -371,9 +379,33 @@ Locked creator rule:
 
 **Upgrade:** creator brands, storefronts, collections, followers, reviews, favorites, limited releases, gifting, version management.
 
-## Phase 25 — Music, Movies & Player Media
+## Phase 25 — AI Music, AI Video & Player Media Ownership
 
-Authorized creator-owned/licensed media can support music sales, albums, DJs, venues, radio, cinemas, drive-ins, screenings, machinima, documentaries, advertisements, and event recordings.
+Player-sold music/video is **AI-generated-only**.
+
+Requirements:
+
+- seller owns the AI-generated output
+- seller is permitted to sell/distribute it
+- rights/ownership declaration stored with the Media Asset ID
+- normal sale creates a buyer-owned Metaworld copy/entitlement
+- creator retains the original sellable product unless a future explicit exclusive-sale type says otherwise
+- another player who wants independent playback must buy/obtain their own entitlement
+- hearing/watching somebody else's playback does not grant ownership
+
+Spatial playback rule:
+
+- owner plays song in car -> occupants can hear it
+- owner plays song in house/club -> people in the active media zone can hear it
+- owner plays video on TV/screen -> people in the viewing zone can watch it
+- attendees/listeners/viewers do not receive the file merely by being present
+- leaving the zone ends shared access unless they own their own copy or another authorized source is playing it
+
+Supported systems can include AI-generated songs, albums, music videos, films, documentaries, advertisements and other approved AI-created media.
+
+**Upgrade:** creator media storefronts, playlists, albums/series, venue screening permissions, buy-as-gift, entitlement transfer rules, radio-station/business broadcast licensing, charts/discovery, creator brands, favorites, reviews, and media libraries.
+
+Detailed canonical design: `Docs/AI_Media_Ownership_Playback_Licensing.md`.
 
 ## Phase 26 — Vehicle Foundation
 
@@ -426,7 +458,7 @@ Persistent verified world-event records:
 
 News exists through TV, radio, car radio, store/bar/hotel screens, public displays, phones/computers later, publications, emergency alerts and other appropriate channels.
 
-Official verified news remains distinct from player journalism, opinion, rumor, entertainment and advertising.
+Official verified news remains distinct from player journalism, player AI-generated entertainment media, opinion, rumor and advertising.
 
 ## Phase 31 — Living History
 
@@ -718,7 +750,7 @@ Integrate PSO precaching and hitch analysis early enough that new materials/effe
 
 ## Phase 67 — User Interface
 
-UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, communications, news, police tools, creator systems and other game domains.
+UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, communications, news, police tools, creator systems, AI-media libraries and other game domains.
 
 ## Phase 68 — Accessibility
 
@@ -739,7 +771,7 @@ UI for inventory, character creator, map, banks, jobs, professions, skills, busi
 Required stress tests include:
 
 - downtown traffic + pedestrians + rain + night lighting
-- busy nightclub + voice + dancing + screens + security
+- busy nightclub + voice + dancing + AI music/video screens + security
 - zombie attack during crowded event
 - police response + cameras + vehicles + news
 - war/combat/destruction scene
@@ -780,7 +812,7 @@ Future expansion: religions, temples/churches/orders, ceremonies, faith reputati
 
 Metaworld does not need a single final boss/end screen.
 
-Long-term accomplishments can include becoming mayor, business elite, famous creator/musician, notorious criminal, legendary builder/gunsmith, landlord/property owner, faction leader, vampire coven leader, werewolf pack leader, war survivor/hero, historical figure, family founder or community leader.
+Long-term accomplishments can include becoming mayor, business elite, famous AI-media creator/musician/filmmaker, notorious criminal, legendary builder/gunsmith, landlord/property owner, faction leader, vampire coven leader, werewolf pack leader, war survivor/hero, historical figure, family founder or community leader.
 
 The world can remember those lives through inheritance, news, museums, monuments, property history and the Event Ledger.
 
@@ -811,6 +843,7 @@ Current development only preserves the ledger/provenance architecture needed so 
 | Business | Employees + payroll + tax + tips + advertising |
 | Vehicles | Cargo + ownership + theft + maintenance + damage |
 | Social | Spatial voice + text + living social venues |
+| Player media | AI-generated-only + creator ownership + per-buyer entitlements + spatial shared playback |
 | Cameras | Evidence system without omniscient identity or constant SceneCapture |
 | News | Event Ledger-driven news throughout world |
 | NPCs | StateTree + Smart Objects + population LOD |
@@ -850,6 +883,9 @@ Recommended vertical slice contains:
 - morph character creator
 - clothing fitting baseline
 - voice/text
+- one AI-generated song marketplace purchase + owned-copy playback test
+- one AI-generated video marketplace purchase + TV/shared-room playback test
+- verification that shared listeners/viewers do not receive ownership
 - security cameras/evidence
 - police investigation
 - day/night
@@ -894,10 +930,39 @@ Final rule:
 
 ---
 
-# 8. Canonical Companion Documents
+# 8. Roadmap Feature Intake Rule
+
+The Master Roadmap is a living canonical plan.
+
+When new Metaworld feature ideas are approved, they should be handled in one of four ways:
+
+- **LOCKED** — approved and added directly to the roadmap/global rules.
+- **UPGRADE** — approved improvement to an existing phase.
+- **FUTURE** — approved concept intentionally scheduled later.
+- **RESEARCH** — promising idea that must be tested before becoming a dependency.
+
+New discoveries from Unreal Engine videos, YouTube research, Epic documentation, games, tools, plugins, design references, or future brainstorming should be checked against the existing architecture before being inserted.
+
+Rules for intake:
+
+1. Do not delete an already approved Metaworld rule merely because a new feature exists.
+2. Integrate the new feature with existing systems rather than creating duplicate isolated systems.
+3. Identify which roadmap phase owns the feature.
+4. Add a new phase only when the feature is truly a separate major system.
+5. Record performance implications.
+6. Preserve Blueprint-first runtime architecture unless the owner explicitly changes that rule.
+7. Preserve the smoothness/performance target.
+8. Preserve player ownership/economy/security rules.
+9. Mark experimental Unreal features as research/evaluation until proven suitable.
+10. Keep the roadmap current so it can always answer: what is approved, what comes later, and what still needs research.
+
+---
+
+# 9. Canonical Companion Documents
 
 The Master Roadmap is supported by detailed companion designs in `Docs/`, including:
 
+- `AI_Media_Ownership_Playback_Licensing.md`
 - `Avatar_Communication_Character_Animation_Architecture.md`
 - `Banking_Currency_Custody_Future_Cashout.md`
 - `Blueprint_Python_Nanite_Architecture.md`
@@ -914,3 +979,5 @@ The Master Roadmap is supported by detailed companion designs in `Docs/`, includ
 - `Supernatural_Lineages_Vampires_Werewolves.md`
 
 When a companion document contains more detail than this roadmap, the roadmap establishes the approved feature direction and the companion document defines the detailed behavior, unless a later explicit canonical decision supersedes it.
+
+For player music/video ownership and playback, `AI_Media_Ownership_Playback_Licensing.md` supersedes older broader wording that allowed generic non-AI player media sales.
