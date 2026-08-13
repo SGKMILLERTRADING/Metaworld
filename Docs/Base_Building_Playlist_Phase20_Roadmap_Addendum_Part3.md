@@ -20,6 +20,8 @@ All permanent rules from Parts 1 and 2 remain active, including:
 - Nanite-first rendering wherever compatible.
 - stable frame time takes priority over spectacle.
 - damage/destruction must integrate with support, property, crime/evidence, repair, persistence and performance rather than exist as an isolated effect.
+- persistent parent/child relationships are typed gameplay relationships, not one generic child Actor array; parent failure resolves according to support/attachment/utility/occupancy semantics and configured failure policies.
+- Chaos/Geometry Collection fracture hierarchy is destruction presentation inside an object and never replaces Metaworld's persistent cross-buildable relationship graph.
 
 ---
 
@@ -71,13 +73,61 @@ Approved:
 
 Detailed companion: `Docs/Buildable_Damage_Structural_Destruction_Chaos_System.md`
 
+## Episode Upgrade 17 — Hierarchical Destruction & Persistent Structure Relationships
+
+**Classification:** UPGRADE — APPROVED
+
+**Phase Ownership:** Phase 20 persistent relationship/support graph + Phase 36 destruction/collapse consequences.
+
+Approved:
+
+- tutorial goal of preventing floating/orphaned child buildables after a parent is destroyed is fully retained
+- tutorial `BuildChildren[]` Actor array is upgraded into typed persistent structure relationships keyed by stable Structure/Object IDs
+- recommended relationship record includes RelationshipID, ParentStructureID, ChildStructureID, RelationshipType, relevant Snap/Opening/Attachment IDs, support/required flags, failure policy and relationship state
+- relationship types are explicitly separated rather than treating every child identically; initial types include structural support, installed attachment, surface attachment, snap occupancy, utility dependency, containment and movable group/module relationships
+- physical support is distinct from ownership, placement parent, visual attachment and snap proximity
+- support relationships may be many-to-one/many-to-many where a floor/roof/platform has multiple valid supports; the authoritative model is therefore a graph, not necessarily a strict tree
+- destroying one support does not automatically destroy a dependent if configured alternate supports still satisfy structural requirements
+- support loss triggers event-driven stability reevaluation: Stable / Degraded / Unstable / Unsupported according to configured structural rules
+- installed Door/Window relationships are resolved when their wall/opening parent fails so functional floating doors/windows cannot remain after the opening no longer exists
+- installed/surface children do not universally receive lethal damage; relationship failure policies may destroy, detach, drop, salvage, preserve with alternate support, transfer, disable, disconnect utility or block parent removal until resolved
+- tutorial pattern `ForEach Child -> Deal massive damage -> Delay -> Destroy Parent` is rejected as permanent architecture
+- synthetic maximum damage is avoided because it can create incorrect damage/crime attribution, salvage exploits, unnecessary VFX and uncontrolled deep cascades
+- authoritative parent destruction resolves relationship consequences directly; actual damage is applied only when the configured failure profile calls for it
+- arbitrary Blueprint `Delay` is not used as the correctness mechanism for destruction ordering
+- server uses an authoritative relationship-resolution transaction/queue: terminal parent state -> load relevant relationships -> update collision/opening/support truth -> resolve attachments/utilities -> reevaluate dependents -> queue secondary failures -> clean occupancy -> persist -> broadcast presentation event
+- tutorial `Avoid Adding as Child` Boolean is rejected as a universal special case
+- foundations are valid roots when directly supported by terrain but can also legitimately be children/dependents of piers, footings, foundation extensions or engineered support frames; legality comes from relationship/support definitions rather than one Boolean
+- door/window structural opening remains separate from installed object; wall destruction resolves the installed object's policy without confusing the two identities
+- surface-mounted items such as shelves, signs, TVs, cameras and electrical boxes may detach/drop/disable rather than all being destroyed
+- container/inventory state remains authoritative during parent failure; relationship destruction cannot duplicate or erase contents through local visual effects
+- utility relationships can disconnect/fail service without necessarily destroying connected devices
+- prefab houses keep logical relationships even when visual geometry is merged/Nanite optimized; destruction of one logical zone resolves only its relevant dependents unless authored rules require a wider failure
+- demolition and renovation use the same relationship graph to preview dependents, cascade risk, attachments, utilities and blocked-removal conditions before committing changes
+- relocation uses the same graph; support-bearing pieces cannot be moved while unresolved dependents exist, installed objects require compatible destination slots, and declared modules may move as groups
+- destruction cascades preserve causal attribution: direct attacker/event -> directly destroyed support -> secondary structural collapse consequences; secondary failures are not falsely recorded as identical direct hits
+- relationship graph validation rejects self-parenting, missing IDs, duplicate exclusive occupancy, invalid type pairings and forbidden structural-support cycles
+- large cascades use visited StructureID sets, deterministic queues, deduplication, bounded transaction work and one terminal transition per structure rather than uncontrolled Blueprint recursion
+- client cannot add/delete/forge relationships, claim nonexistent alternate support, protect a child from authoritative failure, invent griefing children or bypass occupancy cleanup
+- relationships persist independently of Actor streaming; unloaded child state still resolves through persistent IDs when a parent is destroyed
+- runtime Actor references may be cached while relevant but are not the only relationship truth
+- no permanent Tick to check whether parents are alive; relationships are registered/updated on placement, installation, renovation, relocation, demolition and meaningful damage events
+- no whole-world child search during destruction; query direct relationship edges and only affected support dependents
+- Chaos Geometry Collection fracture hierarchy remains separate from the persistent Metaworld relationship graph; Chaos clusters/bones present one object's fracture while server relationships resolve whole-buildable consequences
+- `BP_MW_Buildable_Master` may expose generic relationship lifecycle hooks but does not contain a giant family-specific destruction switch
+- reusable Blueprint concepts may include `S_MW_StructureRelationship`, `BPI_MW_StructureRelationshipParticipant`, `BPC_MW_StructureRelationships` and a persistent relationship registry/service compatible with Blueprint-first architecture
+- Python Editor tooling can audit relationship metadata, invalid cycles, orphaned Opening/Snap IDs, missing failure policies, legacy child-array-only logic and overly expensive dependency graphs
+- controller input requires no special child-destruction path; keyboard/mouse, Xbox-style and PlayStation-style players produce the same authoritative damage/removal relationship results
+
+Detailed companion: `Docs/Structural_Relationship_Hierarchical_Destruction_System.md`
+
 ---
 
 # Current Phase 20 / Phase 36 Construction-Damage Stack
 
 `BP_MW_Buildable_Master + Components / Interfaces / Data`
 
-`-> Construction / Placement / Support / Persistence`
+`-> Construction / Placement / Typed Relationship Graph / Support / Persistence`
 
 `-> Completed or Unfinished Physical Structure`
 
@@ -85,13 +135,15 @@ Detailed companion: `Docs/Buildable_Damage_Structural_Destruction_Chaos_System.m
 
 `-> Durability / Damage-State Transition`
 
-`-> Opening / Security / Support / Collision Consequences`
+`-> Relationship Resolution: Attachments / Utilities / Occupancy / Support`
+
+`-> Alternate-Support Re-evaluation / Stable-Unstable-Collapse Decision`
 
 `-> Phase 36 Chaos / Geometry Collection Presentation where appropriate`
 
 `-> Debris Budget / Sleep / Disable / Cleanup`
 
-`-> Stable Persistent Damaged / Breached / Destroyed State`
+`-> Stable Persistent Damaged / Breached / Destroyed / Detached State`
 
 `-> Repair / Salvage / Crime / Insurance / Reconstruction later`
 
@@ -100,6 +152,12 @@ Detailed companion: `Docs/Buildable_Damage_Structural_Destruction_Chaos_System.m
 # Destruction Principle
 
 > Metaworld destruction is persistent gameplay state first and physics spectacle second. Damage, ownership, collision, openings, support failure, crime, repair and persistence are server-authoritative. Chaos/Geometry Collections provide controlled fracture presentation only where they add value without violating the smoothness budget.
+
+---
+
+# Relationship / Hierarchical Destruction Principle
+
+> Metaworld does not destroy a build hierarchy by blindly killing every child Actor. It maintains typed persistent relationships. When a parent fails, the server resolves support, attachments, utilities, occupancy and dependents according to explicit failure policies and alternate-support rules; Chaos then presents the physical result without becoming the source of gameplay truth.
 
 ---
 
