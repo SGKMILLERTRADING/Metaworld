@@ -385,6 +385,195 @@ The first terrain-support test should prove:
 
 ---
 
+# 17. Foundation Raise / Lower Elevation Adjustment
+
+The playlist raise/lower-foundation feature is approved as an extension of this support system.
+
+Canonical rule:
+
+> Vertical foundation adjustment changes the requested candidate elevation; it never bypasses terrain support, overlap, zoning, resource or structural validation.
+
+## 17.1 Data-Driven Elevation Controls
+
+Do not use one universal raw `AddLocation.Z` constant as permanent architecture.
+
+A Foundation Buildable Definition may include:
+
+- `AllowElevationAdjustment`
+- `ElevationStep`
+- `MinElevationOffset`
+- `MaxElevationOffset`
+- `MaxTerrainEmbedDepth`
+- `MaxRaisedFoundationHeight`
+- optional `ElevationMode`
+- optional variant-specific extension/support policy
+
+Recommended runtime state in `BPC_MW_BuildComponent`:
+
+- `RequestedFoundationElevationOffset`
+
+The offset resets when:
+
+- Build Mode starts;
+- selected Buildable changes to a different definition/family;
+- placement completes/cancels;
+- the selected definition disallows elevation adjustment.
+
+This prevents the previous foundation's vertical offset leaking into another buildable.
+
+## 17.2 Enhanced Input
+
+Use intent actions such as:
+
+- `IA_MW_BuildRaise`
+- `IA_MW_BuildLower`
+- optional `IA_MW_BuildResetElevation`
+
+Mappings must support:
+
+- keyboard/mouse;
+- Xbox-style controllers;
+- PlayStation-style controllers.
+
+The tutorial's physical `8` and `2` keys are examples only, not canonical bindings.
+
+## 17.3 Candidate Transform
+
+Foundation preview resolves:
+
+`Base Candidate Transform`
++
+`RequestedFoundationElevationOffset along approved vertical axis`
+=
+`Adjusted Candidate Transform`
+
+Then the full foundation validation pipeline runs again.
+
+The adjusted transform is not automatically valid just because it is within Min/Max offset.
+
+## 17.4 Raising a Foundation
+
+Raising a foundation can increase the gap between the main foundation body and approved ground/support.
+
+After every meaningful raise step, recalculate:
+
+- support sample distances;
+- required extension/pier/footing count;
+- added material requirements;
+- added Construction Work Units;
+- maximum extension depth;
+- structural support legality;
+- property/air/build-volume limits;
+- overlap/clearance;
+- slope/surface validity.
+
+Example:
+
+`Foundation raised 40 cm`
+-> front samples remain direct support
+-> rear samples now require 2 pier segments
+-> preview updates supports/cost
+-> server independently confirms on placement.
+
+A player cannot raise a foundation beyond the definition's legal support range and leave it floating.
+
+## 17.5 Lowering / Terrain Embed
+
+Lowering a foundation may intentionally embed part of the foundation into terrain where the definition permits it.
+
+This is not implemented by globally shrinking the obstruction box, dividing collision extents, or ignoring terrain overlap for every foundation.
+
+Instead, use authored validation information such as:
+
+- terrain-contact/embed allowance;
+- `MaxTerrainEmbedDepth`;
+- above-ground obstruction volume;
+- below-ground foundation/footing volume;
+- intentional-terrain-contact category;
+- underground utility/exclusion checks;
+- neighboring/public-property penetration rules.
+
+Allowed terrain penetration is valid intentional contact only within the configured embed range.
+
+The same candidate remains blocked if it intersects:
+
+- another building;
+- protected utility;
+- road/public structure;
+- neighboring parcel;
+- invalid underground object;
+- forbidden terrain volume;
+- excessive depth.
+
+The visible mesh and authoritative placement footprint remain separate concepts, consistent with the canonical overlap system.
+
+## 17.6 Walls and Other Buildables
+
+Foundation elevation controls do not automatically apply to walls/floors/doors/windows.
+
+Other buildable families remain governed by their normal snap/support transforms unless their own definitions explicitly expose vertical adjustment.
+
+For example:
+
+- Wall snapped to foundation edge -> uses structural snap transform;
+- Upper Floor -> uses supported floor snap rules;
+- Furniture/free-standing object later -> may have a different placement-height policy;
+- Foundation -> may use controlled terrain elevation adjustment.
+
+No `IsFoundation ? AddLocation : Zero` branch should become a giant hardcoded family architecture; capability comes from Buildable Definition data/tags.
+
+## 17.7 Multiplayer / Server Authority
+
+Client may preview the elevation offset responsively.
+
+Placement request can include the candidate transform/elevation intent, but the server resolves:
+
+- authoritative Foundation Definition;
+- legal Min/Max elevation;
+- support sample results;
+- extension count/cost;
+- terrain embed allowance;
+- property/build-volume rules;
+- collision/overlap;
+- resources/work requirements.
+
+A modified client cannot submit an illegal vertical offset, suppress required supports, or claim terrain penetration is allowed when the definition says otherwise.
+
+## 17.8 Persistence
+
+Once placed, the foundation persists its final authoritative transform plus explicit support relationships.
+
+The preview-only `RequestedFoundationElevationOffset` does not need to remain as separate world truth unless useful for audit/UI; the committed transform and support graph are sufficient.
+
+Save/load restores the same StructureID, transform, extensions/supports and relationships rather than recalculating a different elevation from current player settings.
+
+## 17.9 Performance
+
+- no height-adjustment polling when no adjustable foundation is being previewed;
+- input changes mark the candidate transform dirty and trigger bounded preview validation;
+- support queries remain bounded by authored sample points;
+- no permanent terrain-overlap checks after placement;
+- no per-frame vertical replication; only final authoritative placement matters;
+- preview refresh rate may be throttled/dirty-state driven while preserving responsive controls.
+
+## 17.10 Added Tests
+
+22. Raise foundation one step -> support/cost preview recalculates.
+23. Lower foundation within allowed terrain embed -> placement remains valid.
+24. Lower beyond `MaxTerrainEmbedDepth` -> blocked.
+25. Raise high enough to require support extensions -> correct extension count and cost shown.
+26. Raise beyond legal support depth -> blocked.
+27. Vertical adjustment cannot bypass another structure's obstruction footprint.
+28. Vertical adjustment cannot penetrate protected utilities/public/neighbor property.
+29. Offset resets when leaving Build Mode or selecting a non-adjustable buildable.
+30. Server rejects forged out-of-range elevation.
+31. Save/load restores the exact committed elevated foundation/support graph.
+32. Keyboard/mouse raise/lower works.
+33. Xbox-style controller raise/lower works.
+34. PlayStation-style controller raise/lower works.
+
+---
+
 # Core Rule
 
-> Metaworld foundations adapt to terrain through real structural support, not floating placement or free visual filler. Support sampling predicts the terrain gap, data defines what support is legal, resources and Builder work pay for it, and the server authoritatively creates and persists the resulting foundation/support graph.
+> Metaworld foundations adapt to terrain through real structural support, not floating placement or free visual filler. Support sampling predicts the terrain gap, data defines what support is legal, resources and Builder work pay for it, and the server authoritatively creates and persists the resulting foundation/support graph. Raise/lower controls adjust the requested elevation only; every adjusted position must still pass the same structural, legal, collision and resource rules.
