@@ -25,6 +25,82 @@ Equipping an item changes the authoritative state of an existing persistent `Ite
 - Equipment UI is a view over equipment state, not the source of truth, and supports keyboard/mouse, Xbox-style and PlayStation-style controllers.
 - Inventory capacity is validated during equip/unequip/conflict resolution; if no destination exists, world drop or another explicit policy is required rather than silently deleting an item.
 
+## Presentation Assets Per Item Definition
+
+One persistent item can legitimately use different assets for different presentation states.
+
+Recommended Item Definition presentation fields may include:
+
+- `WorldPresentationMesh` — dropped/placed world representation;
+- `EquippedStaticMesh` — rigid held/stowed representation where appropriate;
+- `EquippedSkeletalMesh` — rigged wearable representation where appropriate;
+- `MetaHumanOutfitAsset` or equivalent resizable outfit reference where appropriate;
+- `InventoryIcon`;
+- `PreviewPresentationProfile`;
+- `AttachmentProfileID`;
+- `CoverageProfileID`;
+- `AnimationProfileID`.
+
+Example:
+
+`PlateChest_ItemInstance_84721`
+-> dropped in world uses a lightweight Static Mesh
+-> equipped on body uses a rigged Skeletal Mesh or Outfit Asset
+-> inventory uses a cached icon
+-> preview UI derives the same equipped presentation from the same ItemInstanceID
+
+This is not duplication. These are different representations of one authoritative item.
+
+## Rigged Armor Slot Components
+
+For fixed skeletal armor paths, the character may expose presentation slots/components for body regions such as:
+
+- Chest/Torso
+- Hands/Arms
+- Legs
+- Feet
+- Head where deforming headwear requires it
+
+These components are presentation surfaces controlled by `BPC_MW_Equipment`; they are not independent inventories.
+
+When a compatible rigged armor item is equipped:
+
+1. server commits the ItemInstanceID to the authoritative Equipment Slot;
+2. the local/replicated character resolves the approved equipped presentation;
+3. the correct Skeletal Mesh/Outfit is applied to the presentation slot;
+4. Leader Pose / Copy Pose / outfit fitting / post-process method is applied according to the content profile;
+5. body/hair coverage rules are refreshed;
+6. animation/equipment profile state is refreshed;
+7. UI is notified from equipment-state change.
+
+When unequipped:
+
+1. server removes the ItemInstanceID from the slot and resolves the destination container/drop policy;
+2. the visual slot returns to the avatar's authoritative base-body/default presentation for that region;
+3. coverage/hair/body visibility returns to the avatar/equipment-derived state;
+4. the same ItemInstanceID continues to exist in inventory/world state.
+
+Do not hardcode one tutorial default mesh as the universal restore value. The base visual comes from the current avatar/body/outfit profile so character customization survives equip/unequip correctly.
+
+## Full Armor Set Composition
+
+Chest, gloves, pants/legs and boots/feet are separate equipment items unless a deliberate set-item design says otherwise.
+
+Each piece can define:
+
+- allowed slot(s);
+- compatible body/skeleton/outfit profiles;
+- world/equipped presentation;
+- armor coverage;
+- protection values/types;
+- durability/condition;
+- weight/mobility effects;
+- material/appearance variant;
+- set/collection tags;
+- required hiding/masking/corrective behavior.
+
+A matching visual armor set may provide set-bonus or collection metadata later, but the player may mix pieces unless an explicit equipment rule forbids it.
+
 ## Hair / Body Coverage
 
 Helmet and clothing definitions can drive coverage rules such as hiding selected hair groups, switching to tucked/compressed hair, hiding covered body regions, using coverage masks, or keeping face/hair visible for open helmets.
@@ -38,6 +114,8 @@ Do not use one universal `Helmet = Hair Invisible` rule.
 A DCC such as Blender may fit armor to an exported source body, transfer/paint skin weights, bind it to the compatible skeleton, export FBX and validate the result in UE5.8.
 
 The tutorial Data Transfer + Armature workflow is a valid starting point but requires deformation, clipping, weight and body-compatibility QA.
+
+For modular follower armor, Leader Pose is allowed where the skeleton hierarchy and behavior fit the use case. Apply it as part of the equipment/avatar presentation setup rather than assuming Construction Script is the only correct runtime place for all future equipment state.
 
 ### Parametric / Resizable Outfit Armor
 
@@ -80,6 +158,8 @@ Persist/replicate compact CharacterID + equipment slot IDs + equipped ItemInstan
 
 Server owns equip/unequip legality and item location. Clients reconstruct visual attachments from approved definitions rather than receiving cosmetic transform spam every frame.
 
+The server does not need to replicate entire rigged armor assets as state; clients resolve approved presentation from Item Definition + equipment/avatar profile IDs.
+
 ## Performance / Tooling
 
 - equipment visuals change only on equipment-state changes;
@@ -88,6 +168,7 @@ Server owns equip/unequip legality and item location. Clients reconstruct visual
 - soft-load heavy equipment assets where practical;
 - distant characters reduce hair/accessory/armor fidelity;
 - modular skeletal component count and cloth/Outfit simulation are profiled;
+- fixed and parametric armor paths are selected by measured quality/cost;
 - Python Editor tooling can audit slot IDs, tags, sockets, attachment profiles, body-compatibility metadata, coverage rules, skeleton compatibility, collision, Two-Sided use, LOD/Nanite metadata and armor QA fixtures.
 
 ## Initial Tests
@@ -110,6 +191,10 @@ Server owns equip/unequip legality and item location. Clients reconstruct visual
 16. Keyboard/mouse, Xbox-style and PlayStation-style equipment flows all work.
 17. Repeated equip changes create no orphan Actors/components.
 18. Equipment remains within performance budget across nearby/distant characters.
+19. Chest armor can use one world mesh and another equipped skeletal/outfit representation while preserving one ItemInstanceID.
+20. Unequipping each armor region restores the current avatar's base-body presentation, not a hardcoded mannequin default.
+21. Mixed chest/hands/legs/feet pieces resolve independently and persist correctly.
+22. Preview UI shows the same authoritative equipment composition without becoming a second equipment owner.
 
 ## Core Rule
 
