@@ -1,4 +1,4 @@
-# Metaworld — Master Development Roadmap v2.8
+# Metaworld — Master Development Roadmap v2.9
 
 **Status:** Canonical / Approved
 
@@ -102,6 +102,12 @@ Metaworld is always **game first**. Realism exists to create stories, choices, r
 72. Metaworld does not require a permanent dedicated `FloorTrace` channel for every floor type. General build/snap query profiles plus stable Snap Point IDs and compatibility tags remain the scalable architecture.
 73. Floor snap/acquisition Box Collisions are tuning/query tools only. Their extents are kit-specific; exact transforms, occupancy, support metadata and server validation determine whether an upper-floor placement is real.
 74. Multi-story structural relationships are persisted so save/load restores floors, stories, support parents and snap relationships consistently.
+75. Installed doors/windows use Metaworld's common interaction contract such as `BPI_MW_Interactable` and the shared player interaction component/trace rather than a separate character-specific build interaction graph.
+76. Door/window motion uses explicit authoritative state transitions such as `Closed -> Opening -> Open -> Closing`, with lock/jam/damage/security restrictions tracked separately so rapid repeated input cannot create contradictory motion states.
+77. Blueprint Timelines are approved for smooth simple door/window motion, but open angle, travel distance, duration and curve are data-driven per variant. Tutorial values such as 90 degrees and one second are prototype defaults, not universal rules.
+78. Multi-panel doors/windows use arrays of movable-part definitions with per-part pivot/closed transform, axis, direction sign, angle/distance and duration. Opposing motion is data-driven rather than a hardcoded `second mesh * -1` special case.
+79. Door/window multiplayer replication sends meaningful authoritative state/transition data rather than replicating Timeline progress or transforms every frame by default. Clients animate toward the authoritative state locally.
+80. Idle doors/windows do not run permanent Tick/Timeline work. Interaction and obstruction checks occur only when needed, preserving Metaworld's smoothness rule.
 
 ---
 
@@ -201,7 +207,8 @@ Animation families include locomotion, firearms, melee, improvised objects, carr
 ## Phase 5 — Interaction Animation Library
 
 - sitting/lying/sleeping
-- doors
+- doors/windows through common `BPI_MW_Interactable` interaction contract
+- installed Door/Window runtime motion driven by authoritative state plus local Timeline/data-driven presentation
 - ATM/bank use
 - eating/drinking
 - cooking
@@ -575,11 +582,28 @@ For the prototype, a small Data Table can be loaded/cached into an array. At sca
 - door/window pivots/orientation/closed-state transforms are standardized in the asset pipeline; per-asset offsets are explicit data exceptions
 - use a small number of Build Placement/Snap/Obstruction query profiles rather than one new global trace channel for each door/window type
 - collision/acquisition extents are tuned per kit; no single tutorial number such as Y Extent `1` is treated as universal correctness
-- doors can later integrate open/close, locks, keys, household/business permissions, alarms, breach/damage and security systems
-- windows can later integrate openable variants, breakable glass, reinforcement, alarms, weather exposure and repair
 - full door/window selection, installation and interaction paths must remain controller-compatible
 
-Detailed canonical design: `Docs/Doors_Windows_Openings_Construction_System.md`.
+**Interactive door/window runtime upgrade:**
+
+- installed interactive doors/windows implement Metaworld's common `BPI_MW_Interactable` contract rather than a special character-only Build Interface path
+- `BPC_MW_Interaction`/shared player interaction targeting performs the camera/reticle interaction trace and queries available actions
+- authoritative door motion state uses `Closed`, `Opening`, `Open`, `Closing`; lock/jam/damage/breach security state is tracked separately
+- rapid repeated interaction cannot start overlapping uncontrolled Timelines
+- each movable part stores a canonical closed/default relative transform
+- movement is data-driven by part: rotation/translation axis, direction sign, angle/distance, duration and curve
+- Timeline-based Blueprint motion is an approved baseline and runs only during active movement
+- 90-degree rotation / one-second motion is a prototype default, not a permanent constant
+- double/multi-panel doors and windows use arrays of movable-part definitions; opposing direction comes from per-part data rather than hardcoded second-mesh logic
+- server validates permissions, lock/key state, damage/jam state and legal transition before changing authoritative target state
+- clients receive compact state/transition data and animate locally rather than receiving full Timeline transform spam every frame
+- open/closed settled state, lock/security state and condition persist with the installed object
+- moving obstruction checks are limited to the relevant object and only while needed
+- NPCs with permission can use the same interactive door world state rather than bypassing it
+- interaction prompts/actions work with keyboard/mouse, Xbox-style controller and PlayStation-style controller
+
+Detailed canonical runtime design: `Docs/Interactive_Doors_Windows_Runtime_System.md`.
+Detailed canonical installation/opening design: `Docs/Doors_Windows_Openings_Construction_System.md`.
 
 **Flooring & multi-story upgrade:**
 
@@ -633,9 +657,9 @@ Detailed canonical design: `Docs/Flooring_Multi_Story_Structural_Construction_Sy
 - resources/payment are consumed only after authoritative validation succeeds
 - successful placement receives persistent Structure/Object ID, Family/Variant state, owner/property links, support/snap/opening relationships and world state
 
-**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; snap/opening/floor-support queries target the hit/relevant structure; heavy buildable assets can use soft references/category loading; wall/door/window/floor variants share common logic; structural support recalculation runs on meaningful build/damage events rather than every frame; moving door logic runs only while needed; permanent structures participate in World Partition/HLOD/relevancy systems.
+**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; snap/opening/floor-support queries target the hit/relevant structure; heavy buildable assets can use soft references/category loading; wall/door/window/floor variants share common logic; structural support recalculation runs on meaningful build/damage events rather than every frame; door/window Timelines only run during active motion; permanent structures participate in World Partition/HLOD/relevancy systems.
 
-**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, multi-story floor/support system, standard/door-opening/window-opening walls, separate placeable doors/windows attached to persistent opening slots, multiple opening sizes/styles, door locks/keys/access permissions, security/reinforced doors/windows, breakable windows, floor stair/ladder/elevator openings, beams/columns later, build catalog favorites/recently used, snap/opening/floor occupancy/reservation, snap-point scoring, snap-tag debugger, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
+**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, multi-story floor/support system, standard/door-opening/window-opening walls, separate placeable doors/windows attached to persistent opening slots, interactive data-driven doors/windows, locks/keys/access permissions, security/reinforced doors/windows, breakable windows, multi-panel/garage/sliding opening types, floor stair/ladder/elevator openings, beams/columns later, build catalog favorites/recently used, snap/opening/floor occupancy/reservation, snap-point scoring, snap-tag debugger, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
 
 Detailed canonical construction design: `Docs/Modular_Blueprint_Base_Building_System.md`.
 
@@ -1069,7 +1093,7 @@ NPC workers/leaders can receive the same role-duty categories as players, resolv
 - emergency reactions
 - same world capability rules as players wherever practical
 
-NPCs should understand usable doors/openings and multi-story access through normal navigation/interaction systems rather than construction-only snap collision.
+NPCs should understand usable doors/openings and multi-story access through normal navigation/interaction systems rather than construction-only snap collision. Authorized NPCs use the same door/window authoritative world state and interaction rules as players where practical.
 
 ## Phase 54 — NPC Population LOD
 
@@ -1138,13 +1162,15 @@ Server authority governs money, inventory, combat outcomes, death, ownership, pr
 
 Construction placement requests use stable Buildable/Variant IDs; the server resolves authoritative Actor Class, mesh/variant, cost, resource, snapping, opening/attachment, structural support and permission data rather than trusting client values.
 
+Door/window interaction requests are also authoritative: the server validates object identity, permissions, lock/key/security state, damage/jam state and legal motion transition before changing the target open/closed state.
+
 ## Phase 60 — Replication Scaling
 
 Use relevancy/dormancy/update-rate reduction/compact state so clients do not receive every NPC, camera, business, property, election state, construction preview and vehicle in the world.
 
 Construction ghosts remain local/transient unless a deliberate cooperative-build feature requires sharing preview state; permanent structures replicate/stream through normal world relevancy.
 
-Door/window state replication should transmit meaningful state changes rather than require continuous full-rate updates while idle.
+Door/window replication transmits meaningful target state/transition data rather than continuous Timeline progress/full-rate transform replication while idle. Relevant clients reconstruct smooth motion locally from shared movement definitions.
 
 Multi-story support relationships replicate as compact structural state where needed, not as per-frame simulations.
 
@@ -1166,7 +1192,7 @@ Construction snap/opening/floor-support detection asks only the hit/relevant str
 
 Structural support validation occurs on meaningful build/demolition/damage events rather than continuous per-frame graph evaluation.
 
-Idle doors/windows do not run unnecessary permanent Tick logic; movement/interaction updates occur only when required.
+Idle doors/windows run no unnecessary permanent Tick/Timeline work. Motion Timelines and any obstruction checks exist only while transition is active, and rapid input is state-gated so it cannot spawn overlapping movement graphs.
 
 Controller support must use Enhanced Input actions/context mappings rather than expensive polling hacks.
 
@@ -1204,6 +1230,8 @@ UI for inventory, character creator, map, banks, jobs, professions, skills, busi
 
 Construction UI can include categories, families/variants, Door/Window categories, Floor/Story categories, opening/support compatibility, search/filter, favorites/recently used, thumbnails, material/resource costs, profession/permit requirements, snap compatibility, rotate/snap controls, placement failure reason and cancel/confirm controls.
 
+Contextual world interaction UI can expose Open/Close/Lock/Unlock or other valid door/window actions without requiring a mouse-only menu.
+
 All major required menus must have controller focus/navigation paths; mouse-only critical controls are not acceptable.
 
 ## Phase 68 — Accessibility, Rebinding & Controller Compatibility
@@ -1229,7 +1257,7 @@ All major required menus must have controller focus/navigation paths; mouse-only
 - FOV controls where practical
 - rebindable construction controls rather than a mandatory `B` key
 - next/previous construction and family/variant cycling are rebindable and also accessible through catalog UI
-- Door/Window installation and interaction has controller-equivalent select/target/confirm/cancel/open/close/lock actions where applicable
+- Door/Window installation and interaction has controller-equivalent select/target/confirm/cancel/open/close/lock/unlock actions where applicable
 - upper-floor/multi-story targeting, support selection, rotate, confirm and cancel have controller-equivalent paths
 
 **Acceptance gate:** every major player-facing feature is tested with keyboard/mouse, an Xbox-style gamepad and a PlayStation-style gamepad. A feature is not complete if required gameplay cannot be completed through a supported controller path.
@@ -1256,8 +1284,11 @@ Required stress tests include:
 - controller navigation through character creator, inventory, build catalog, bank and job/role-duty UI
 - wall collision/navigation test with Standard, DoorOpening and WindowOpening variants
 - install/remove/replace door and window tests with opening occupancy/obstruction validation
-- repeated door open/close interaction without idle Tick cost explosion
-- save/load test of multi-story support relationships
+- repeated rapid door/window interaction test proving no overlapping/glitched Timelines or unauthorized state changes
+- multiplayer door/window test proving all relevant clients see the same authoritative state while animating smoothly
+- two-panel window/double-door test proving per-part direction data rather than hardcoded mesh-index behavior
+- repeated nearby door/window use without idle Tick/replication cost explosion
+- save/load test of settled door/window state and multi-story support relationships
 - war/combat/destruction scene
 - dense property with many owned items
 - creator marketplace/business district
@@ -1359,7 +1390,7 @@ Current development only preserves the ledger/provenance architecture needed so 
 | Family | Spouse/household needs + pantry/budget responsibility |
 | AI/NPC companions | Hunger + provisioning/rations/wages; AI does not remove physical needs |
 | Property | 3D parcels + utilities + real-calendar bills |
-| Construction | Modular `BPC_MW_BuildComponent` + Data Table/Data Asset catalog + stable Buildable/Family/Variant IDs + quick cycling/catalog UI + `BPI_MW_BuildSnapProvider` + query-only snap volumes + Standard/DoorOpening/WindowOpening wall family + separate persistent Door/Window families installed into authoritative opening slots + structural Floor family + supported multi-story stacking + air-right/height validation + persistent support graph + controller controls + timer ghost preview + property/profession/resource validation + server-authoritative persistent placement |
+| Construction | Modular `BPC_MW_BuildComponent` + Data Table/Data Asset catalog + stable Buildable/Family/Variant IDs + quick cycling/catalog UI + `BPI_MW_BuildSnapProvider` + query-only snap volumes + Standard/DoorOpening/WindowOpening wall family + separate persistent Door/Window families installed into authoritative opening slots + `BPI_MW_Interactable` interactive door/window state machine + data-driven Timeline/multi-panel motion + structural Floor family + supported multi-story stacking + air-right/height validation + persistent support graph + controller controls + server-authoritative persistent placement/interactions |
 | Business | Employees + payroll + food where applicable + tax + tips + advertising + operational duties |
 | Vehicles | Cargo + ownership + theft + maintenance + damage + controller driving |
 | Social | Spatial voice + text + living social venues |
@@ -1418,8 +1449,14 @@ Recommended vertical slice contains:
 - a solid wall cannot accept Door/Window installation
 - a second normal Door/Window cannot occupy the same opening
 - obstruction validation prevents a Door/Window from being installed inside wall geometry/another object
-- installed Door receives its own persistent ID and can open/close correctly
-- installed Window receives its own persistent ID
+- installed Door receives its own persistent ID
+- installed Door implements common interaction interface and opens/closes through authoritative state transitions
+- installed Window receives its own persistent ID; an openable two-panel Window uses per-panel motion definitions with opposing direction data
+- rapid repeated open/close input does not create overlapping/glitched motion
+- locked Door rejects unauthorized opening and permits valid authorized interaction
+- another client sees the same authoritative Door/Window state while animating smoothly
+- save/load restores settled Door/Window state, lock/security state and opening relationship
+- idle Door/Window has no unnecessary permanent Tick/Timeline cost
 - upper Floor snaps correctly to valid wall/support points at second-story height
 - unsupported floating Floor is rejected
 - duplicate Floor in the same structural slot is rejected
@@ -1435,9 +1472,9 @@ Recommended vertical slice contains:
 - material/GrimKoin cost validation per wall/Door/Window/Floor variant
 - server resolves Buildable/Variant ID + Parent Structure ID + Snap/Opening IDs rather than trusting client Actor Class/mesh/cost/raw height/snap state
 - server-authoritative final placement and persistent Structure/Object ID state
-- complete construction flow tested with keyboard/mouse
-- complete construction flow tested with Xbox-style controller
-- complete construction flow tested with PlayStation-style controller
+- complete construction and Door/Window interaction flow tested with keyboard/mouse
+- complete construction and Door/Window interaction flow tested with Xbox-style controller
+- complete construction and Door/Window interaction flow tested with PlayStation-style controller
 - one usable vehicle with keyboard/mouse and controller driving
 - GrimKoin + PromoKoin
 - VIP purchase architecture stub without future cashout
@@ -1537,8 +1574,11 @@ Rules for intake:
 12. Keep structural openings separate from installed functional objects when that separation improves replacement, damage, security, ownership or persistence.
 13. Do not turn tutorial-specific collision values or one-off trace channels into universal architecture unless profiling/testing proves they belong there.
 14. Multi-story structural pieces must participate in support, property-volume, occupancy, persistence and server-authority rules rather than treating vertical placement as free Z-axis movement.
-15. Mark experimental Unreal features as research/evaluation until proven suitable.
-16. Keep the roadmap current so it can always answer: what is approved, what comes later, and what still needs research.
+15. Interactive buildable objects should use the common Metaworld interaction contract and authoritative state transitions rather than adding one-off character Blueprint interaction graphs.
+16. Tutorial motion constants and special cases should become data-driven variant/part definitions when the same concept must scale across many assets.
+17. Replicate meaningful gameplay state rather than per-frame presentation data when clients can reconstruct the presentation safely.
+18. Mark experimental Unreal features as research/evaluation until proven suitable.
+19. Keep the roadmap current so it can always answer: what is approved, what comes later, and what still needs research.
 
 ---
 
@@ -1560,6 +1600,7 @@ The Master Roadmap is supported by detailed companion designs in `Docs/`, includ
 - `Flooring_Multi_Story_Structural_Construction_System.md`
 - `Food_Family_NPC_Needs_Community_Ranks_Governance.md`
 - `Free_To_Play_Economy_Media_Business_Threat_Model.md`
+- `Interactive_Doors_Windows_Runtime_System.md`
 - `Living_World_Environment_NPC_AI.md`
 - `Modular_Blueprint_Base_Building_System.md`
 - `Performance_Smoothness_FrameTime_Architecture.md`
@@ -1579,6 +1620,8 @@ For controller/input compatibility, `Controller_Input_Compatibility_Architecture
 For construction/base-building, `Modular_Blueprint_Base_Building_System.md` is the detailed canonical companion design and supersedes generic older construction wording when additional detail is required, including wall-family variants, wall-edge snapping, variant-specific collision/openings and future door/window attachment slots.
 
 For installed doors/windows/opening attachment behavior, `Doors_Windows_Openings_Construction_System.md` is the detailed canonical companion design. Door/window objects remain separate persistent buildables attached to structural openings.
+
+For interactive Door/Window runtime behavior, `Interactive_Doors_Windows_Runtime_System.md` is the detailed canonical companion design. It defines common interaction routing, authoritative motion/security state, data-driven Timeline movement, multi-panel movement, replication, persistence, NPC use and controller operation.
 
 For flooring, vertical stacking, upper-story support, floor collision and multi-story persistence, `Flooring_Multi_Story_Structural_Construction_System.md` is the detailed canonical companion design.
 
