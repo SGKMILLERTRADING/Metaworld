@@ -19,6 +19,7 @@
 - Construction must obey property, profession, permits, resources, support, collision, persistence and performance rules.
 - Tutorial-specific constants are examples, not universal Metaworld rules.
 - Construction systems should integrate with Builder jobs, NPC workers, contracts, economy and role duties rather than remain isolated minigames.
+- Buildable orientation is data-driven and snap-aware; snapping constrains legal rotation instead of automatically disabling rotation.
 
 ---
 
@@ -164,13 +165,38 @@ Approved:
 
 Detailed companion: `Docs/Construction_Progress_Build_To_Completion_System.md`
 
+## Episode Upgrade 9 — Buildable Rotation & Orientation
+
+**Classification:** UPGRADE — APPROVED
+
+Approved:
+- rotation input only operates while Build Mode and a valid rotatable placement/ghost are active
+- Enhanced Input actions replace permanently hardcoded Q/E rotation keys
+- left/right rotation both supported
+- structural pieces use deterministic step rotation where appropriate
+- eligible free-placement objects can use smooth held/fine rotation
+- tutorial gate + `0.01` delay loop is not a permanent architecture requirement
+- rotation step, axis, speed, range and allowed orientations are Buildable Definition data
+- snap-aware rotation replaces the tutorial limitation where snapping simply disables rotation
+- snap relationships may lock rotation, allow 180° flip, allow quarter-turns, expose approved variants or allow special free-yaw cases
+- resolved orientation uses base/snap rotation + validated user rotation offset rather than uncontrolled rotator accumulation
+- rotating a ghost reruns footprint/collision/property/snap validation and can change valid/invalid preview state
+- Build Mode input context takes priority so rotation does not accidentally trigger Interact/Build Work on the same physical control
+- client gets responsive local rotation preview; server independently validates legal orientation before permanent placement
+- forged illegal rotation from a modified client is rejected
+- final orientation persists across save/load
+- keyboard/mouse, Xbox-style controller and PlayStation-style controller rotation paths are required
+- no permanent high-frequency rotation polling while Build Mode is inactive/idle
+
+Detailed companion: `Docs/Construction_Rotation_Orientation_Control_System.md`
+
 ---
 
 # Current Phase 20 Construction Stack
 
 `Build Catalog / Selection`
 
-`-> Ghost Placement`
+`-> Ghost Placement / Rotation / Orientation`
 
 `-> Property / Profession / Resource Validation`
 
@@ -195,6 +221,12 @@ Detailed companion: `Docs/Construction_Progress_Build_To_Completion_System.md`
 # Construction Completion Principle
 
 > Metaworld construction is not instant magic and it is not mindless button spam. Placement creates an authorized structure/site; physical resources, labor, tools, Builder skills and world rules determine how construction progresses; partial geometry behaves like what physically exists; final completion unlocks the finished structure and its normal collision, materials, snapping, utilities and interactions.
+
+---
+
+# Rotation Principle
+
+> Rotation is part of the placement rules, not a free transform cheat. Structural pieces favor deterministic orientation steps; free-placement pieces may support fine rotation; snap points define legal orientation choices; the server validates the final transform.
 
 ---
 
