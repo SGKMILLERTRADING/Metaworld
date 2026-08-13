@@ -1,4 +1,4 @@
-# Metaworld — Master Development Roadmap v2.3
+# Metaworld — Master Development Roadmap v2.4
 
 **Status:** Canonical / Approved
 
@@ -75,6 +75,10 @@ Metaworld is always **game first**. Realism exists to create stories, choices, r
 45. Construction is modular and Blueprint-component-driven. `BPC_MW_BuildComponent` owns build-mode preview/placement flow rather than placing the full construction implementation inside the master character Event Graph.
 46. Construction preview is advisory; permanent placement is server-authoritative and must revalidate property rights, profession/permit requirements, resources/payment, collision/structural rules and world restrictions before a structure is created.
 47. Build preview updates must be performance-budgeted. Placement traces run only while build mode is active and should use timer/event-driven updates rather than unnecessary unconditional per-frame Blueprint Tick.
+48. Buildable pieces are data-driven and identified by stable Buildable IDs. Adding foundations, floors, walls, roofs, stairs, furniture, utilities or future construction pieces should primarily add data/catalog entries rather than new hardcoded selection graphs.
+49. Construction supports both quick next/previous cycling and a scalable build-catalog UI. A selected buildable must not depend only on a fragile array index.
+50. Build snapping is data-driven through sockets/snap points and compatibility metadata such as Gameplay Tags. Dedicated trace/collision channels may be used as low-level filters where useful, but Metaworld will not require a new global trace channel for every future build category.
+51. The client never authoritatively chooses a permanent construction Actor Class, Buildable cost, resource requirement, or `CanBuild` result. Final placement resolves the submitted Buildable ID against server-authoritative data.
 
 ---
 
@@ -417,21 +421,57 @@ Supports houses, rooms, apartments, farms, garages, shops, warehouses, clubs, of
 
 - `BPC_MW_BuildComponent` attached to `BP_MW_Character_Master`
 - Enhanced Input build-mode action rather than a permanently hardcoded `B` key
-- `BuildModeOn`, `CanBuild`, selected buildable definition, placement transform and placement-reason state
+- `BuildModeOn`, `CanBuild`, `SelectedBuildableID`, selected definition, category/index, placement transform and placement-reason state
 - active camera/view reference for placement traces
 - data-driven build range rather than one fixed trace distance for every object
 - ghost/preview representation
 - green valid / red blocked feedback, with optional warning state later
+- centralized selection refresh / `ChangeMesh`-style function updates the ghost and rules when selection changes
 - timer/event-driven `BuildCycle` while build mode is active
 - no placement trace/update cost while build mode is off
 - grid snapping
-- socket snapping
+- socket/snap-point placement
 - free placement for eligible objects
 - surface-aligned placement where appropriate
 - configurable rotation steps and fine adjustment
 - placement validation
 - structural/support checks where needed
 - persistent structures
+
+**Data-driven buildable catalog:**
+
+- canonical Struct/Data Table and/or Primary Data Asset definitions
+- stable Buildable ID
+- category/subcategory/search tags
+- mesh/ghost representation
+- soft references to heavy assets where practical
+- permanent Actor Class/placement handler
+- trace/query settings where needed
+- grid/socket/surface placement rules
+- provided and accepted snap types
+- range/rotation/slope/support rules
+- profession/skill/permit requirements
+- material/resource/GrimKoin costs
+- durability/repair/demolition/utility/persistence/performance metadata
+- catalog icon/description/unlock state
+
+For the prototype, a small Data Table can be loaded/cached into an array. At scale, Metaworld should cache lightweight definitions or the active category rather than forcing thousands of heavy buildable assets into memory simultaneously.
+
+**Selection and controls:**
+
+- next/previous quick cycling, including mouse wheel as an optional default
+- safe wrap from Last -> First and First -> Last
+- selected identity uses stable Buildable ID rather than only array position
+- scalable Build Catalog UI with categories, search, filters, favorites, recently used, costs and unavailable reason
+- selection change refreshes ghost mesh, placement rules, snap compatibility, trace/query filters, costs and requirements
+
+**Snap architecture:**
+
+- foundations/floors/walls/roofs/stairs/doors/windows/utilities expose snap points/sockets
+- snap points carry compatibility metadata such as `Build.Snap.Foundation`, `Build.Snap.Wall`, `Build.Snap.Roof`, `Build.Snap.Door`, `Build.Snap.Utility.Power`
+- Buildable Definitions declare snap types they accept and provide
+- dedicated collision/trace channels remain allowed where useful as low-level query filters
+- Metaworld does not create a separate global trace channel for every future buildable category
 
 **Placement validation integrates with the whole Metaworld:**
 
@@ -441,6 +481,7 @@ Supports houses, rooms, apartments, farms, garages, shops, warehouses, clubs, of
 - permits/licenses where required
 - material/resource availability
 - GrimKoin/fees where applicable
+- snap compatibility
 - collision/overlap
 - terrain/slope
 - foundation/support
@@ -448,19 +489,19 @@ Supports houses, rooms, apartments, farms, garages, shops, warehouses, clubs, of
 - zoning/utility restrictions where configured
 - parcel performance/build budget
 
-**Multiplayer authority:**
+**Multiplayer authority / `SpawnBuild`:**
 
 - client owns responsive ghost preview
+- confirm sends `SelectedBuildableID + candidate transform + optional snap target`
+- server resolves the authoritative Buildable Definition independently
 - server re-validates the final requested transform and all rules
-- client `CanBuild` is never authoritative
+- client `CanBuild`, Actor Class, cost and resource requirements are never authoritative
 - resources/payment are consumed only after authoritative validation succeeds
-- successful placement receives persistent Structure ID, owner/property links and world state
+- successful placement receives persistent Structure ID, owner/property links, support/snap relationships and world state
 
-**Data-driven Buildable Definitions can include:** mesh, ghost settings, Nanite setting, bounds/footprint, grid/socket rules, allowed surfaces, slope, range, required profession/skill/permit/resources, GrimKoin cost, build time, durability, repair/demolition/salvage rules, utility requirements and performance cost.
+**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; heavy buildable assets can use soft references/category loading; permanent structures participate in World Partition/HLOD/relevancy systems.
 
-**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; permanent structures participate in World Partition/HLOD/relevancy systems.
-
-**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, doors/windows, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
+**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, doors/windows, build catalog favorites/recently used, snap-tag debugger, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
 
 Detailed canonical design: `Docs/Modular_Blueprint_Base_Building_System.md`.
 
@@ -918,6 +959,8 @@ Threats can disrupt food production, transport and household supply.
 
 Server authority governs money, inventory, combat outcomes, death, ownership, property, construction placement, evidence, tax, jobs, businesses, vehicles, votes, leadership rank, career rank, household state, and other critical state.
 
+Construction placement requests use stable Buildable IDs; the server resolves authoritative Actor Class, cost, resource, snapping and permission data rather than trusting client values.
+
 ## Phase 60 — Replication Scaling
 
 Use relevancy/dormancy/update-rate reduction/compact state so clients do not receive every NPC, camera, business, property, election state, construction preview and vehicle in the world.
@@ -934,7 +977,7 @@ Every major system has CPU/GPU/network/memory/significance budgets.
 
 Food, family, NPC hunger, elections and rank checks must be event/timestamp-driven rather than per-frame world scans.
 
-Construction placement updates run only during build mode, use targeted traces/overlaps, and stop immediately when build mode exits.
+Construction placement updates run only during build mode, use targeted traces/overlaps, and stop immediately when build mode exits. Large build catalogs use lightweight indexes/soft references/category caching rather than loading every heavy construction asset at once.
 
 ## Phase 62 — Nanite-First Rendering
 
@@ -968,7 +1011,7 @@ Construction ghost/preview materials and the full library of buildable materials
 
 UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, construction/build catalogs, household/pantry needs, team provisioning, communications, news, police tools, elections/candidates/voting, career rank, creator systems, AI-media libraries and other game domains.
 
-Construction UI can include buildable categories, search/filter, material/resource costs, profession/permit requirements, rotate/snap controls, placement failure reason and cancel/confirm controls.
+Construction UI can include categories, search/filter, favorites/recently used, thumbnails, material/resource costs, profession/permit requirements, snap compatibility, rotate/snap controls, placement failure reason and cancel/confirm controls.
 
 ## Phase 68 — Accessibility
 
@@ -984,6 +1027,7 @@ Construction UI can include buildable categories, search/filter, material/resour
 - motion blur controls
 - FOV controls where practical
 - rebindable construction controls rather than a mandatory `B` key
+- next/previous construction cycling is rebindable and also accessible through catalog UI
 
 ## Phase 69 — Worst-Case Performance Test Worlds
 
@@ -996,7 +1040,8 @@ Required stress tests include:
 - city election/rally with many player/NPC voters
 - large household/companion base with food consumption and schedules
 - restaurant/grocery supply scene with many NPC consumers
-- active construction site with ghost preview, repeated modular pieces and multiple nearby finished structures
+- active construction site with catalog cycling, ghost preview, foundation/floor/wall snapping, repeated modular pieces and many nearby finished structures
+- large construction catalog selection stress test without loading every heavy asset
 - war/combat/destruction scene
 - dense property with many owned items
 - creator marketplace/business district
@@ -1087,7 +1132,7 @@ Current development only preserves the ledger/provenance architecture needed so 
 | Family | Spouse/household needs + pantry/budget responsibility |
 | AI/NPC companions | Hunger + provisioning/rations/wages; AI does not remove physical needs |
 | Property | 3D parcels + utilities + real-calendar bills |
-| Construction | Modular `BPC_MW_BuildComponent` + timer-driven ghost preview + data-driven buildables + property/profession/resource validation + server-authoritative persistent placement |
+| Construction | Modular `BPC_MW_BuildComponent` + Data Table/Data Asset catalog + stable Buildable IDs + quick cycling/catalog UI + snap tags/sockets + timer ghost preview + property/profession/resource validation + server-authoritative persistent placement |
 | Business | Employees + payroll + food where applicable + tax + tips + advertising |
 | Vehicles | Cargo + ownership + theft + maintenance + damage |
 | Social | Spatial voice + text + living social venues |
@@ -1122,12 +1167,19 @@ Recommended vertical slice contains:
 - one player property
 - one buildable home/structure
 - modular `BPC_MW_BuildComponent` build-mode prototype
+- Data Table/Data Asset catalog with at least Foundation, Floor and Wall definitions
+- stable Buildable IDs
+- next/previous cycling through Foundation -> Floor -> Wall with wrap-around
+- selection change refreshes ghost mesh and placement rules
 - camera-based placement trace with data-driven range
 - timer-driven green/red ghost preview
 - grid rotation/snap
+- snap metadata proving Foundation/Floor/Wall compatibility
+- invalid snap combination rejection
 - property-boundary permission rejection
 - Builder qualification check for structural piece
 - material/GrimKoin cost validation
+- server resolves Buildable ID rather than trusting client Actor Class/cost
 - server-authoritative final placement and persistent Structure ID
 - one usable vehicle
 - GrimKoin + PromoKoin
@@ -1242,6 +1294,7 @@ The Master Roadmap is supported by detailed companion designs in `Docs/`, includ
 - `Real_Time_Life_Utilities_Advertising_VIP_GrimKoin_Death_Legacy.md`
 - `Security_Cameras_Evidence_Identity.md`
 - `Supernatural_Lineages_Vampires_Werewolves.md`
+- `World_Rank_Hierarchy_Roleplay_Authority.md`
 
 When a companion document contains more detail than this roadmap, the roadmap establishes the approved feature direction and the companion document defines the detailed behavior, unless a later explicit canonical decision supersedes it.
 
@@ -1250,3 +1303,5 @@ For player music/video ownership and playback, `AI_Media_Ownership_Playback_Lice
 For food, family/household needs, NPC provisioning, community voting, professional rank and elected leadership, `Food_Family_NPC_Needs_Community_Ranks_Governance.md` is the detailed canonical companion design.
 
 For construction/base-building, `Modular_Blueprint_Base_Building_System.md` is the detailed canonical companion design and supersedes generic older construction wording when additional detail is required.
+
+For global roleplay rank placement and the relative order of Owner -> King/Sovereign Queen -> President -> lower civic and professional authority, `World_Rank_Hierarchy_Roleplay_Authority.md` is the detailed canonical companion design.
