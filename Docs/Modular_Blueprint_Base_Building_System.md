@@ -22,7 +22,7 @@ Core rule:
 
 > The character requests construction; the Build Component manages preview and placement; property/profession/economy/world systems decide whether construction is actually legal and possible.
 
-The system is inspired by modular Blueprint patterns in the supplied UE4 base-building tutorials, but adapted to Metaworld's UE5.8 Blueprint-first, multiplayer, property, profession, persistence, scalability and performance architecture.
+The system is inspired by modular Blueprint patterns in the supplied UE4 base-building tutorials, but adapted to Metaworld's UE5.8 Blueprint-first, multiplayer, property, profession, persistence, scalability, controller and performance architecture.
 
 ---
 
@@ -49,6 +49,8 @@ Suggested state:
 - `CurrentBuildPermissionState`
 - `CurrentSnapTarget`
 - `CurrentSnapType`
+- `CurrentSnapPointID`
+- `CurrentSnapParentStructureID`
 
 The component receives references/interfaces it needs from the owning character rather than becoming tightly coupled to a specific child Blueprint.
 
@@ -56,7 +58,7 @@ The component receives references/interfaces it needs from the owning character 
 
 # 2. Input and Build-Mode Activation
 
-Do not permanently hardcode construction to the `B` key.
+Do not permanently hardcode construction to the `B` key or to mouse-only controls.
 
 Use Enhanced Input with dedicated build actions, for example:
 
@@ -68,10 +70,13 @@ Use Enhanced Input with dedicated build actions, for example:
 - `IA_MW_BuildRotateLeft`
 - `IA_MW_BuildRotateRight`
 - `IA_MW_ToggleSnap`
+- `IA_MW_OpenBuildCatalog`
 
 The player may rebind them.
 
-Mouse wheel cycling is approved as a fast default for next/previous buildable, but it is not the only interface. A proper build catalog UI is required once the buildable library grows.
+Keyboard/mouse, Xbox-style controllers and PlayStation-style controllers must all have usable construction mappings. Mouse wheel cycling is approved as a fast keyboard/mouse default, but it is not the only interface. Gamepad shoulder buttons, D-pad/stick navigation, radial/category UI or other controller-friendly mappings can provide equivalent actions.
+
+A proper build catalog UI is required once the buildable library grows, and it must be navigable without requiring a mouse cursor.
 
 Build-mode flow:
 
@@ -85,6 +90,8 @@ Exiting build mode:
 - restore normal interaction mode
 
 Build mode must not keep expensive placement logic running while disabled.
+
+Detailed controller rules: `Docs/Controller_Input_Compatibility_Architecture.md`.
 
 ---
 
@@ -109,6 +116,8 @@ Build range may vary by:
 Do not bake one fixed `350–1000` distance into the whole system.
 
 The trace produces a candidate surface/location, then the placement validator resolves the final transform and optional snap target.
+
+Controller placement uses the same camera/view trace. The right stick aims the view/reticle; construction does not depend on mouse-cursor precision.
 
 ---
 
@@ -152,6 +161,8 @@ The function should update:
 - required resources/cost display
 - profession/permit display
 
+When a valid snap point is selected, the ghost uses the authoritative candidate snap transform for preview and updates its valid/invalid material state.
+
 The ghost is presentation only. It never authoritatively creates ownership or a permanent structure.
 
 The preview should use a low-cost material/material-instance strategy and avoid unnecessary high-cost effects.
@@ -164,7 +175,7 @@ Metaworld should not run expensive construction traces on every frame by default
 
 When build mode is active:
 
-`Timer -> Update Candidate Placement -> Resolve Snap -> Validate -> Move Ghost -> Update Ghost State`
+`Timer -> Update Candidate Placement -> Detect Compatible Snap Points -> Resolve Best Snap -> Validate -> Move Ghost -> Update Ghost State`
 
 Suggested configurable interval can be tuned during profiling, for example a small fraction of a second rather than unconditional Event Tick.
 
@@ -195,12 +206,13 @@ Recommended validation order:
 9. Required resources/cost are available
 10. Grid/socket/freeform placement rule passes
 11. Snap type compatibility passes where snapping is used
-12. Collision/overlap rule passes
-13. Slope/ground rule passes
-14. Structural/support rule passes where applicable
-15. Height/air-right/subsurface rule passes
-16. Utility/zoning restrictions pass where applicable
-17. Server performs final authoritative re-validation
+12. Snap point is not occupied/reserved where the rule requires exclusivity
+13. Collision/overlap rule passes
+14. Slope/ground rule passes
+15. Structural/support rule passes where applicable
+16. Height/air-right/subsurface rule passes
+17. Utility/zoning restrictions pass where applicable
+18. Server performs final authoritative re-validation
 
 Only then can permanent construction be created.
 
@@ -351,6 +363,8 @@ and reverse:
 
 The selected item is tracked by ID and/or stable catalog key, not only by a fragile array index.
 
+Gamepad next/previous actions must offer the same functionality without requiring the mouse wheel.
+
 ## Build Catalog UI
 
 For larger libraries provide:
@@ -384,7 +398,7 @@ Possible categories:
 - Decoration
 - Public Works
 
-Cycling is convenience; the catalog is the scalable interface.
+Cycling is convenience; the catalog is the scalable interface. The catalog must support controller focus/navigation as well as mouse input.
 
 ---
 
@@ -418,6 +432,125 @@ Foundation edge exposes `Build.Snap.Wall`.
 Wall definition accepts `Build.Snap.Wall` and may expose `Build.Snap.Roof`, `Build.Snap.Door`, and `Build.Snap.Window` points.
 
 This keeps compatibility data-driven and expandable without continually modifying global collision settings.
+
+---
+
+# 12A. Blueprint Interface Snap Provider
+
+The supplied tutorial's Blueprint Interface approach is approved and upgraded into a common Metaworld snapping contract.
+
+Recommended interface:
+
+`BPI_MW_BuildSnapProvider`
+
+Any buildable Actor that can provide construction snap points implements this interface.
+
+Possible interface functions:
+
+- `GetBuildSnapPoints()`
+- `GetCompatibleSnapPoints(AcceptedSnapTypes)`
+- `GetSnapPointByID(SnapPointID)`
+- `IsSnapPointAvailable(SnapPointID)`
+
+The interface returns data; it does not own the entire construction algorithm.
+
+This avoids class-specific casting such as:
+
+`Cast to Foundation -> Cast to Floor -> Cast to Wall -> Cast to Roof`
+
+The Build Component can ask any compatible structure the same question.
+
+Suggested snap-point record:
+
+- Snap Point ID
+- Local/world transform
+- provided Snap Type tags
+- accepted Buildable/Snap tags where needed
+- orientation/facing rule
+- occupancy state
+- structural/support role
+- query volume/bounds
+- priority/weight
+- optional parent Structure ID
+
+---
+
+# 12B. Snap Point Components / Collision Boxes
+
+Box Collision components are approved as one practical snap-point implementation, especially for modular foundations, floors and walls.
+
+Recommended setup:
+
+- keep component scale at `1,1,1` where practical
+- size the snap interaction area through Box Extent rather than arbitrary component scaling
+- Query Only collision
+- no physics simulation
+- no damage/hit behavior
+- no unnecessary overlap events
+- custom collision profile or limited query response for construction snapping
+- stable Snap Point ID metadata
+- snap compatibility tags
+
+A Scene Component/socket can also represent the exact attachment transform while a small Box Collision provides the acquisition volume.
+
+Example:
+
+`SnapVolume_Wall_East`
+- exact attachment transform at foundation edge
+- Box Extent defines how easy it is for the trace/query to acquire
+- provides `Build.Snap.Wall`
+- stable ID `Wall_East`
+
+The acquisition volume must be forgiving enough for controller aiming without making nearby snap points ambiguous.
+
+---
+
+# 12C. Detect Build Snap Points
+
+The tutorial-style `detect build boxes` concept becomes a reusable function such as:
+
+`DetectCompatibleSnapPoints(HitActor, HitLocation, SelectedBuildableDefinition)`
+
+Recommended flow:
+
+1. Camera/view trace hits a candidate Actor or nearby construction query region.
+2. Check whether the Actor implements `BPI_MW_BuildSnapProvider`.
+3. Request only snap points compatible with the selected Buildable Definition.
+4. Reject occupied, disabled, incompatible or out-of-range points.
+5. Score remaining candidates.
+6. Select the best candidate.
+7. Set `CurrentSnapTarget`, `CurrentSnapPointID`, `CurrentPlacementTransform` and preview state.
+
+Possible scoring factors:
+
+- distance from hit location/reticle ray
+- snap compatibility
+- orientation/facing match
+- angle to player view
+- structural support preference
+- occupancy
+- same-plane/grid preference
+- user-selected snap mode
+
+Do not loop through every snap point in the world. Query the hit/relevant nearby structure and a tightly filtered candidate set.
+
+---
+
+# 12D. Snap Collision Filtering
+
+Custom collision settings from the tutorial are approved as a low-level filtering tool.
+
+Metaworld can define a small number of general construction query profiles/channels, for example:
+
+- Build Placement Query
+- Build Snap Query
+- Build Obstruction Query
+
+Snap volumes should ignore unrelated gameplay traces where possible.
+
+This prevents construction snap boxes from interfering with bullets, normal interaction, movement, cameras and other unrelated systems.
+
+High-level compatibility remains data/tag driven; collision channels are only the efficient query/filter layer.
 
 ---
 
@@ -473,7 +606,7 @@ Construction controls should support:
 - cancel
 - confirm
 
-Controls should use Enhanced Input and be rebindable.
+Controls should use Enhanced Input, be rebindable, and have keyboard/mouse plus Xbox-style and PlayStation-style controller paths.
 
 ---
 
@@ -484,15 +617,19 @@ The tutorial concept `SpawnBuild()` is approved as a centralized final-placement
 Recommended flow:
 
 `Build Confirm Input`
--> `RequestPlaceBuildable(SelectedBuildableID, CandidateTransform, SnapTarget)`
+-> `RequestPlaceBuildable(SelectedBuildableID, CandidateTransform, ParentStructureID, SnapPointID)`
 -> server resolves Buildable Definition independently
+-> server resolves authoritative parent Structure/Snap Point
 -> server validates property/profession/resources/snap/collision/world rules
 -> server consumes resources/payment atomically
 -> server spawns/registers permanent structure
 -> persistent Structure ID is created
+-> snap/support relationship is persisted
 -> clients receive replicated/streamed result
 
 The client may run a local prediction/preview animation, but authoritative world state comes from the server.
+
+The client cannot invent a valid snap transform by sending only raw coordinates; when snapping is used, the server resolves the referenced parent Structure ID + Snap Point ID and verifies that the requested buildable is compatible.
 
 ---
 
@@ -508,17 +645,18 @@ Client:
 
 Server:
 - resolves submitted Buildable ID from authoritative data
+- resolves submitted Parent Structure/Snap Point IDs
 - re-checks final transform
 - checks property rights
 - checks profession/licenses
 - checks inventory/resources/currency
-- checks snap compatibility
+- checks snap compatibility/availability
 - checks collision/structural/world rules
 - consumes resources/payment atomically
 - spawns/registers permanent structure
 - creates ownership/persistence record
 
-Never trust a client-supplied `CanBuild = true`, Actor Class, cost, or Buildable Definition as authoritative.
+Never trust a client-supplied `CanBuild = true`, Actor Class, cost, Buildable Definition, raw snap compatibility or occupancy result as authoritative.
 
 ---
 
@@ -551,7 +689,7 @@ Minimum record:
 - Owner/organization/property ID
 - World transform
 - Parent/support Structure ID where relevant
-- Snap Point/relationship metadata where relevant
+- Snap Point ID/relationship metadata where relevant
 - Condition/health
 - Construction state
 - Permissions
@@ -663,11 +801,15 @@ Rules:
 - do not permanently load every heavy buildable asset
 - avoid scanning all nearby structures every update
 - use targeted traces/overlaps/query volumes
-- locate nearby snap points through filtered queries rather than broad searches
+- locate snap candidates from the hit/relevant nearby structure rather than world-wide searches
+- interface calls request filtered/compatible snap records instead of repeatedly casting through every possible buildable class
+- snap collision volumes are Query Only and do not generate unnecessary physics/overlap gameplay
 - server validates only on meaningful placement requests
 - permanent buildings use normal World Partition/HLOD/relevancy rules
 - repeated modular pieces can use optimized instancing/rendering strategies where appropriate
 - construction damage/destruction obeys physics budgets
+
+Controller support must not be implemented through expensive per-frame polling hacks. Enhanced Input actions and contextual mappings drive controller behavior.
 
 ---
 
@@ -683,6 +825,9 @@ Python can later assist development by:
 - validating collision/query configuration
 - checking Nanite settings
 - checking snap sockets/tags
+- checking missing `BPI_MW_BuildSnapProvider` implementation on snap-capable actors
+- checking duplicate Snap Point IDs
+- checking snap-volume collision profiles
 - checking invalid accepted/provided snap combinations
 - checking material/texture requirements
 - checking footprint/bounds metadata
@@ -707,20 +852,26 @@ The first town should prove:
 7. Camera trace finds candidate surface.
 8. Ghost follows candidate transform.
 9. Green/red feedback reflects placement validity.
-10. Foundation/floor/wall snap compatibility works through snap metadata.
-11. Invalid snap combinations are rejected.
-12. Grid rotation works.
-13. Build timer stops outside build mode.
-14. Property boundary prevents illegal placement.
-15. Builder qualification gates a structural piece.
-16. Required resources/cost are checked.
-17. Client preview is responsive.
-18. Server resolves Buildable ID and re-validates final placement.
-19. Client cannot spoof Actor Class/cost/CanBuild.
-20. Successful building receives persistent Structure ID/ownership.
-21. Save/load restores structure and snap/support relationships.
-22. Another player without permission cannot modify it.
-23. Performance remains stable while previewing/cycling/building.
+10. Foundation/floor/wall Actors implement `BPI_MW_BuildSnapProvider`.
+11. Box Collision or equivalent query volumes expose practical snap acquisition areas.
+12. Foundation/floor/wall snap compatibility works through snap metadata.
+13. `DetectCompatibleSnapPoints` chooses a valid nearby snap point without scanning the whole world.
+14. Invalid or occupied snap combinations are rejected.
+15. Grid rotation works.
+16. Build timer stops outside build mode.
+17. Property boundary prevents illegal placement.
+18. Builder qualification gates a structural piece.
+19. Required resources/cost are checked.
+20. Client preview is responsive.
+21. Server resolves Buildable ID + Parent Structure ID + Snap Point ID and re-validates final placement.
+22. Client cannot spoof Actor Class/cost/CanBuild/snap occupancy.
+23. Successful building receives persistent Structure ID/ownership.
+24. Save/load restores structure and snap/support relationships.
+25. Another player without permission cannot modify it.
+26. The entire construction flow can be completed with keyboard/mouse.
+27. The entire construction flow can be completed with an Xbox-style controller.
+28. The entire construction flow can be completed with a PlayStation-style controller.
+29. Performance remains stable while previewing/cycling/snapping/building.
 
 ---
 
@@ -730,6 +881,8 @@ The first town should prove:
 - walls/floors/roofs/stairs
 - doors/windows
 - socket snapping
+- snap occupancy/reservation rules
+- snap-point priority/scoring profiles
 - snap-tag visualization/debugger
 - freeform furniture placement
 - build catalog search/filter/favorites/recently used
@@ -755,4 +908,4 @@ The first town should prove:
 
 # Core Rule
 
-> Metaworld construction is modular, data-driven, catalog-driven, snap-aware, property-aware, profession-aware, multiplayer-authoritative, persistent and performance-budgeted. The ghost helps the player decide where to build; the server and the world rules decide what actually exists.
+> Metaworld construction is modular, data-driven, catalog-driven, interface-driven, snap-aware, controller-compatible, property-aware, profession-aware, multiplayer-authoritative, persistent and performance-budgeted. The ghost helps the player decide where to build; the server and the world rules decide what actually exists.
