@@ -20,6 +20,7 @@
 - Tutorial-specific constants are examples, not universal Metaworld rules.
 - Construction systems should integrate with Builder jobs, NPC workers, contracts, economy and role duties rather than remain isolated minigames.
 - Buildable orientation is data-driven and snap-aware; snapping constrains legal rotation instead of automatically disabling rotation.
+- Physical overlap validation uses explicit placement footprints plus logical slot occupancy; render-mesh bounds, Visibility traces and one universal shrink multiplier are not authoritative placement rules.
 
 ---
 
@@ -190,6 +191,36 @@ Approved:
 
 Detailed companion: `Docs/Construction_Rotation_Orientation_Control_System.md`
 
+## Episode Upgrade 10 — No-Overlap / Placement Collision Validation
+
+**Classification:** UPGRADE — APPROVED
+
+Approved:
+- green/red ghost feedback reflects local obstruction validation
+- selected Buildable/Variant carries explicit authoritative placement footprint data rather than relying only on render-mesh bounds
+- footprint may use one or more simple Box/Capsule/convex-style volumes with local transform/tolerance metadata
+- tutorial `Get Component Bounds + Box Trace` remains a useful prototype but is not the final universal footprint architecture
+- Visibility is not the permanent construction-overlap channel; use a small dedicated Build Obstruction query family where practical
+- tutorial bounds multipliers such as `0.2` are kit-specific examples, not global rules
+- per-buildable clearance/contact/snap tolerances replace magic shrink values
+- simple collision / explicit lightweight footprints are preferred for predictable performance and placement behavior
+- complex/per-poly collision is not allowed to accidentally make tiny decorative triangles decide construction validity
+- logical snap/opening/support occupancy is checked separately from physical world-space overlap
+- valid intentional contact such as wall-to-foundation, upper-floor-to-support and door-to-opening is permitted through authoritative snap relationships
+- duplicate occupancy of an exclusive wall edge/opening/floor slot is rejected even when raw geometry might appear clear
+- rotating a ghost reruns obstruction validation using the rotated footprint
+- bad pivots/origins are treated as asset-authoring/QA issues instead of permanently patching runtime logic with one multiplier
+- Build Mode / valid selection / ghost checks prevent cycling or preview operations from dereferencing missing build references while Build Mode is inactive
+- client obstruction result is advisory; server independently resolves authoritative footprint and reruns obstruction validation before consuming resources/creating the structure
+- modified clients cannot fake `CanBuild`, footprint size, collision response or green ghost state
+- construction sites retain logical location/slot reservation while unfinished
+- door/window runtime motion clearance can later be modeled separately from installation footprint
+- no overlap queries when Build Mode is inactive; targeted shape queries replace broad scans
+- Python Editor tooling can audit pivots, simple collision, footprint alignment and missing placement metadata
+- keyboard/mouse, Xbox-style controller and PlayStation-style controller placement/rotation paths all receive the same valid/blocked result
+
+Detailed companion: `Docs/Construction_Overlap_Collision_Validation_System.md`
+
 ---
 
 # Current Phase 20 Construction Stack
@@ -197,6 +228,8 @@ Detailed companion: `Docs/Construction_Rotation_Orientation_Control_System.md`
 `Build Catalog / Selection`
 
 `-> Ghost Placement / Rotation / Orientation`
+
+`-> Placement Footprint / Overlap / Slot-Occupancy Validation`
 
 `-> Property / Profession / Resource Validation`
 
@@ -227,6 +260,12 @@ Detailed companion: `Docs/Construction_Rotation_Orientation_Control_System.md`
 # Rotation Principle
 
 > Rotation is part of the placement rules, not a free transform cheat. Structural pieces favor deterministic orientation steps; free-placement pieces may support fine rotation; snap points define legal orientation choices; the server validates the final transform.
+
+---
+
+# Overlap Validation Principle
+
+> Metaworld separates what an asset looks like from the space it is allowed to occupy. Explicit placement footprints, snap-slot occupancy and authoritative server obstruction checks decide whether a structure fits; tutorial trace channels, mesh bounds and shrink constants are implementation aids, not world truth.
 
 ---
 
