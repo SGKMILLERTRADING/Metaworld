@@ -1,0 +1,390 @@
+# Metaworld — Foundation Terrain Support & Extension System
+
+**Status:** Canonical / Approved Phase 20 Upgrade
+
+**Engine:** Unreal Engine 5.8
+
+**Runtime Direction:** Blueprint-first
+
+## Canonical Principle
+
+Metaworld foundations must establish a valid support relationship with terrain or another approved structural base. Uneven terrain may require additional foundation support pieces rather than allowing the main foundation to float.
+
+Core rule:
+
+> A foundation may bridge small approved terrain variation, but unsupported height must be resolved by valid structural support or the placement is rejected.
+
+The UE4 tutorial concepts of downward traces, floating-build detection, multiple foundation sample points, preview support extensions, and restoring final materials/collision after placement are approved. Metaworld upgrades them into a data-driven, persistent, resource-aware, server-authoritative support-extension system.
+
+---
+
+# 1. Support Contexts
+
+A foundation can be supported by one or more approved contexts:
+
+- natural terrain/landscape
+- engineered ground/foundation surface
+- existing compatible structural foundation
+- pier/column/footing support
+- other explicitly approved structural support types
+
+A random movable prop, vehicle, character, loose item or other non-structural object does not become valid ground merely because a downward trace hits it.
+
+Support compatibility is defined through tags/data rather than raw trace hit alone.
+
+Possible tags:
+
+- `Build.Support.Ground`
+- `Build.Support.Foundation`
+- `Build.Support.Pier`
+- `Build.Support.Column`
+- `Build.Support.Structural`
+
+---
+
+# 2. Ground / Support Sampling
+
+The tutorial uses four Arrow Components at foundation corners. Metaworld generalizes this into data-driven support sample points.
+
+A Buildable Definition may provide:
+
+- `SupportSamplePoints[]`
+- local transform per sample
+- required/optional sample flag
+- maximum unsupported distance
+- support trace/query distance
+- allowed support tags
+- slope/normal restrictions
+- extension family/type to use when a gap exists
+
+Examples:
+
+- small square foundation: four corners + optional center
+- long foundation: corners + intermediate edge points
+- irregular foundation: custom sample layout
+- large platform: grid or authored structural sample pattern
+
+Exact sample count is content data, not a universal four-point rule.
+
+---
+
+# 3. Floating Placement Detection
+
+During preview:
+
+1. Resolve candidate foundation transform.
+2. Transform authored support sample points into world space.
+3. Query downward for approved support surfaces.
+4. Measure support distance at each required point.
+5. Determine whether direct contact, extension support or rejection is required.
+6. Update preview/support visualization and placement reason.
+
+Possible placement reasons include:
+
+- `ValidDirectSupport`
+- `ValidWithExtensions`
+- `NoGroundSupport`
+- `SupportTooDeep`
+- `InvalidSupportSurface`
+- `SlopeTooSteep`
+- `OutsidePropertyVolume`
+- `SubsurfaceRightsRequired`
+- `MissingExtensionResources`
+- `SupportCollisionBlocked`
+
+The tutorial's single fixed height threshold becomes per-buildable support data.
+
+---
+
+# 4. Foundation Extensions
+
+When a support sample is above valid support within the allowed extension range, Metaworld may preview one or more foundation extension pieces.
+
+Possible extension families:
+
+- pier
+- footing
+- column
+- foundation post
+- stacked modular support segment
+- retaining/support structure later
+
+Each extension is a real structural element, not visual filler.
+
+Recommended extension data:
+
+- Extension Buildable ID
+- segment height
+- minimum/maximum stack count
+- allowed support surfaces
+- material/resource cost per segment
+- Construction Work Units
+- durability/condition
+- collision
+- support capacity/class later
+- Nanite/rendering policy where compatible
+- persistent parent/child relationships
+
+The number of required segments is derived from the support gap and extension definition. Tutorial-style `for loop` spawning is an implementation option, but the server owns the resulting authoritative support set.
+
+---
+
+# 5. Preview Representation
+
+During build preview:
+
+- main foundation ghost remains transient
+- required extension ghosts are also transient
+- extension preview can use gray/translucent construction material
+- preview collision is Query Only / non-blocking where practical
+- invalid extension locations turn the placement blocked/red
+- valid extension requirement can use green plus an optional distinct support indicator
+
+Preview extensions do not reserve permanent resources or become world structures until authoritative placement succeeds.
+
+---
+
+# 6. Resource & Construction Cost
+
+Auto-generated support is never free merely because the system calculated it automatically.
+
+Final cost can include:
+
+`Foundation base cost`
++
+`Required extension material cost`
++
+`Builder labor / Construction Work Units`
++
+`permit/inspection fees where applicable`
+
+The build UI should show the added support requirement before confirmation where practical.
+
+If required extension resources are unavailable, the ghost can remain geometrically valid but report `MissingExtensionResources` and block final construction.
+
+Foundation extensions participate in the existing `Construction_Progress_Build_To_Completion_System` rather than instantly becoming completed permanent supports unless a specific simple buildable is deliberately configured for immediate completion.
+
+---
+
+# 7. Structural Relationship
+
+A placed foundation can persist support relationships such as:
+
+`Terrain / Approved Base`
+-> `Foundation Extension / Pier`
+-> `Foundation`
+-> `Wall / Column`
+-> `Upper Floor`
+
+Each support element can store:
+
+- Structure ID
+- Buildable ID
+- parent/support Structure ID
+- child-supported Structure IDs where useful
+- support sample / support-node ID
+- transform
+- owner/property
+- construction state
+- condition/damage
+- timestamp / Builder / contract
+
+This connects directly to the existing multi-story support graph.
+
+---
+
+# 8. Damage & Future Structural Failure
+
+Foundation extensions are physical world objects.
+
+Future damage systems may allow:
+
+- damaged pier
+- destroyed support segment
+- undermined foundation
+- damaged retaining support
+- collapse/instability when required support is lost
+- emergency shoring/repair
+- Builder/inspection duties
+
+Support recalculation happens on meaningful placement/damage/demolition events, not continuously every frame.
+
+Metaworld does not need real-world finite-element engineering, but obvious unsupported structures should not remain magically stable when their configured critical support is removed.
+
+---
+
+# 9. Terrain, Slope & Surface Rules
+
+A downward hit is not automatically a valid foundation surface.
+
+Validation may consider:
+
+- terrain/landscape support tag
+- slope/normal
+- water/deep water
+- cliffs/voids
+- roads/public infrastructure
+- protected land
+- underground structures
+- existing property/structural ownership
+- zoning
+- construction exclusion volumes
+- future soil/terrain classes where useful
+
+A foundation may be rejected even when geometry exists below it if the surface is not legally or structurally approved.
+
+---
+
+# 10. Property / Depth Rights
+
+Foundation extensions must remain within legal build rights.
+
+Server validation can include:
+
+- parcel footprint
+- 3D construction volume
+- subsurface/depth rights where configured
+- public-road or neighboring-property encroachment
+- underground utility exclusion zones later
+- maximum foundation/support depth
+- zoning/permit restrictions
+- parcel build/performance budget
+
+Owning the ground surface does not automatically authorize infinite underground construction.
+
+---
+
+# 11. Collision & Placement Footprints
+
+Foundation and extension placement uses the canonical overlap-validation system.
+
+Each support piece has explicit placement/obstruction footprint data.
+
+Valid intentional contact is allowed between:
+
+- extension and ground
+- stacked extension segments
+- extension and parent foundation
+
+Invalid overlap with unrelated structures remains blocked.
+
+The tutorial's temporary collision-ignore behavior is retained for preview only where appropriate. Permanent support collision reflects the physical completed construction stage.
+
+---
+
+# 12. Multiplayer Authority
+
+Client preview may calculate:
+
+- support sample hits
+- estimated gap distances
+- estimated required extension count
+- predicted cost
+- green/red feedback
+
+But the client never authoritatively decides support.
+
+On confirmation the server independently resolves:
+
+- Foundation Buildable ID
+- candidate transform
+- authoritative support sample definitions
+- valid terrain/structural support hits
+- required extension Buildable IDs/counts
+- property/depth/zoning rules
+- overlap/occupancy
+- Builder/permit requirements
+- total materials/cost
+
+Only after all checks succeed does the server create/reserve the persistent construction site and support structures.
+
+A modified client cannot submit `SupportCount = 0`, shorten required extensions, fake ground height or bypass depth/resource requirements.
+
+---
+
+# 13. Performance
+
+- support traces/queries run only while the relevant foundation is being previewed or validated
+- sample points are authored and bounded, not world-wide scans
+- preview extension meshes are lightweight/transient
+- no permanent per-frame ground checking after placement
+- support graph recalculation is event-driven
+- distant/unloaded structures use persisted support relationships rather than live traces
+- simple collision/footprints are preferred
+- large foundation kits should use reasonable sample counts rather than hundreds of traces per preview update
+
+---
+
+# 14. Controller Compatibility
+
+Foundation height/support preview and placement must work with:
+
+- keyboard/mouse
+- Xbox-style controllers
+- PlayStation-style controllers
+
+No support-adjustment or confirmation workflow may require precise mouse-only interaction.
+
+The player should receive readable placement feedback such as:
+
+- direct support
+- requires 3 support segments
+- too high above ground
+- invalid terrain
+- insufficient materials
+
+through the same controller-navigable construction UI.
+
+---
+
+# 15. Python Editor Validation
+
+Python Editor tooling can later audit:
+
+- missing support sample points
+- duplicate sample IDs
+- sample points outside expected footprint
+- missing extension definition
+- invalid segment height
+- missing collision/placement footprint
+- unsupported support tags
+- bad pivot/orientation
+- suspiciously high sample counts
+- missing resource/work metadata
+- Nanite/performance metadata
+
+Python remains Editor automation only.
+
+---
+
+# 16. Initial Vertical-Slice Test
+
+The first terrain-support test should prove:
+
+1. Flat-ground foundation places without extensions.
+2. Slight uneven terrain remains valid within configured tolerance.
+3. One raised corner previews required support extension(s).
+4. Multiple corners can require different extension depths.
+5. Preview extensions are visible but non-blocking.
+6. Added extension materials/work are shown and validated.
+7. Missing resources block final construction.
+8. Excessive support depth rejects placement.
+9. Invalid support surface rejects placement.
+10. Another structure/vehicle/character does not become fake ground support.
+11. Extension footprints cannot overlap unrelated structures.
+12. Server recalculates all support samples and extension count.
+13. Modified client cannot bypass required supports.
+14. Successful placement persists foundation + support relationships.
+15. Save/load restores support structures correctly.
+16. Construction stages apply correct collision/material state.
+17. Damaging/removing a critical support can trigger later structural reevaluation where configured.
+18. Keyboard/mouse flow works.
+19. Xbox-style controller flow works.
+20. PlayStation-style controller flow works.
+21. Preview remains smooth with the configured support-sample count.
+
+---
+
+# Core Rule
+
+> Metaworld foundations adapt to terrain through real structural support, not floating placement or free visual filler. Support sampling predicts the terrain gap, data defines what support is legal, resources and Builder work pay for it, and the server authoritatively creates and persists the resulting foundation/support graph.
