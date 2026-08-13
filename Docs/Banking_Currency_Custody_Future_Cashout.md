@@ -7,7 +7,7 @@ GrimKoin can exist in two distinct states:
 1. **Carried GrimKoin** — available to the player for immediate in-world spending.
 2. **Banked GrimKoin** — stored in a bank account and unavailable for ordinary purchases until the player withdraws it.
 
-A player can therefore deliberately carry little or no GrimKoin while keeping wealth in the bank.
+A player can deliberately carry little or no GrimKoin while keeping wealth in the bank.
 
 Core rule:
 
@@ -72,23 +72,50 @@ Banked GrimKoin
 -> Wallet increases
 -> Ledger transaction commits atomically
 
-A failed transaction must not be able to subtract from one side without crediting the other.
+A failed transaction must not subtract from one side without crediting the other.
 
 ---
 
-# 3. Why Banking Matters in Gameplay
+# 3. Absolute Bank Privacy From Killers and Robbers
 
-Banking changes risk and social visibility.
+A killer, burglar, robber, raider, hostile NPC, faction, or ordinary player never gains access to another player's bank account merely because they attacked, killed, robbed, kidnapped, defeated, or looted that character.
+
+Canonical rule:
+
+> Robbery is limited to property the robber can physically reach in the world. Bank-account balances are not physical loot.
+
+A robber may potentially take, according to normal world/loot rules:
+
+- GrimKoin physically carried by the victim
+- Items physically carried by the victim
+- Items inside a breached house
+- Items inside a breached shop, warehouse, vehicle, container, safe, or other physical storage
+- Physical cash/reserves belonging to a bank institution if an actual bank robbery system permits it
+
+A robber may **not**:
+
+- Read another player's private bank balance
+- Withdraw another player's banked GrimKoin
+- Transfer another player's banked GrimKoin
+- Receive banked GrimKoin because they killed the account holder
+- Rewrite the authoritative account ledger
+- Use possession of the corpse, house, phone, wallet, key, or vehicle as automatic bank authorization
+
+Even if a physical bank branch is successfully attacked, customer account balances remain authoritative server records. A bank robbery can target the bank's physical reserves, vault contents, transport, or other bank-owned physical assets without rewriting customer deposits.
+
+---
+
+# 4. Why Banking Matters in Gameplay
 
 A wealthy player can keep most GrimKoin banked and carry only what is needed for the current outing.
 
 This can reduce:
 
-- Loss exposure during ordinary robbery systems
+- Loss exposure during ordinary robbery
 - Visible high-roller spending patterns
 - Temptation to make impulsive expensive purchases
 
-It can also create gameplay choices:
+It also creates choices:
 
 - Withdraw before a large purchase
 - Travel to a bank/ATM/service point
@@ -100,11 +127,11 @@ A player's bank balance should not automatically be visible to ordinary NPCs or 
 
 Economic reputation should primarily react to observable behavior such as purchases, property, vehicles, businesses, tips, public transactions, clothing, and known records.
 
-Banking is safer than carrying GrimKoin, but it is not perfect protection from the permanent-death economy.
+Banking is much safer than carrying GrimKoin, but permanent character death still has a separate bank-side financial consequence.
 
 ---
 
-# 4. Banks Are Part of the Living World
+# 5. Banks Are Part of the Living World
 
 Banks can exist as real Metaworld institutions with physical branches, employees, security, vaults, ATMs, and operating schedules.
 
@@ -116,14 +143,13 @@ Possible roles later:
 - Armored transport driver
 - Accountant/auditor
 - Investigator
+- Estate officer
 
-The exact relationship between physical bank robbery and account balances must be designed carefully. Physical theft can target cash reserves, vault inventory, transport, or other bank-owned assets without automatically allowing attackers to rewrite server account balances.
-
-The authoritative account ledger should remain protected by server rules even when a bank building is attacked.
+The authoritative account ledger remains protected by server rules even when a bank building is attacked.
 
 ---
 
-# 5. Bank Access
+# 6. Bank Access
 
 Initial access methods can include:
 
@@ -142,12 +168,13 @@ Possible later features:
 - Loans/mortgages
 - Insurance
 - Safe-deposit storage
+- Estate/inheritance claims
 
 These are future systems and should not be enabled until the base custody/ledger model is stable.
 
 ---
 
-# 6. GrimKoin Gifts Are Transfers, Never Minting
+# 7. GrimKoin Gifts Are Transfers, Never Minting
 
 A player may gift GrimKoin only if the player already legitimately owns that GrimKoin.
 
@@ -168,45 +195,47 @@ Existing sender-owned GrimKoin
 
 There is no system-generated "gift balance" and no gift function that can create new GrimKoin.
 
-If direct bank-to-bank gifting or transfer is added later, it must follow the same rule: the sender already owns the funds and the transfer only moves existing GrimKoin.
+If direct bank-to-bank gifting or transfer is added later, it follows the same rule: the sender already owns the funds and the transaction only moves existing GrimKoin.
 
 ---
 
-# 7. Permanent Death and Banked GrimKoin
+# 8. Permanent Death and Banked GrimKoin
 
-Banked GrimKoin is protected from ordinary corpse looting, but permanent character death has a separate financial consequence.
+Banked GrimKoin is protected from killers, robbers, corpse looting, house raids, and physical theft from the player's property.
+
+Permanent character death, however, triggers a **bank-side death/estate settlement**.
 
 Canonical rule:
 
-> On permanent character death, the bank/estate settlement system may remove up to 50% of the deceased character's banked GrimKoin.
+> On permanent character death, the bank may keep up to 50% of the deceased character's banked GrimKoin as a death/estate settlement charge before any surviving balance enters inheritance or legacy processing.
 
-The exact loss percentage may be configurable for final balancing but cannot exceed 50% under this rule.
+The exact percentage can be configured for balancing but cannot exceed 50% under this rule.
 
 Example:
 
 Banked before death: 20,000 GrimKoin
 
 Possible settlement:
-- Bank/estate loss: 8,000
-- Surviving legacy balance: 12,000
+- Bank keeps: 8,000
+- Surviving estate balance: 12,000
 
 Maximum settlement:
-- Bank/estate loss: 10,000
-- Surviving legacy balance: 10,000
+- Bank keeps: 10,000
+- Surviving estate balance: 10,000
 
-The lost amount is an economy sink or estate/bank settlement under Metaworld's configured economic rules. It is not automatically paid to the killer.
+The bank-kept amount becomes bank/institution revenue under the economic system. It is **not** paid to the killer and is **not** lootable from the corpse or property.
 
-The surviving balance enters the legacy/estate process. It does not automatically appear in the new character's wallet.
+This gives banks a major revenue source and makes death financially painful even for wealthy players who bank carefully.
 
-This intentionally makes permanent death financially painful even for players who responsibly bank most of their GrimKoin.
+The surviving balance enters the estate/inheritance process. It does not automatically appear in the new character's wallet.
 
-Carried GrimKoin can follow separate death/loot rules.
+Carried GrimKoin follows separate physical loot/death rules because it is actually on the character.
 
 ---
 
-# 8. Server-Authoritative Currency Ledger
+# 9. Server-Authoritative Currency Ledger
 
-Every currency-changing operation should create an immutable or append-only transaction record.
+Every currency-changing operation creates an immutable or append-only transaction record.
 
 Recommended fields:
 
@@ -224,7 +253,7 @@ Recommended fields:
 - Metaworld commission where applicable
 - VIP Store issuance reference where applicable
 - Gift sender/receiver reference where applicable
-- Death/estate settlement reference where applicable
+- Death/estate bank-settlement reference where applicable
 - Related product/property/job/business ID
 - Balance-before / balance-after references
 - Fraud/security flags
@@ -234,7 +263,7 @@ No client should be able to directly set a wallet or bank balance.
 
 ---
 
-# 9. Future Real-Cash GrimKoin Buyback — NOT ACTIVE NOW
+# 10. Future Real-Cash GrimKoin Buyback — NOT ACTIVE NOW
 
 Future concept:
 
@@ -249,30 +278,17 @@ Until that future system is deliberately activated:
 - There is no automatic redemption right.
 - No payout API or cash withdrawal mechanism should be implemented.
 
-However, the internal ledger should be designed now so legitimate provenance can be reconstructed later if cash redemption is introduced.
-
-Future payout preparation hooks can include:
-
-- Account identity status
-- Transaction provenance
-- Anti-duplication/fraud history
-- Earned-vs-VIP-purchased classification if needed
-- Gift-chain provenance
-- Suspicious transaction flags
-- Payout eligibility state
-- Payout limits
-- Tax/reporting metadata hooks
-- Jurisdiction/account region
+The internal ledger should still preserve provenance so legitimate currency history can be reconstructed later.
 
 ---
 
-# 10. Future Compliance Boundary
+# 11. Future Compliance Boundary
 
-If GrimKoin later becomes redeemable for real money, Metaworld crosses from a closed game economy into a materially different legal/compliance area.
+If GrimKoin later becomes redeemable for real money, Metaworld crosses into a materially different legal/compliance area.
 
 Before enabling cash redemption, Metaworld must obtain jurisdiction-specific legal, tax, payment, AML/KYC, consumer-protection, platform/store, and payout-provider review.
 
-The technical architecture should therefore keep a hard boundary:
+Current architecture boundary:
 
 In-Game Economy Today
 -> Server-authoritative ledger
@@ -286,20 +302,18 @@ Future Cashout Program
 -> Legal/tax controls
 -> Then redemption
 
-Do not retrofit these controls after cashout launches.
-
 ---
 
-# 11. Core Principle
+# 12. Core Principle
 
 A player's wallet is spending money.
 
-A player's bank account is stored wealth.
+A player's bank account is private stored wealth.
 
-Banked GrimKoin is not ordinary spendable wallet currency until the player withdraws it.
+Robbers can steal physically reachable property; they cannot access another player's bank account.
 
 Gifting only moves existing sender-owned GrimKoin.
 
-Permanent death can still remove up to half of banked GrimKoin through the estate settlement system.
+Permanent death can cause the bank itself to keep up to half of banked GrimKoin before the remaining estate is processed.
 
 Metaworld should build trustworthy banking and transaction records now while leaving real-money GrimKoin redemption disabled until a later dedicated, legally reviewed phase.
