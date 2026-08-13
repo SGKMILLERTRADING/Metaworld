@@ -1,4 +1,4 @@
-# Metaworld — Master Development Roadmap v2.2
+# Metaworld — Master Development Roadmap v2.3
 
 **Status:** Canonical / Approved
 
@@ -72,6 +72,9 @@ Metaworld is always **game first**. Realism exists to create stories, choices, r
 42. Wealth can fund legitimate campaigning, advertising, events, staff, transport, security, and public projects, but the vote/rank system remains separate from wallet balance.
 43. Bribery/corruption may exist as risky crime/political gameplay, but it is never a guaranteed `pay GrimKoin -> receive rank` button. Attempts can fail, create evidence, cause scandal, trigger police/court action, remove a candidate from office, or damage reputation.
 44. Wealth reputation and public/community trust are separate axes. A character can be rich and hated, poor and respected, or any combination in between.
+45. Construction is modular and Blueprint-component-driven. `BPC_MW_BuildComponent` owns build-mode preview/placement flow rather than placing the full construction implementation inside the master character Event Graph.
+46. Construction preview is advisory; permanent placement is server-authoritative and must revalidate property rights, profession/permit requirements, resources/payment, collision/structural rules and world restrictions before a structure is created.
+47. Build preview updates must be performance-budgeted. Placement traces run only while build mode is active and should use timer/event-driven updates rather than unnecessary unconditional per-frame Blueprint Tick.
 
 ---
 
@@ -408,17 +411,58 @@ But it does not directly change official vote totals or promotion rank.
 
 Supports houses, rooms, apartments, farms, garages, shops, warehouses, clubs, offices, towers, mixed-use buildings, elevated/sky homes within deed limits.
 
-## Phase 20 — Construction
+## Phase 20 — Modular Blueprint Construction & Base-Building
 
-- build mode
-- ghost preview
-- snapping/grid
+**Core implementation:**
+
+- `BPC_MW_BuildComponent` attached to `BP_MW_Character_Master`
+- Enhanced Input build-mode action rather than a permanently hardcoded `B` key
+- `BuildModeOn`, `CanBuild`, selected buildable definition, placement transform and placement-reason state
+- active camera/view reference for placement traces
+- data-driven build range rather than one fixed trace distance for every object
+- ghost/preview representation
+- green valid / red blocked feedback, with optional warning state later
+- timer/event-driven `BuildCycle` while build mode is active
+- no placement trace/update cost while build mode is off
+- grid snapping
+- socket snapping
+- free placement for eligible objects
+- surface-aligned placement where appropriate
+- configurable rotation steps and fine adjustment
 - placement validation
-- structural/permission checks
+- structural/support checks where needed
 - persistent structures
-- Builder profession gates real construction where required
 
-**Upgrade:** wiring, plumbing, HVAC, structural damage, inspections, renovation, demolition.
+**Placement validation integrates with the whole Metaworld:**
+
+- property/deed/build-volume rights
+- owner/tenant/family/business/faction/public-contract permissions
+- Builder profession qualification where required
+- permits/licenses where required
+- material/resource availability
+- GrimKoin/fees where applicable
+- collision/overlap
+- terrain/slope
+- foundation/support
+- height/air-right/subsurface restrictions
+- zoning/utility restrictions where configured
+- parcel performance/build budget
+
+**Multiplayer authority:**
+
+- client owns responsive ghost preview
+- server re-validates the final requested transform and all rules
+- client `CanBuild` is never authoritative
+- resources/payment are consumed only after authoritative validation succeeds
+- successful placement receives persistent Structure ID, owner/property links and world state
+
+**Data-driven Buildable Definitions can include:** mesh, ghost settings, Nanite setting, bounds/footprint, grid/socket rules, allowed surfaces, slope, range, required profession/skill/permit/resources, GrimKoin cost, build time, durability, repair/demolition/salvage rules, utility requirements and performance cost.
+
+**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; permanent structures participate in World Partition/HLOD/relevancy systems.
+
+**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, doors/windows, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
+
+Detailed canonical design: `Docs/Modular_Blueprint_Base_Building_System.md`.
 
 ## Phase 21 — Utilities & Bills
 
@@ -872,11 +916,13 @@ Threats can disrupt food production, transport and household supply.
 
 ## Phase 59 — Authoritative Multiplayer
 
-Server authority governs money, inventory, combat outcomes, death, ownership, property, evidence, tax, jobs, businesses, vehicles, votes, leadership rank, career rank, household state, and other critical state.
+Server authority governs money, inventory, combat outcomes, death, ownership, property, construction placement, evidence, tax, jobs, businesses, vehicles, votes, leadership rank, career rank, household state, and other critical state.
 
 ## Phase 60 — Replication Scaling
 
-Use relevancy/dormancy/update-rate reduction/compact state so clients do not receive every NPC, camera, business, property, election state and vehicle in the world.
+Use relevancy/dormancy/update-rate reduction/compact state so clients do not receive every NPC, camera, business, property, election state, construction preview and vehicle in the world.
+
+Construction ghosts remain local/transient unless a deliberate cooperative-build feature requires sharing preview state; permanent structures replicate/stream through normal world relevancy.
 
 Evaluate UE5.8 replication options such as standard replication, Replication Graph and Iris only after Blueprint workflow and production suitability are verified.
 
@@ -888,11 +934,15 @@ Every major system has CPU/GPU/network/memory/significance budgets.
 
 Food, family, NPC hunger, elections and rank checks must be event/timestamp-driven rather than per-frame world scans.
 
+Construction placement updates run only during build mode, use targeted traces/overlaps, and stop immediately when build mode exits.
+
 ## Phase 62 — Nanite-First Rendering
 
 Nanite default for compatible buildings, roads, rocks, props, furniture, creator base meshes, environment assets, suitable foliage, Geometry Collections, landscape workflows, compatible vehicle parts and compatible skeletal assets.
 
 Morph-dependent body/face meshes remain approved exceptions when necessary.
+
+Permanent construction meshes use Nanite wherever compatible and beneficial; preview ghosts may use a simpler rendering representation when that is cheaper or technically cleaner.
 
 ## Phase 63 — Lumen / Lighting Scalability
 
@@ -912,9 +962,13 @@ Meal/cooking/social animations only run at full fidelity when characters are rel
 
 Integrate PSO precaching and hitch analysis early enough that new materials/effects do not create recurring runtime shader stalls.
 
+Construction ghost/preview materials and the full library of buildable materials must be included in hitch/performance testing.
+
 ## Phase 67 — User Interface
 
-UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, household/pantry needs, team provisioning, communications, news, police tools, elections/candidates/voting, career rank, creator systems, AI-media libraries and other game domains.
+UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, construction/build catalogs, household/pantry needs, team provisioning, communications, news, police tools, elections/candidates/voting, career rank, creator systems, AI-media libraries and other game domains.
+
+Construction UI can include buildable categories, search/filter, material/resource costs, profession/permit requirements, rotate/snap controls, placement failure reason and cancel/confirm controls.
 
 ## Phase 68 — Accessibility
 
@@ -929,6 +983,7 @@ UI for inventory, character creator, map, banks, jobs, professions, skills, busi
 - camera shake controls
 - motion blur controls
 - FOV controls where practical
+- rebindable construction controls rather than a mandatory `B` key
 
 ## Phase 69 — Worst-Case Performance Test Worlds
 
@@ -941,6 +996,7 @@ Required stress tests include:
 - city election/rally with many player/NPC voters
 - large household/companion base with food consumption and schedules
 - restaurant/grocery supply scene with many NPC consumers
+- active construction site with ghost preview, repeated modular pieces and multiple nearby finished structures
 - war/combat/destruction scene
 - dense property with many owned items
 - creator marketplace/business district
@@ -965,6 +1021,8 @@ Future expansion: profession schools, universities, training centers, certificat
 
 Education can contribute to eligibility for advanced professional rank and public office where rules require qualifications.
 
+Builder training/certification can unlock larger or regulated construction categories.
+
 ## Phase 73 — Public Transportation
 
 Future expansion: buses, taxis, trains, stations, transit jobs and fares.
@@ -972,6 +1030,8 @@ Future expansion: buses, taxis, trains, stations, transit jobs and fares.
 ## Phase 74 — Insurance
 
 Future expansion: vehicle, property, business, health and cargo insurance. Insurance must not become magical instant replacement of all loss.
+
+Construction/property insurance may later recognize inspected structures, code compliance, security, utilities and damage history.
 
 ## Phase 75 — Tourism & Entertainment
 
@@ -992,6 +1052,8 @@ Metaworld does not need a single final boss/end screen.
 Long-term accomplishments can include becoming Mayor, Governor, President, King, Queen, Police Captain/Chief where configured, business elite, famous AI-media creator/musician/filmmaker, notorious criminal, legendary builder/gunsmith, landlord/property owner, faction leader, vampire coven leader, werewolf pack leader, war survivor/hero, historical figure, family founder or community leader.
 
 Leadership is meaningful because players/NPC communities must trust and select you. GrimKoin cannot simply purchase these achievements.
+
+Builders can leave persistent architectural history through famous homes, businesses, public works, monuments and districts recorded in property/history systems.
 
 The world can remember those lives through inheritance, news, museums, monuments, property history, election history and the Event Ledger.
 
@@ -1025,6 +1087,7 @@ Current development only preserves the ledger/provenance architecture needed so 
 | Family | Spouse/household needs + pantry/budget responsibility |
 | AI/NPC companions | Hunger + provisioning/rations/wages; AI does not remove physical needs |
 | Property | 3D parcels + utilities + real-calendar bills |
+| Construction | Modular `BPC_MW_BuildComponent` + timer-driven ghost preview + data-driven buildables + property/profession/resource validation + server-authoritative persistent placement |
 | Business | Employees + payroll + food where applicable + tax + tips + advertising |
 | Vehicles | Cargo + ownership + theft + maintenance + damage |
 | Social | Spatial voice + text + living social venues |
@@ -1058,6 +1121,14 @@ Recommended vertical slice contains:
 - one rental/apartment building
 - one player property
 - one buildable home/structure
+- modular `BPC_MW_BuildComponent` build-mode prototype
+- camera-based placement trace with data-driven range
+- timer-driven green/red ghost preview
+- grid rotation/snap
+- property-boundary permission rejection
+- Builder qualification check for structural piece
+- material/GrimKoin cost validation
+- server-authoritative final placement and persistent Structure ID
 - one usable vehicle
 - GrimKoin + PromoKoin
 - VIP purchase architecture stub without future cashout
@@ -1166,6 +1237,7 @@ The Master Roadmap is supported by detailed companion designs in `Docs/`, includ
 - `Food_Family_NPC_Needs_Community_Ranks_Governance.md`
 - `Free_To_Play_Economy_Media_Business_Threat_Model.md`
 - `Living_World_Environment_NPC_AI.md`
+- `Modular_Blueprint_Base_Building_System.md`
 - `Performance_Smoothness_FrameTime_Architecture.md`
 - `Real_Time_Life_Utilities_Advertising_VIP_GrimKoin_Death_Legacy.md`
 - `Security_Cameras_Evidence_Identity.md`
@@ -1176,3 +1248,5 @@ When a companion document contains more detail than this roadmap, the roadmap es
 For player music/video ownership and playback, `AI_Media_Ownership_Playback_Licensing.md` supersedes older broader wording that allowed generic non-AI player media sales.
 
 For food, family/household needs, NPC provisioning, community voting, professional rank and elected leadership, `Food_Family_NPC_Needs_Community_Ranks_Governance.md` is the detailed canonical companion design.
+
+For construction/base-building, `Modular_Blueprint_Base_Building_System.md` is the detailed canonical companion design and supersedes generic older construction wording when additional detail is required.
