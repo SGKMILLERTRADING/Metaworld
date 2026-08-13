@@ -333,6 +333,64 @@ No core inventory action may require mouse-only drag-and-drop as its only path.
 
 ---
 
-# Core Rule
+# 14. Item Definition Authoring / Data Table Row Handles
 
-> Metaworld inventory is persistent world ownership/location data with a UI on top. Pickup moves an authoritative item from the world into a container; it never becomes real merely because a client destroyed an Actor or appended a local array.
+UE5.8 Data Table Row Handles are approved as an Editor/Blueprint authoring reference where a specific Data Table row is the appropriate definition source.
+
+They are useful because designers can select the Data Table and Row Name together instead of maintaining a separate manually typed item-name variable.
+
+Canonical rules:
+
+- a Row Handle is an authoring/reference mechanism, not the persistent identity of an exact item copy;
+- `ItemDefinitionID` remains the stable gameplay/catalog identity;
+- `ItemInstanceID` remains the exact persistent copy/stack identity;
+- Data Table rows may back Item Definitions during the Blueprint-first phase;
+- code/UI should resolve the definition once when needed and cache only safe presentation/data snapshots rather than repeatedly querying the table every frame;
+- heavy asset fields should use soft references where practical so loading an item-data table does not automatically force every large mesh/texture into memory;
+- Python Editor validation can audit missing rows, duplicate stable IDs, invalid asset references and catalog mismatches.
+
+Possible authoring flow:
+
+`FDataTableRowHandle / ItemDefinitionID`
+-> resolve Item Definition
+-> create/load ItemInstance record
+-> world/inventory/equipment presentation derives from persistent ItemInstance + Definition.
+
+If Metaworld later moves catalog data to Data Assets/Data Registry/database-backed definitions, the stable `ItemDefinitionID` contract prevents ItemInstances from depending permanently on one Data Table layout.
+
+---
+
+# 15. Dropped / Spawned World Item Safety
+
+The tutorial's spawn-collision and physics fixes are retained as a world-item spawning lesson, but Metaworld does not globally disable physics on every newly spawned loose item as the final solution.
+
+Canonical spawn flow:
+
+1. authoritative transaction determines that a world item should exist;
+2. resolve item bounds/collision/presentation profile;
+3. find or validate a legal nearby spawn/support location;
+4. use appropriate spawn collision handling so the Actor does not begin embedded in blocking geometry;
+5. initialize ItemInstance presentation before exposing interaction;
+6. enable physics only if that item's current significance/state requires simulation;
+7. allow the item to settle/sleep and reduce cost afterward;
+8. persist the authoritative world location/state.
+
+Physics may be temporarily disabled during safe initialization if required, but an item designed to fall/bounce/roll should still be able to simulate once safely initialized.
+
+Do not use global time-dilation behavior as a prerequisite for item physics correctness.
+
+---
+
+# 16. Acceptance Additions
+
+1. Data Table Row Handle selects the intended Item Definition without becoming the ItemInstance identity.
+2. Renaming/refactoring authoring data does not silently duplicate persistent items.
+3. Missing/invalid row handles fail with clear validation rather than defaulting to an unrelated item.
+4. World item spawns without beginning inside blocking geometry.
+5. Physics-enabled item can simulate after safe initialization and later sleep normally.
+6. Static/settled item does not require permanent physics simulation.
+7. Item spawning remains correct regardless of local UI/menu time behavior.
+
+## Core Rule
+
+> Metaworld inventory is persistent world ownership/location data with a UI on top. Data Tables and Row Handles help author definitions; pickup/drop/spawn move authoritative ItemInstances safely through world and container states.
