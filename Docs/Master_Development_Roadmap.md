@@ -1,4 +1,4 @@
-# Metaworld — Master Development Roadmap v2.7
+# Metaworld — Master Development Roadmap v2.8
 
 **Status:** Canonical / Approved
 
@@ -95,6 +95,13 @@ Metaworld is always **game first**. Realism exists to create stories, choices, r
 65. Metaworld does not create a new global trace channel for every door/window/buildable type. A small set of general build/snap/obstruction queries is combined with tags, IDs and attachment-slot metadata.
 66. Tutorial collision extents such as setting a Y Box Extent to `1` may be useful tuning examples but are not canonical magic values. Final placement uses opening occupancy, object bounds, obstruction checks, snap/attachment metadata and server collision validation to prevent building inside walls or other structures.
 67. Door/window asset alignment is standardized through pivot/orientation/opening metadata. Arbitrary Blueprint rotation/offset fixes are data exceptions, not the normal content pipeline.
+68. Floors are structural buildables, not decorative planes. They can function at ground level and as upper-story floor/ceiling platforms when compatible support, property and collision rules pass.
+69. Multi-story construction uses the same snap-provider architecture. Walls/support structures may expose upper-floor support points; placed upper floors expose new wall/floor snap points so the structure can continue vertically.
+70. Upper floors must have a valid structural support relationship unless a specifically designed system allows otherwise. Arbitrary floating floors are rejected.
+71. Vertical construction must remain inside the property's authoritative 3D build volume, air rights, zoning/height limits and parcel construction/performance budget.
+72. Metaworld does not require a permanent dedicated `FloorTrace` channel for every floor type. General build/snap query profiles plus stable Snap Point IDs and compatibility tags remain the scalable architecture.
+73. Floor snap/acquisition Box Collisions are tuning/query tools only. Their extents are kit-specific; exact transforms, occupancy, support metadata and server validation determine whether an upper-floor placement is real.
+74. Multi-story structural relationships are persisted so save/load restores floors, stories, support parents and snap relationships consistently.
 
 ---
 
@@ -531,7 +538,7 @@ For the prototype, a small Data Table can be loaded/cached into an array. At sca
 - foundations/floors/walls/roofs/stairs/doors/windows/utilities implement or participate in `BPI_MW_BuildSnapProvider`
 - snap points can use Scene Components/sockets for exact transform plus Query-Only Box Collision or equivalent lightweight acquisition volumes
 - snap point Box Extent defines usable acquisition area; keep component scale at 1 where practical
-- snap points carry stable Snap Point IDs and compatibility metadata such as `Build.Snap.Foundation`, `Build.Snap.Wall`, `Build.Snap.Roof`, `Build.Snap.Door`, `Build.Snap.Utility.Power`
+- snap points carry stable Snap Point IDs and compatibility metadata such as `Build.Snap.Foundation`, `Build.Snap.Floor`, `Build.Snap.Floor.Support`, `Build.Snap.Wall.Top`, `Build.Snap.Wall`, `Build.Snap.Roof`, `Build.Snap.Door`, `Build.Snap.Utility.Power`
 - Buildable Definitions declare snap types they accept and provide
 - Build Component queries the hit/relevant structure through the interface, filters compatible/available points and scores/selects the best candidate
 - no class-specific Foundation -> Floor -> Wall cast chain
@@ -574,6 +581,25 @@ For the prototype, a small Data Table can be loaded/cached into an array. At sca
 
 Detailed canonical design: `Docs/Doors_Windows_Openings_Construction_System.md`.
 
+**Flooring & multi-story upgrade:**
+
+- canonical floor family `Build.Family.Floor`
+- floors are real walkable structural pieces with gameplay collision separate from Query-Only snap acquisition volumes
+- floors can snap to foundations, compatible floor edges and supported upper-story positions
+- walls/support structures can expose top support points such as `Build.Snap.Floor.Support`
+- an upper floor can expose fresh wall-edge/floor-edge snap points so a second story can continue upward
+- floor snap candidates use stable Snap Point IDs, exact transforms and data/tag compatibility through `BPI_MW_BuildSnapProvider`
+- tutorial-style `FloorTrace` may be used as a prototype/query filter if useful, but the scalable architecture uses a small general query set plus tags/IDs rather than one permanent channel per floor type
+- floor Box Collision/extents are tuned per kit for acquisition/alignment; no one magic extent value defines correctness
+- upper-floor placement validates structural support, occupancy, collision, property height/air rights, zoning/story restrictions, parcel build/performance budget, Builder/permit requirements and resources
+- obvious unsupported floating floors are rejected
+- duplicate floors in the same occupied structural slot are rejected
+- floor definitions may later include stair/ladder/elevator/utility openings
+- multi-story support/snap relationships are persisted and restored on save/load
+- full multi-story placement must work with keyboard/mouse, Xbox-style controller and PlayStation-style controller
+
+Detailed canonical design: `Docs/Flooring_Multi_Story_Structural_Construction_System.md`.
+
 **Placement validation integrates with the whole Metaworld:**
 
 - property/deed/build-volume rights
@@ -584,13 +610,14 @@ Detailed canonical design: `Docs/Doors_Windows_Openings_Construction_System.md`.
 - GrimKoin/fees where applicable
 - snap compatibility and occupancy
 - opening/attachment-slot compatibility and occupancy where applicable
+- floor/support compatibility and occupancy where applicable
 - variant compatibility
 - variant-specific collision/overlap
 - obstruction bounds
 - terrain/slope
-- foundation/support
+- foundation/support chain
 - height/air-right/subsurface restrictions
-- zoning/utility restrictions where configured
+- zoning/story/utility restrictions where configured
 - parcel performance/build budget
 
 **Multiplayer authority / `SpawnBuild`:**
@@ -598,16 +625,17 @@ Detailed canonical design: `Docs/Doors_Windows_Openings_Construction_System.md`.
 - client owns responsive ghost preview
 - structural placement confirm sends `SelectedBuildableID/VariantID + candidate transform + optional ParentStructureID + SnapPointID`
 - opening installation sends selected Door/Window Buildable ID + Parent Structure ID + Opening/Attachment Slot ID + candidate transform
+- upper-floor placement references authoritative parent/support Structure ID + Snap Point ID rather than trusting raw Z height alone
 - server resolves the authoritative Buildable/Variant Definition independently
 - server resolves the authoritative parent Structure, Snap Point or Opening/Attachment Slot when used
 - server re-validates the final requested transform and all rules
-- client `CanBuild`, Actor Class, mesh, cost, resource requirements, snap/opening compatibility and occupancy are never authoritative
+- client `CanBuild`, Actor Class, mesh, cost, resource requirements, snap/opening/floor-support compatibility and occupancy are never authoritative
 - resources/payment are consumed only after authoritative validation succeeds
 - successful placement receives persistent Structure/Object ID, Family/Variant state, owner/property links, support/snap/opening relationships and world state
 
-**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; snap/opening queries target the hit/relevant structure; heavy buildable assets can use soft references/category loading; wall/door/window variants share common logic; moving door logic runs only while needed; permanent structures participate in World Partition/HLOD/relevancy systems.
+**Performance:** preview uses one temporary low-cost ghost; updates use timers/events rather than unnecessary unconditional Tick; targeted traces/overlaps replace broad world scans; snap/opening/floor-support queries target the hit/relevant structure; heavy buildable assets can use soft references/category loading; wall/door/window/floor variants share common logic; structural support recalculation runs on meaningful build/damage events rather than every frame; moving door logic runs only while needed; permanent structures participate in World Partition/HLOD/relevancy systems.
 
-**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, standard/door-opening/window-opening walls, separate placeable doors/windows attached to persistent opening slots, multiple opening sizes/styles, door locks/keys/access permissions, security/reinforced doors/windows, breakable windows, build catalog favorites/recently used, snap/opening occupancy/reservation, snap-point scoring, snap-tag debugger, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
+**Approved upgrades:** foundations/support graphs, walls/floors/roofs/stairs, multi-story floor/support system, standard/door-opening/window-opening walls, separate placeable doors/windows attached to persistent opening slots, multiple opening sizes/styles, door locks/keys/access permissions, security/reinforced doors/windows, breakable windows, floor stair/ladder/elevator openings, beams/columns later, build catalog favorites/recently used, snap/opening/floor occupancy/reservation, snap-point scoring, snap-tag debugger, house-plan presets, copy/rotate/mirror tools, staged construction, construction contracts, Builder companies, inspections, wiring, plumbing, HVAC, structural damage, renovation, repair, demolition/salvage, utility hookups, city/public construction contracts and property construction history.
 
 Detailed canonical construction design: `Docs/Modular_Blueprint_Base_Building_System.md`.
 
@@ -844,7 +872,7 @@ Player police have in-world legal authority only — not platform moderation pow
 
 Destruction must obey physics/performance budgets.
 
-Door/window destruction later uses the separate persistent object state rather than requiring the entire wall to be replaced.
+Door/window destruction later uses the separate persistent object state rather than requiring the entire wall to be replaced. Structural support damage can later invalidate upper-floor support where configured.
 
 ## Phase 37 — Player Needs & Survival
 
@@ -1041,7 +1069,7 @@ NPC workers/leaders can receive the same role-duty categories as players, resolv
 - emergency reactions
 - same world capability rules as players wherever practical
 
-NPCs should understand usable doors/openings through normal navigation/interaction systems rather than construction-only snap collision.
+NPCs should understand usable doors/openings and multi-story access through normal navigation/interaction systems rather than construction-only snap collision.
 
 ## Phase 54 — NPC Population LOD
 
@@ -1093,6 +1121,7 @@ Examples:
 - storm -> utility repair + police traffic control + mayor emergency decisions + supply deliveries
 - food shortage -> farmer/driver/grocer contracts + leadership response + news coverage
 - damaged/breached property -> Builder/security/police/insurance duties where relevant
+- damaged structural support -> Builder/inspection/evacuation duties where relevant
 - war -> military/security duties + medical response + diplomacy + logistics + refugee aid
 
 ## Phase 58 — Zombies & Threat Systems
@@ -1107,7 +1136,7 @@ Doors/windows can later be breached/damaged according to their real durability/s
 
 Server authority governs money, inventory, combat outcomes, death, ownership, property, construction placement, evidence, tax, jobs, businesses, vehicles, votes, leadership rank, career rank, role-duty completion/rewards, household state, and other critical state.
 
-Construction placement requests use stable Buildable/Variant IDs; the server resolves authoritative Actor Class, mesh/variant, cost, resource, snapping, opening/attachment and permission data rather than trusting client values.
+Construction placement requests use stable Buildable/Variant IDs; the server resolves authoritative Actor Class, mesh/variant, cost, resource, snapping, opening/attachment, structural support and permission data rather than trusting client values.
 
 ## Phase 60 — Replication Scaling
 
@@ -1116,6 +1145,8 @@ Use relevancy/dormancy/update-rate reduction/compact state so clients do not rec
 Construction ghosts remain local/transient unless a deliberate cooperative-build feature requires sharing preview state; permanent structures replicate/stream through normal world relevancy.
 
 Door/window state replication should transmit meaningful state changes rather than require continuous full-rate updates while idle.
+
+Multi-story support relationships replicate as compact structural state where needed, not as per-frame simulations.
 
 Role-duty UI receives only duties relevant to the player/organization/jurisdiction rather than global task spam.
 
@@ -1131,7 +1162,9 @@ Food, family, NPC hunger, elections, role-duty checks and rank checks must be ev
 
 Construction placement updates run only during build mode, use targeted traces/overlaps, and stop immediately when build mode exits. Large build catalogs use lightweight indexes/soft references/category caching rather than loading every heavy construction asset at once.
 
-Construction snap/opening detection asks only the hit/relevant structure for filtered compatible points/slots; it never scans the whole world every placement update. Related wall/door/window variants share common logic/data rather than multiplying placement Blueprints.
+Construction snap/opening/floor-support detection asks only the hit/relevant structure for filtered compatible points/slots; it never scans the whole world every placement update. Related wall/door/window/floor variants share common logic/data rather than multiplying placement Blueprints.
+
+Structural support validation occurs on meaningful build/demolition/damage events rather than continuous per-frame graph evaluation.
 
 Idle doors/windows do not run unnecessary permanent Tick logic; movement/interaction updates occur only when required.
 
@@ -1169,7 +1202,7 @@ Construction ghost/preview materials and the full library of buildable materials
 
 UI for inventory, character creator, map, banks, jobs, professions, skills, businesses, property, construction/build catalogs, household/pantry needs, team provisioning, communications, news, police tools, elections/candidates/voting, career rank, role duties/responsibilities, creator systems, AI-media libraries and other game domains.
 
-Construction UI can include categories, families/variants, Door/Window categories, opening compatibility, search/filter, favorites/recently used, thumbnails, material/resource costs, profession/permit requirements, snap compatibility, rotate/snap controls, placement failure reason and cancel/confirm controls.
+Construction UI can include categories, families/variants, Door/Window categories, Floor/Story categories, opening/support compatibility, search/filter, favorites/recently used, thumbnails, material/resource costs, profession/permit requirements, snap compatibility, rotate/snap controls, placement failure reason and cancel/confirm controls.
 
 All major required menus must have controller focus/navigation paths; mouse-only critical controls are not acceptable.
 
@@ -1197,6 +1230,7 @@ All major required menus must have controller focus/navigation paths; mouse-only
 - rebindable construction controls rather than a mandatory `B` key
 - next/previous construction and family/variant cycling are rebindable and also accessible through catalog UI
 - Door/Window installation and interaction has controller-equivalent select/target/confirm/cancel/open/close/lock actions where applicable
+- upper-floor/multi-story targeting, support selection, rotate, confirm and cancel have controller-equivalent paths
 
 **Acceptance gate:** every major player-facing feature is tested with keyboard/mouse, an Xbox-style gamepad and a PlayStation-style gamepad. A feature is not complete if required gameplay cannot be completed through a supported controller path.
 
@@ -1214,13 +1248,16 @@ Required stress tests include:
 - role-duty director generating simultaneous legitimate duties across multiple professions
 - large household/companion base with food consumption and schedules
 - restaurant/grocery supply scene with many NPC consumers
-- active construction site with catalog cycling, wall variant cycling, door/window opening installation, ghost preview, interface snap detection, foundation/floor wall-edge snap boxes, repeated modular pieces and many nearby finished structures
+- active construction site with catalog cycling, wall variant cycling, door/window opening installation, floor/upper-story placement, ghost preview, interface snap detection, repeated modular pieces and many nearby finished structures
+- multi-story stress structure with multiple supported floors and wall levels
+- unsupported/duplicate/out-of-air-right floor rejection tests
 - large construction catalog selection stress test without loading every heavy asset
 - full construction flow tested with keyboard/mouse, Xbox-style controller and PlayStation-style controller
 - controller navigation through character creator, inventory, build catalog, bank and job/role-duty UI
 - wall collision/navigation test with Standard, DoorOpening and WindowOpening variants
 - install/remove/replace door and window tests with opening occupancy/obstruction validation
 - repeated door open/close interaction without idle Tick cost explosion
+- save/load test of multi-story support relationships
 - war/combat/destruction scene
 - dense property with many owned items
 - creator marketplace/business district
@@ -1261,7 +1298,7 @@ Future expansion: vehicle, property, business, health and cargo insurance. Insur
 
 Construction/property insurance may later recognize inspected structures, code compliance, security, utilities and damage history.
 
-Damaged/breached doors and windows can later participate in legitimate property insurance/repair claims if that system is implemented.
+Damaged/breached doors and windows and structural floor/support damage can later participate in legitimate property insurance/repair claims if that system is implemented.
 
 ## Phase 75 — Tourism & Entertainment
 
@@ -1322,7 +1359,7 @@ Current development only preserves the ledger/provenance architecture needed so 
 | Family | Spouse/household needs + pantry/budget responsibility |
 | AI/NPC companions | Hunger + provisioning/rations/wages; AI does not remove physical needs |
 | Property | 3D parcels + utilities + real-calendar bills |
-| Construction | Modular `BPC_MW_BuildComponent` + Data Table/Data Asset catalog + stable Buildable/Family/Variant IDs + quick cycling/catalog UI + `BPI_MW_BuildSnapProvider` + query-only snap volumes + Standard/DoorOpening/WindowOpening wall family + separate persistent Door/Window families installed into authoritative opening slots + pivot/orientation standards + obstruction/occupancy validation + controller controls + timer ghost preview + property/profession/resource validation + server-authoritative persistent placement |
+| Construction | Modular `BPC_MW_BuildComponent` + Data Table/Data Asset catalog + stable Buildable/Family/Variant IDs + quick cycling/catalog UI + `BPI_MW_BuildSnapProvider` + query-only snap volumes + Standard/DoorOpening/WindowOpening wall family + separate persistent Door/Window families installed into authoritative opening slots + structural Floor family + supported multi-story stacking + air-right/height validation + persistent support graph + controller controls + timer ghost preview + property/profession/resource validation + server-authoritative persistent placement |
 | Business | Employees + payroll + food where applicable + tax + tips + advertising + operational duties |
 | Vehicles | Cargo + ownership + theft + maintenance + damage + controller driving |
 | Social | Spatial voice + text + living social venues |
@@ -1361,12 +1398,14 @@ Recommended vertical slice contains:
 - stable Buildable/Family/Variant IDs
 - next/previous cycling through Foundation -> Floor -> Wall with wrap-around
 - Wall family cycling through Standard -> DoorOpening -> WindowOpening
-- selection/variant change refreshes ghost mesh, collision/opening preview and placement rules
+- Floor family with a structural Standard floor and reserved future opening variant path
+- selection/variant change refreshes ghost mesh, collision/opening/support preview and placement rules
 - camera-based placement trace with data-driven range
 - timer-driven green/red ghost preview
 - `BPI_MW_BuildSnapProvider` implemented by Foundation/Floor/Wall pieces where appropriate
 - Query-Only Box Collision or equivalent snap acquisition volumes with stable Snap Point IDs
 - foundation/floor North/East/South/West wall-edge snap points
+- wall top/structural support points compatible with upper floors
 - snap metadata proving all compatible wall variants use the same `Build.Snap.Wall` edge contract
 - interface-driven snap detection on the hit/relevant structure
 - invalid/occupied snap combination rejection
@@ -1381,14 +1420,20 @@ Recommended vertical slice contains:
 - obstruction validation prevents a Door/Window from being installed inside wall geometry/another object
 - installed Door receives its own persistent ID and can open/close correctly
 - installed Window receives its own persistent ID
-- save/load restores wall + Opening ID + installed Door/Window + relationship/state
-- unauthorized player cannot replace/remove installed Door/Window
+- upper Floor snaps correctly to valid wall/support points at second-story height
+- unsupported floating Floor is rejected
+- duplicate Floor in the same structural slot is rejected
+- upper Floor outside property vertical build volume/air rights is rejected
+- second-story walls can snap to the successfully placed upper Floor
+- upper Floor is walkable with correct gameplay collision
 - snap query volumes do not block player movement
+- save/load restores wall + Opening ID + installed Door/Window + upper Floor + support/snap relationships/state
+- unauthorized player cannot replace/remove installed Door/Window or structural Floor
 - grid rotation/snap
-- property-boundary permission rejection
+- property-boundary and property-height permission rejection
 - Builder qualification check for structural piece/installation where required
-- material/GrimKoin cost validation per wall/Door/Window variant
-- server resolves Buildable/Variant ID + Parent Structure ID + Snap/Openings IDs rather than trusting client Actor Class/mesh/cost/snap state
+- material/GrimKoin cost validation per wall/Door/Window/Floor variant
+- server resolves Buildable/Variant ID + Parent Structure ID + Snap/Opening IDs rather than trusting client Actor Class/mesh/cost/raw height/snap state
 - server-authoritative final placement and persistent Structure/Object ID state
 - complete construction flow tested with keyboard/mouse
 - complete construction flow tested with Xbox-style controller
@@ -1491,8 +1536,9 @@ Rules for intake:
 11. Prefer shared family/variant/data architecture over duplicated Blueprint logic when related content differs mainly by configuration or structural variant.
 12. Keep structural openings separate from installed functional objects when that separation improves replacement, damage, security, ownership or persistence.
 13. Do not turn tutorial-specific collision values or one-off trace channels into universal architecture unless profiling/testing proves they belong there.
-14. Mark experimental Unreal features as research/evaluation until proven suitable.
-15. Keep the roadmap current so it can always answer: what is approved, what comes later, and what still needs research.
+14. Multi-story structural pieces must participate in support, property-volume, occupancy, persistence and server-authority rules rather than treating vertical placement as free Z-axis movement.
+15. Mark experimental Unreal features as research/evaluation until proven suitable.
+16. Keep the roadmap current so it can always answer: what is approved, what comes later, and what still needs research.
 
 ---
 
@@ -1511,6 +1557,7 @@ The Master Roadmap is supported by detailed companion designs in `Docs/`, includ
 - `Doors_Windows_Openings_Construction_System.md`
 - `Earth_Property_Vehicles_Media_News.md`
 - `Estate_Wills_Inheritance_Succession.md`
+- `Flooring_Multi_Story_Structural_Construction_System.md`
 - `Food_Family_NPC_Needs_Community_Ranks_Governance.md`
 - `Free_To_Play_Economy_Media_Business_Threat_Model.md`
 - `Living_World_Environment_NPC_AI.md`
@@ -1532,5 +1579,7 @@ For controller/input compatibility, `Controller_Input_Compatibility_Architecture
 For construction/base-building, `Modular_Blueprint_Base_Building_System.md` is the detailed canonical companion design and supersedes generic older construction wording when additional detail is required, including wall-family variants, wall-edge snapping, variant-specific collision/openings and future door/window attachment slots.
 
 For installed doors/windows/opening attachment behavior, `Doors_Windows_Openings_Construction_System.md` is the detailed canonical companion design. Door/window objects remain separate persistent buildables attached to structural openings.
+
+For flooring, vertical stacking, upper-story support, floor collision and multi-story persistence, `Flooring_Multi_Story_Structural_Construction_System.md` is the detailed canonical companion design.
 
 For global playable roleplay rank placement, `World_Rank_Hierarchy_Roleplay_Authority.md` is the detailed canonical companion design. There is no Owner/Creator gameplay rank; King/Sovereign Queen is the highest player-held rank and President is directly below it.
