@@ -204,7 +204,147 @@ Inside a vendor context, UI shows the authoritative buy/sell quote and actual cu
 
 ---
 
-# Current Modern RPG Additions From Episodes 28–32
+# Episode 33 — Crafting Materials: Wood, Iron & Leather
+
+**Classification:** UPGRADE — APPROVED CONTENT / ITEM-DNA FOUNDATION.
+
+**Phase Ownership:** Phase 9 Item DNA + Phase 11 Inventory + Crafting/Professions/Economy.
+
+Detailed companion:
+
+`Docs/Crafting_Recipes_Materials_Production_System.md`
+
+## Approved Tutorial Intent
+
+- create physical world resources such as wood, iron and leather;
+- author appropriate mesh scale, materials and simple collision;
+- generate inventory icons;
+- register resource items in data-driven item catalog data;
+- ensure stacking/tooltips/descriptions continue working after catalog expansion.
+
+## Metaworld Upgrades
+
+- wood/iron/leather are normal persistent `ItemDefinitionID` / `ItemInstanceID` resources, not a second craft-only counter system;
+- material resources can carry mass, quantity, quality/grade, owner/possessor, provenance, theft/evidence state, value and physical presentation;
+- stable material/category Gameplay Tags allow recipes to request exact definitions or approved substitutions;
+- one recolored mesh does not define gameplay material truth—the Item Definition owns actual material/capability data;
+- current UE5.8 content acquisition uses Fab/Megascans rather than treating deprecated Quixel Bridge as the future dependency;
+- icons use the cached editor icon-generation pipeline already approved;
+- ordinary material items remain usable for trading, storage, transport, construction and other systems, not only crafting.
+
+### Episode 33 Principle
+
+> Crafting materials are real items in the same persistent world economy, not abstract recipe numbers hidden behind the crafting screen.
+
+---
+
+# Episode 34 — Struct Breakage / Widget Data Contract Refactor
+
+**Classification:** UPGRADE — APPROVED ARCHITECTURE CLEANUP.
+
+**Phase Ownership:** Phase 67 UI + Item/Inventory/Equipment data contracts.
+
+Detailed companion:
+
+`Docs/RPG_Interface_Shell_Widget_Data_Contracts_Navigation_System.md`
+
+## Approved Tutorial Intent
+
+- avoid passing an oversized Item Info struct into every widget when the widget only needs a few fields;
+- notifications should receive only the information they display;
+- options/tooltips need reliable access to the selected item after gameplay structs evolve;
+- UI data flow should be refactored when schema changes reveal excessive coupling.
+
+## Metaworld Upgrades
+
+- widgets receive stable IDs and purpose-built presentation snapshots rather than entire mutable authoritative gameplay structs by default;
+- notification payloads contain only message-relevant data such as name/icon/quantity/category;
+- `InventoryIndex` is not stable item identity and is rejected as the only target of a delayed context action;
+- item options prefer `ItemInstanceID + SourceContainerID` and re-resolve current location when the action executes;
+- tooltip accepts ItemInstanceID + viewing/context information and receives an authorized presentation snapshot;
+- tooltip does not grow a giant `Switch` that directly reads Inventory, Equipment, Vendor, Loot, Crafting, Vehicle and every future storage array;
+- schema/struct evolution is handled through stable contracts, validation and migration rather than endless manual widget pin repairs.
+
+### Episode 34 Principle
+
+> Widgets should point to stable item truth, not carry fragile copies or array positions that become wrong as the game changes.
+
+---
+
+# Episode 35 — Player Interface Navigation Tabs
+
+**Classification:** UPGRADE — APPROVED UI SHELL.
+
+**Phase Ownership:** Phase 67 UI + Phase 68 Controller/Accessibility.
+
+Detailed companion:
+
+`Docs/RPG_Interface_Shell_Widget_Data_Contracts_Navigation_System.md`
+
+## Approved Tutorial Intent
+
+- create one player-facing interface shell hosting multiple panels;
+- switch between Inventory, Crafting, Skills and Stats;
+- use a Widget Switcher-style single-active-panel layout;
+- style selected/unselected tab controls clearly.
+
+## Metaworld Upgrades
+
+- conceptual `W_MW_PlayerInterface` owns local interface navigation only, not gameplay state;
+- tabs use stable Tab IDs/registry data instead of scattering magic `ActiveWidgetIndex` integers throughout Blueprint graphs;
+- UMG WidgetSwitcher is the approved baseline implementation;
+- Common UI remains an optional validated upgrade for tab lists, input routing, controller navigation and platform prompts;
+- mouse, keyboard, Xbox-style and PlayStation-style users all have full tab-switch/navigation support;
+- bumpers/shoulders may cycle tabs through Enhanced Input where designed;
+- active-tab status is not communicated by color alone;
+- heavy hidden tabs stop/reduce preview/capture/event work and can be lazy-created where useful;
+- tab switching preserves/restores predictable focus.
+
+### Episode 35 Principle
+
+> One interface shell can organize Metaworld's character systems, but each tab remains a presentation surface over its own authoritative gameplay system.
+
+---
+
+# Episode 36 — Crafting Recipe Categories & Browser
+
+**Classification:** UPGRADE — APPROVED / NEW CRAFTING DOMAIN.
+
+**Phase Ownership:** Crafting + Professions + Inventory + Item DNA + Phase 67/68 UI.
+
+Detailed companion:
+
+`Docs/Crafting_Recipes_Materials_Production_System.md`
+
+## Approved Tutorial Intent
+
+- recipes are data-driven entries rather than handwritten button logic;
+- recipe UI can group entries into expandable categories;
+- players can browse recipe requirements in a scrollable interface;
+- reusable recipe-entry widgets are appropriate;
+- Data Table Row Handles are useful authoring references.
+
+## Metaworld Upgrades
+
+- stable `RecipeDefinitionID` is the canonical recipe identity; Row Handle is an authoring reference only;
+- categories use data-driven tags rather than a permanent Armor/Weapons/Other Switch;
+- recipe definitions can specify outputs, ingredient definitions/tags, quantities, substitutions, tools, workstation, profession/skill, knowledge/unlock, time/work, utilities/fuel, legality and output-quality rules;
+- crafting can consume from approved accessible carried/workstation/property/company containers rather than a single Player Blueprint array;
+- UI displays material availability and missing reasons but never consumes ingredients or creates outputs itself;
+- `RequestCraft` is server-authoritative and atomically reserves/consumes inputs and creates the legitimate persistent output ItemInstance(s);
+- two players cannot spend the same final material stack simultaneously;
+- long-running crafting uses jobs/timestamps/work units rather than permanent Tick;
+- output can retain creator/crafter provenance and quality derived from recipe, inputs, tools/workstation and skill where designed;
+- recipe browser supports search/filter/craftable-now/favorites/workstation/profession categories as scale grows;
+- full keyboard/mouse, Xbox-style and PlayStation-style crafting navigation is required.
+
+### Episode 36 Principle
+
+> The recipe browser helps the player choose a production action. The server-authoritative crafting system owns ingredients, work, outputs and persistence.
+
+---
+
+# Current Modern RPG Additions From Episodes 28–36
 
 `Equipment ItemInstance`
 -> `Source-aware Stat Modifiers`
@@ -223,6 +363,17 @@ Inside a vendor context, UI shows the authoritative buy/sell quote and actual cu
 -> `Authoritative Quote`
 -> `GrimKoin/PromoKoin transaction`
 -> `Tooltip/receipt presentation`
+
+`Persistent Material ItemInstances`
+-> `RecipeDefinitionID`
+-> `Server ingredient reservation/consumption`
+-> `Crafting work/station/profession rules`
+-> `Persistent crafted output ItemInstance`
+
+`Stable UI IDs / presentation snapshots`
+-> `W_MW_PlayerInterface`
+-> `Inventory / Crafting / Skills / Stats tabs`
+-> `Controller-complete navigation`
 
 ---
 
