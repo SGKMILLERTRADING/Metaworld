@@ -20,6 +20,7 @@ All permanent rules from Parts 1-3 remain active, including:
 - Chaos/Geometry Collection fracture hierarchy remains separate from Metaworld's cross-buildable relationship graph.
 - Event Ledger facts and public News are separate layers; server truth must not automatically leak into public in-world knowledge.
 - stable frame time takes priority over spectacle or excessive simulation.
+- Metaworld is **not** being migrated to another Unreal project; migration-focused playlist episodes are mined for dependency, QA, recovery and architecture lessons only.
 
 ---
 
@@ -131,6 +132,46 @@ Approved:
 # Smart News Principle
 
 > Metaworld News is a living society's editorial layer, not a dump of every server event. Private ordinary changes stay private; verified events rise into news when their public impact, scale, safety, economy, politics, culture, crime or historical importance makes them worth reporting.
+
+---
+
+## Episode 19 — Project Migration Tutorial / Construction Dependency Health Check
+
+**Classification:** RESEARCH / TOOLING UPGRADE — APPROVED.
+
+**Explicit scope:** Metaworld is **not being migrated** to another project. This episode is included because it is part of the playlist and exposes useful hidden-dependency failure modes.
+
+Detailed companion:
+
+`Docs/Construction_System_Dependency_Health_Check_Standard.md`
+
+Approved lessons:
+
+- construction dependencies must be explicit, versioned, documented and auditable rather than remembered as manual editor setup
+- plugin/engine-feature requirements belong in a dependency manifest and health-check workflow
+- tutorial APEX Destruction dependency is not adopted for new Metaworld content; Episode 16's Chaos/Geometry Collection direction remains canonical
+- project-level collision/query settings must be reproducible and validated; Metaworld does not return to one global trace channel per Foundation/Wall/Door/Window/Floor family
+- canonical small general Build Placement/Obstruction and Snap/Acquisition query families remain in force, with semantic compatibility determined through IDs/tags/data
+- simple collision, placement footprints, opening/snap query volumes, stage collision and destroyed/breached collision are audited explicitly
+- `Refresh All Nodes` is retained as a useful Blueprint recovery/debug step after dependency/signature changes but is not treated as architecture or proof of correctness
+- recovery sequence includes dependency repair -> Refresh Nodes -> compile -> inspect warnings -> verify parent/interface contracts -> run construction smoke test
+- tutorial character-graph copying is rejected as permanent architecture; `BP_MW_Character_Master` hosts reusable `BPC_MW_BuildComponent` / interaction components and Enhanced Input contexts instead
+- input conflicts with inventory/combat are handled through contextual Enhanced Input ownership/priority rather than copied physical-key graphs
+- construction health checks verify keyboard/mouse, Xbox-style and PlayStation-style mappings for all required build actions
+- HUD/widgets should consume stable construction state through explicit UI contracts/view models/events/interfaces rather than directly binding to fragile internal Character variables
+- asset/material/reference audits cover ghost materials, valid/blocked preview, construction-stage presentation, final material restoration, destruction presentation and broken/overly-heavy references
+- inheritance/interface audits verify expected `BP_MW_Buildable_Master` parentage, required parent calls, component/interface contracts, absence of duplicate legacy graphs and absence of accidental idle Tick
+- stable Buildable/Family/Variant/Prefab/Open/Snap/Relationship IDs are validated; mesh identity alone is never authoritative gameplay identity
+- persistence compatibility must be checked after architecture/data changes; a Blueprint compiling does not prove old construction state/saves still restore correctly
+- approved Editor-side tooling concept: `MW Construction Health Check`, implemented over time with Python and/or Editor Utility Blueprints
+- health-check categories can include plugins/features, Blueprint architecture, data IDs, collision/query profiles, footprints, support samples, openings/snaps, input/controller coverage, UI dependencies, Nanite status, damage/Chaos references, persistence schema and performance warnings
+- tooling can flag already-rejected legacy patterns such as APEX for new content, one trace channel per family, Visibility as universal obstruction truth, BuildChildren-only relationships, synthetic child-kill cascades, all structures permanently Movable, hardcoded Q/E/1/right-click input, giant Character graphs, giant Build Master graphs, idle Tick and client-authoritative world state
+- maintain a repeatable construction smoke-test map/suite covering build mode, selection, rotation, overlap, terrain support, snapping, upper floors, Door installation/runtime interaction, save/load, relocation, demolition, damage, hierarchical support reevaluation, prefab placement and controller paths
+- portability is treated as architecture quality even though the project is not moving: clear boundaries make debugging, engine upgrades, creator requirements and future refactors safer
+
+### Construction Dependency Principle
+
+> Metaworld stays in its project. The lesson from migration tooling is dependency discipline: every construction feature should declare what it needs, validate those requirements automatically where practical, and fail with clear diagnostics instead of hidden editor-state assumptions.
 
 ---
 
