@@ -24,6 +24,7 @@ All permanent rules from Part 1 remain active, including:
 - construction removal is an authorized transaction, never a universal delete command.
 - relocation is an authorized construction transaction, never unrestricted transform editing.
 - permanent structural pieces should remain in the most efficient appropriate settled mobility/rendering state wherever practical; relocation uses a temporary movable ghost rather than forcing all finished structure components to remain engine-Movable.
+- visual mesh merging/optimization never erases authoritative logical construction data needed for openings, supports, utilities, ownership, damage, renovation, persistence or server validation.
 
 ---
 
@@ -124,11 +125,57 @@ Approved:
 
 Detailed companion: `Docs/Construction_Relocation_Move_System.md`
 
+## Episode Upgrade 14 — Prefab / Pre-Built House Construction
+
+**Classification:** UPGRADE — APPROVED
+
+Approved:
+
+- players can choose modular piece-by-piece construction or a pre-designed prefab/full-house buildable
+- prefab construction is convenience/design choice, not a bypass around property, zoning, Builder, permit, resource, support, construction-work, persistence or multiplayer rules
+- tutorial merged-house mesh is retained as an optional visual/editor optimization, not the full gameplay truth
+- a prefab uses a stable authoritative Prefab/Buildable Definition with placement footprint, support samples, construction recipe, openings, utilities, damage/renovation metadata, relocation policy and persistence version
+- visual representation may use one merged shell, several optimized shell meshes, Nanite-compatible geometry where appropriate, HLOD/streamed representations and a simpler placement ghost
+- logical representation keeps Structure/Prefab Instance ID, owner/property, support relationships, openings, installed objects, utilities, damage/condition zones, construction progress, attachments and history
+- rendering may be merged while gameplay remains logically structured
+- not every decorative wall/piece needs its own Actor; lightweight substructure records are preferred where independent Actor behavior is unnecessary
+- interactive/replaceable elements such as doors, windows, utility/security devices and appropriate appliances can remain separate persistent objects
+- tutorial "select bottom-front mesh first for pivot" remains a quick authoring trick but is not a permanent asset rule
+- every prefab has a deliberate canonical origin/pivot, forward axis, base elevation and authored local transforms
+- Python Editor tools can audit prefab pivots/origins, footprints, support samples, opening slots, collision and heavy references
+- Prefab Definition is registered in the scalable Build Catalog using stable IDs rather than requiring a unique hardcoded selection graph
+- prefab ghost reuses normal rotation/orientation, placement-footprint, overlap, property, support, blocked-reason and controller systems
+- large/irregular prefabs can use multiple authoritative placement-footprint volumes instead of one raw merged-mesh bounds box
+- prefab terrain support uses authored `SupportSamplePoints[]`; larger/irregular homes can sample corners, centers, bearing lines, porch/garage wings and other required locations
+- required footing/pier/foundation-extension previews, costs and Construction Work Units come from the existing terrain-support system
+- prefab cannot float merely because it is visually one mesh
+- Door/Window snap boxes are upgraded into stable authoritative Opening/Attachment Slot IDs with transform, dimensions, facing, compatibility tags, occupancy and installed Object ID
+- Query-Only Box Collision or equivalent volumes may make opening slots easier to target but are not the authoritative compatibility rule
+- no permanent new trace channel per Door/Window/prefab attachment category; general query profiles plus IDs/tags/data remain canonical
+- installed doors/windows stay separate persistent objects and use the existing opening/interaction systems
+- standalone prefab does not need dense modular snap points everywhere, but it may expose authored expansion/add-on slots for decks, porches, garages, stairs/ramps, utilities, awnings, solar/battery equipment, balconies or future compatible extensions
+- player-placed prefab can create a persistent Construction Site and progress through stages instead of spawning instantly complete
+- prefab construction recipe can include site/permit, support/foundation, shell/frame, floors/roof, walls/openings, utilities, doors/windows, finishes and inspection/completion stages
+- prefab cannot bypass material/resource or Builder labor requirements because it is one catalog entry
+- prefab construction can generate Builder/company/supplier/delivery/electrician/plumber/inspection work
+- prefab may expose stable utility service points; structural completion does not automatically provide electricity/water/service without valid Phase 21 connections
+- prefab damage/renovation can use logical sections/zones so one damaged wall/roof area does not automatically require treating the whole visual shell as one indivisible health bar
+- normal completed houses are not freely draggable; relocation follows the existing relocation policy, utility disconnection, machinery, combined footprint/support and authoritative child-relationship rules
+- small portable prefab/modules may explicitly permit grouped relocation
+- demolition resolves prefab root, logical substructure, openings, installed doors/windows, utilities, support relationships and persistence atomically
+- server independently resolves Prefab ID, footprint, support requirements/extensions, recipe/cost, opening slots and legal placement before creating the prefab site/instance
+- modified clients cannot substitute a cheaper prefab, shrink footprint, omit supports, invent openings, claim completion or bypass property/work requirements
+- save/load restores prefab ID/version, transform, owner/property, construction progress, support/extensions, openings, installed objects, utilities, damage/condition and attachments
+- prefab construction/placement/opening workflows must work with keyboard/mouse, Xbox-style controllers and PlayStation-style controllers
+- performance rules: low-cost ghost, Nanite where compatible, optimized shell meshes where beneficial, no Actor per decorative sub-piece, no idle placement/snap Tick, World Partition/HLOD/relevancy integration
+
+Detailed companion: `Docs/Prefab_PreBuilt_House_Construction_System.md`
+
 ---
 
 # Current Phase 20 Construction Stack — Continued
 
-`Build Catalog / Selection`
+`Build Catalog / Selection / Prefab Plans`
 
 `-> Ghost Placement / Rotation / Orientation`
 
@@ -140,6 +187,8 @@ Detailed companion: `Docs/Construction_Relocation_Move_System.md`
 
 `-> Foundation / Floor / Wall Snap Architecture`
 
+`-> Modular Build OR Prefab Logical Structure`
+
 `-> Wall Families & Structural Openings`
 
 `-> Door / Window Installation`
@@ -148,7 +197,7 @@ Detailed companion: `Docs/Construction_Relocation_Move_System.md`
 
 `-> Persistent Construction Site / Work Stages`
 
-`-> Completed Structure`
+`-> Completed Structure / Prefab Shell + Logical World Data`
 
 `-> Interactive Door / Window Runtime`
 
@@ -169,6 +218,12 @@ Detailed companion: `Docs/Construction_Relocation_Move_System.md`
 # Relocation Principle
 
 > Metaworld lets players reorganize property without turning construction into unrestricted transform editing. Lightweight placed objects may move directly when authorized; installed and structural pieces respect attachments, support, utilities, property, labor and persistence. The client previews the destination, but the server commits the relocation transaction.
+
+---
+
+# Prefab Principle
+
+> A pre-built house is a convenient construction plan, not a dumb giant prop. Metaworld may merge visual geometry for performance, but the authoritative prefab instance still knows its footprint, supports, construction recipe, openings, installed objects, utilities, ownership, damage/renovation zones and persistent relationships.
 
 ---
 
