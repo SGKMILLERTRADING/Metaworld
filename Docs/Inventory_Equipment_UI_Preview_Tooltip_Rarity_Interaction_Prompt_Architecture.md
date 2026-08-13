@@ -18,6 +18,8 @@ Related systems:
 - `Docs/Equipment_Armor_Weapon_Attachment_Avatar_Fitting_Architecture.md`
 - `Docs/Playable_MetaHuman_Modular_Character_Assembly_Architecture.md`
 - `Docs/Controller_Input_Compatibility_Architecture.md`
+- `Docs/Stats_Attributes_Item_Modifiers_Encumbrance_System.md`
+- `Docs/Item_Valuation_Vendor_Pricing_Trade_System.md`
 
 ---
 
@@ -283,7 +285,124 @@ UI reads only state the local player is authorized to know.
 
 ---
 
-# 7. Acceptance Tests
+# 7. Character Stats Panel
+
+A character stat panel inside the inventory/character UI is approved.
+
+The panel consumes an event-driven presentation snapshot from the Stats/Attributes system and other relevant dedicated systems.
+
+Possible initial rows:
+
+- Health Current / Max
+- Mana Current / Max
+- Stamina Current / Max
+- Damage / active weapon profile summary
+- Attack Speed
+- Armor / protection summary
+- Carry Load / Carry Capacity
+- Encumbrance state
+
+Do not hardcode every stat into permanent one-off widget logic. Use Stat Definition presentation metadata for:
+
+- label;
+- icon;
+- category/order;
+- units;
+- decimal precision;
+- Resource (`Current / Max`) vs Scalar display;
+- tooltip/help text.
+
+Examples:
+
+- `Health 82 / 120`
+- `Armor 46`
+- `Attack Speed 1.15 /s`
+- `Carry Load 31.4 / 42 kg`
+
+The UI updates when the underlying stat/equipment/resource changes and when the panel opens. It does not poll the full character state every frame.
+
+Icons may have tooltips, but controller/keyboard focus must expose the same label/details as mouse hover.
+
+---
+
+# 8. Event-Driven UMG Update Rule
+
+Modern RPG Episode 30 reinforces a canonical performance rule already used across Metaworld UI:
+
+> Complex inventory/equipment UI should prefer event-driven updates over raw bound attributes that are evaluated continuously.
+
+Approved pattern:
+
+`Item/Equipment/Stat/Rarity state changes`
+-> dispatch/change event
+-> update only affected widget fields
+
+Examples:
+
+- icon set when entry data changes;
+- rarity frame set when ItemDefinition/RarityProfile changes;
+- quantity text set on stack delta;
+- equipped placeholder visibility changes on slot state event;
+- tooltip rebuilds on focused ItemInstance change;
+- character stat rows update on `OnStatsChanged`.
+
+Construction/OnInitialized may populate static initial state, but runtime values that can change after creation must also have explicit update events.
+
+Do not treat `Construct once` as sufficient for mutable gameplay state.
+
+---
+
+# 9. Inventory / Equipment Visual Design System
+
+The tutorial's frames, rounded borders, radial gradients, spacing and empty-slot placeholders are approved as presentation ideas.
+
+Metaworld rules:
+
+- visual styling comes from reusable style assets/widgets/material instances rather than duplicated hardcoded values across every slot;
+- inventory and equipment should share spacing, typography and rarity language while still making equipment slots visually distinct;
+- empty equipment slots may show semantic placeholders/icons such as Head, Main Hand, Feet, etc.;
+- placeholder hides when the slot contains an item and returns when empty;
+- style must remain legible across supported UI scale/resolution/accessibility settings;
+- hover styling must have equivalent controller focus styling;
+- gradients/material effects are budgeted and do not obscure item icons or rarity/status cues;
+- Z-order/layers must keep buttons/focus targets usable around the character preview.
+
+Rarity text/color continues to come from the centralized Rarity Presentation profile rather than a new widget binding/function.
+
+---
+
+# 10. Tooltip Description & Value Presentation
+
+Item Definitions may provide localized `ShortDescription` / `LongDescription` presentation text.
+
+Tooltip behavior:
+
+- show description when present;
+- collapse the description region cleanly when empty;
+- support multi-line/wrapped text;
+- keep instance-specific state (condition, creator, modifications, provenance, legal status) separate from static definition description.
+
+Item economy display follows `Docs/Item_Valuation_Vendor_Pricing_Trade_System.md`.
+
+Outside an active shop/vendor context, a tooltip may show a neutral value such as:
+
+- Reference Value
+- Estimated Value
+- Appraised Value
+
+During a vendor transaction, show the authoritative quote:
+
+- price player pays;
+- amount vendor offers;
+- currency type (GrimKoin/PromoKoin);
+- taxes/fees where relevant;
+- unavailable/not-for-sale reason.
+
+Do not label one static Data Table `SellPrice` as the guaranteed sell amount everywhere in Metaworld.
+
+---
+
+# 11. Acceptance Tests
 
 1. Inventory opens without globally pausing multiplayer.
 2. Character preview shows current avatar and armor without duplicating gameplay inventory/equipment.
@@ -301,7 +420,15 @@ UI reads only state the local player is authorized to know.
 14. Opening/closing detail overlays restores focus correctly.
 15. Invalid/unauthorized interaction can display a reason but still fails server validation.
 16. UI state survives large inventories without warning spam or frame-time spikes.
+17. Character stat panel distinguishes Resource Current/Max from Scalar values.
+18. Attack Speed and other decimals preserve configured precision rather than forced integer conversion.
+19. Equipping/unequipping refreshes only affected stat/UI state through events.
+20. Inventory/equipment entry icon/rarity/visibility state does not require raw per-frame property binding.
+21. Controller focus receives the same stat/tooltips/options as mouse hover/right-click.
+22. Empty equipment placeholders hide/show correctly from slot state.
+23. Empty description collapses without leaving layout gaps.
+24. Tooltip uses GrimKoin/PromoKoin and displays vendor quote vs reference value correctly.
 
 ## Core Rule
 
-> Metaworld's RPG UI can be rich and informative, but it remains a lightweight, controller-complete presentation layer over persistent authoritative character, item, equipment and interaction systems.
+> Metaworld's RPG UI can be rich and polished, but it remains a lightweight, event-driven, controller-complete presentation layer over persistent authoritative character, item, equipment, stat, economy and interaction systems.
